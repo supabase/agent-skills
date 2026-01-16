@@ -31,6 +31,4 @@ SELECT * FROM users WHERE email = 'user@example.com' AND deleted_at IS NULL;
 
 [Optional: Additional context, edge cases, or trade-offs]
 
-**Supabase Note:** [Optional platform-specific guidance, e.g., "Use Dashboard > Database > Indexes to monitor index usage"]
-
 Reference: [PostgreSQL Docs](https://www.postgresql.org/docs/current/)

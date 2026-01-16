@@ -1,6 +1,7 @@
 # Writing Guidelines for PostgreSQL Rules
 
-This document provides guidelines for creating effective PostgreSQL best practice rules that work well with AI agents and LLMs.
+This document provides guidelines for creating effective PostgreSQL best
+practice rules that work well with AI agents and LLMs.
 
 ## Key Principles
 
@@ -8,31 +9,31 @@ This document provides guidelines for creating effective PostgreSQL best practic
 
 Show exact SQL rewrites. Avoid philosophical advice.
 
-**Good:** "Use `WHERE id = ANY(ARRAY[...])` instead of `WHERE id IN (SELECT ...)`"
-**Bad:** "Design good schemas"
+**Good:** "Use `WHERE id = ANY(ARRAY[...])` instead of
+`WHERE id IN (SELECT ...)`" **Bad:** "Design good schemas"
 
 ### 2. Error-First Structure
 
-Always show the problematic pattern first, then the solution. This trains agents to recognize anti-patterns.
+Always show the problematic pattern first, then the solution. This trains agents
+to recognize anti-patterns.
 
 ```markdown
-**Incorrect (sequential queries):**
-[bad example]
+**Incorrect (sequential queries):** [bad example]
 
-**Correct (batched query):**
-[good example]
+**Correct (batched query):** [good example]
 ```
 
 ### 3. Quantified Impact
 
 Include specific metrics. Helps agents prioritize fixes.
 
-**Good:** "10x faster queries", "50% smaller index", "Eliminates N+1"
-**Bad:** "Faster", "Better", "More efficient"
+**Good:** "10x faster queries", "50% smaller index", "Eliminates N+1" **Bad:**
+"Faster", "Better", "More efficient"
 
 ### 4. Self-Contained Examples
 
-Examples should be complete and runnable (or close to it). Include CREATE TABLE if context is needed.
+Examples should be complete and runnable (or close to it). Include CREATE TABLE
+if context is needed.
 
 ```sql
 -- Include table definition when needed for clarity
@@ -50,8 +51,8 @@ CREATE INDEX users_active_email_idx ON users(email) WHERE deleted_at IS NULL;
 
 Use meaningful table/column names. Names carry intent for LLMs.
 
-**Good:** `users`, `email`, `created_at`, `is_active`
-**Bad:** `table1`, `col1`, `field`, `flag`
+**Good:** `users`, `email`, `created_at`, `is_active` **Bad:** `table1`, `col1`,
+`field`, `flag`
 
 ---
 
@@ -71,7 +72,7 @@ CREATE INDEX CONCURRENTLY USERS_EMAIL_IDX ON USERS(EMAIL) WHERE DELETED_AT IS NU
 
 ### Comments
 
-- Explain *why*, not *what*
+- Explain _why_, not _what_
 - Highlight performance implications
 - Point out common pitfalls
 
@@ -91,6 +92,7 @@ CREATE INDEX CONCURRENTLY USERS_EMAIL_IDX ON USERS(EMAIL) WHERE DELETED_AT IS NU
 Most rules should focus on pure SQL patterns. This keeps examples portable.
 
 **Include Application Code When:**
+
 - Connection pooling configuration
 - Transaction management in application context
 - ORM anti-patterns (N+1 in Prisma/TypeORM)
@@ -98,22 +100,27 @@ Most rules should focus on pure SQL patterns. This keeps examples portable.
 
 **Format for Mixed Examples:**
 
-```markdown
+````markdown
 **Incorrect (N+1 in application):**
 
 ```typescript
 for (const user of users) {
-  const posts = await db.query('SELECT * FROM posts WHERE user_id = $1', [user.id])
+  const posts = await db.query("SELECT * FROM posts WHERE user_id = $1", [
+    user.id,
+  ]);
 }
 ```
+````
 
 **Correct (batch query):**
 
 ```typescript
-const posts = await db.query('SELECT * FROM posts WHERE user_id = ANY($1)', [userIds])
-```
+const posts = await db.query("SELECT * FROM posts WHERE user_id = ANY($1)", [
+  userIds,
+]);
 ```
 
+````
 ---
 
 ## Impact Level Guidelines
@@ -140,23 +147,27 @@ const posts = await db.query('SELECT * FROM posts WHERE user_id = ANY($1)', [use
 **Format:**
 ```markdown
 **Supabase Note:** The Dashboard > Database > Indexes page shows index usage statistics.
-```
+````
 
-**Balance:** ~10% of content should be Supabase-specific. Core rules should work on any PostgreSQL.
+**Balance:** ~10% of content should be Supabase-specific. Core rules should work
+on any PostgreSQL.
 
 ---
 
 ## Reference Standards
 
 **Primary Sources:**
+
 - Official PostgreSQL documentation
 - Supabase documentation
 - PostgreSQL wiki
 - Established blogs (2ndQuadrant, Crunchy Data)
 
 **Format:**
+
 ```markdown
-Reference: [PostgreSQL Indexes](https://www.postgresql.org/docs/current/indexes.html)
+Reference:
+[PostgreSQL Indexes](https://www.postgresql.org/docs/current/indexes.html)
 ```
 
 ---
@@ -172,7 +183,7 @@ Before submitting a rule:
 - [ ] Has at least 1 **Incorrect** SQL example
 - [ ] Has at least 1 **Correct** SQL example
 - [ ] SQL uses semantic naming
-- [ ] Comments explain *why*, not *what*
+- [ ] Comments explain _why_, not _what_
 - [ ] Trade-offs mentioned if applicable
 - [ ] Reference links included
 - [ ] `npm run validate` passes

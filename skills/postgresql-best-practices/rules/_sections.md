@@ -1,6 +1,8 @@
 # Section Definitions
 
-This file defines the 8 rule categories for PostgreSQL best practices. Rules are automatically assigned to sections based on their filename prefix.
+This file defines the rule categories for PostgreSQL best practices. Rules are automatically assigned to sections based on their filename prefix.
+
+Take the examples below as pure demonstrative. Replace each section with the actual rule categories for PostgreSQL best practices.
 
 ---
 
