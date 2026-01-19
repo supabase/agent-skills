@@ -12,7 +12,7 @@ Primary key choice affects insert performance, index size, and replication effic
 **Incorrect (problematic PK choices):**
 
 ```sql
--- serial is deprecated, use identity instead
+-- identity is the SQL-standard approach
 create table users (
   id serial primary key  -- Deprecated syntax
 );
