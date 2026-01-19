@@ -1341,12 +1341,13 @@ Full-text search, JSONB optimization, PostGIS, extensions, and advanced Postgres
 
 **Impact: LOW-MEDIUM (2-5x improvement by avoiding unnecessary materialization)**
 
-CTEs (WITH clauses) are materialized by default in Postgres 11 and earlier, which can prevent optimization.
+CTEs (WITH clauses) are materialized by default, which can prevent optimization
+when the CTE is only used once.
 
-**Incorrect (CTE forces materialization):**
+**Incorrect (CTE forces materialization unnecessarily):**
 
 ```sql
--- Postgres 11 and earlier: CTE always materializes
+-- CTE materializes the entire result set before filtering
 with active_users as (
   select * from users where active = true
 )
@@ -1356,10 +1357,10 @@ select * from active_users where id = 123;
 -- Index on users(id) is NOT used!
 ```
 
-**Correct (inline or use NOT MATERIALIZED):**
+**Correct (use NOT MATERIALIZED to allow inlining):**
 
 ```sql
--- Postgres 12+: prevent materialization
+-- Prevent materialization to allow query optimizer to inline the CTE
 with active_users as not materialized (
   select * from users where active = true
 )
@@ -1382,8 +1383,7 @@ select * from expensive_calc where total < 100;
 ```
 
 When to use MATERIALIZED:
-
-Reference: https://www.postgresql.org/docs/current/queries-with.html
+[WITH Queries](https://www.postgresql.org/docs/current/queries-with.html)
 
 ---
 
