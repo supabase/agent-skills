@@ -7,12 +7,12 @@ tags: cte, materialization, with, optimization
 
 ## Control CTE Materialization for Performance
 
-CTEs (WITH clauses) are materialized by default in PostgreSQL 11 and earlier, which can prevent optimization.
+CTEs (WITH clauses) are materialized by default in Postgres 11 and earlier, which can prevent optimization.
 
 **Incorrect (CTE forces materialization):**
 
 ```sql
--- PostgreSQL 11 and earlier: CTE always materializes
+-- Postgres 11 and earlier: CTE always materializes
 with active_users as (
   select * from users where active = true
 )
@@ -25,7 +25,7 @@ select * from active_users where id = 123;
 **Correct (inline or use NOT MATERIALIZED):**
 
 ```sql
--- PostgreSQL 12+: prevent materialization
+-- Postgres 12+: prevent materialization
 with active_users as not materialized (
   select * from users where active = true
 )

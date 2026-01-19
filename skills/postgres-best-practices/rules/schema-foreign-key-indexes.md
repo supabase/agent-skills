@@ -7,7 +7,7 @@ tags: foreign-key, indexes, joins, schema
 
 ## Index Foreign Key Columns
 
-PostgreSQL does not automatically index foreign key columns. Missing indexes cause slow JOINs and CASCADE operations.
+Postgres does not automatically index foreign key columns. Missing indexes cause slow JOINs and CASCADE operations.
 
 **Incorrect (unindexed foreign key):**
 

@@ -7,7 +7,7 @@ tags: connection-pooling, pgbouncer, performance, scalability
 
 ## Use Connection Pooling for All Applications
 
-PostgreSQL connections are expensive (1-3MB RAM each). Without pooling, applications exhaust connections under load.
+Postgres connections are expensive (1-3MB RAM each). Without pooling, applications exhaust connections under load.
 
 **Incorrect (new connection per request):**
 
