@@ -34,6 +34,7 @@ Comprehensive PostgreSQL performance optimization guide for developers using Sup
    - 3.2 [Index Foreign Key Columns](#32-index-foreign-key-columns)
    - 3.3 [Partition Large Tables for Better Performance](#33-partition-large-tables-for-better-performance)
    - 3.4 [Select Optimal Primary Key Strategy](#34-select-optimal-primary-key-strategy)
+   - 3.5 [Use CHECK Constraints for Data Validation](#35-use-check-constraints-for-data-validation)
 
 4. [Concurrency & Locking](#concurrency-locking) - **MEDIUM-HIGH**
    - 4.1 [Keep Transactions Short to Reduce Lock Contention](#41-keep-transactions-short-to-reduce-lock-contention)
@@ -58,9 +59,8 @@ Comprehensive PostgreSQL performance optimization guide for developers using Sup
    - 7.3 [Use EXPLAIN ANALYZE to Diagnose Slow Queries](#73-use-explain-analyze-to-diagnose-slow-queries)
 
 8. [Advanced Features](#advanced-features) - **LOW**
-   - 8.1 [Control CTE Materialization for Performance](#81-control-cte-materialization-for-performance)
-   - 8.2 [Index JSONB Columns for Efficient Querying](#82-index-jsonb-columns-for-efficient-querying)
-   - 8.3 [Use tsvector for Full-Text Search](#83-use-tsvector-for-full-text-search)
+   - 8.1 [Index JSONB Columns for Efficient Querying](#81-index-jsonb-columns-for-efficient-querying)
+   - 8.2 [Use tsvector for Full-Text Search](#82-use-tsvector-for-full-text-search)
 
 ---
 
@@ -633,6 +633,55 @@ Guidelines:
 - Avoid random UUIDs (v4) as primary keys on large tables (causes index
   fragmentation)
 [Identity Columns](https://www.postgresql.org/docs/current/sql-createtable.html#SQL-CREATETABLE-PARMS-GENERATED-IDENTITY)
+
+---
+
+### 3.5 Use CHECK Constraints for Data Validation
+
+**Impact: MEDIUM (Prevent invalid data at the database level, reduce application bugs)**
+
+Application-level validation can be bypassed. CHECK constraints enforce data integrity at the database level, catching bugs early and keeping data clean. Check constraints are optional and should complement, not replace, application validation.
+
+**Incorrect (no database-level validation):**
+
+```sql
+create table products (
+  id bigint primary key,
+  name text,
+  price numeric,
+  quantity int,
+  status text,
+  discount_percent numeric
+);
+
+-- Invalid data can slip through
+insert into products values (1, '', -10, -5, 'bogus', 150);
+-- Empty name, negative price, negative quantity, invalid status, 150% discount
+```
+
+**Correct (CHECK constraints enforce rules):**
+
+```sql
+create table products (
+  id bigint primary key,
+  name text not null check (length(name) > 0),
+  price numeric not null check (price >= 0),
+  quantity int not null check (quantity >= 0),
+  status text not null check (status in ('draft', 'active', 'archived')),
+  discount_percent numeric check (discount_percent between 0 and 100)
+);
+
+-- Database rejects invalid data immediately
+insert into products values (1, '', -10, -5, 'bogus', 150);
+-- ERROR: new row violates check constraint
+alter table orders
+  add constraint orders_total_positive check (total >= 0),
+  add constraint orders_valid_status check (status in ('pending', 'paid', 'shipped'));
+```
+
+Named constraints for clearer error messages:
+
+Reference: https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-CHECK-CONSTRAINTS
 
 ---
 
@@ -1337,57 +1386,7 @@ Reference: https://supabase.com/docs/guides/database/inspect
 
 Full-text search, JSONB optimization, PostGIS, extensions, and advanced Postgres features.
 
-### 8.1 Control CTE Materialization for Performance
-
-**Impact: LOW-MEDIUM (2-5x improvement by avoiding unnecessary materialization)**
-
-CTEs (WITH clauses) are materialized by default, which can prevent optimization
-when the CTE is only used once.
-
-**Incorrect (CTE forces materialization unnecessarily):**
-
-```sql
--- CTE materializes the entire result set before filtering
-with active_users as (
-  select * from users where active = true
-)
-select * from active_users where id = 123;
-
--- Scans ALL active users, then filters for id=123
--- Index on users(id) is NOT used!
-```
-
-**Correct (use NOT MATERIALIZED to allow inlining):**
-
-```sql
--- Prevent materialization to allow query optimizer to inline the CTE
-with active_users as not materialized (
-  select * from users where active = true
-)
-select * from active_users where id = 123;
--- Now uses index on users(id)
-
--- Or just use a subquery for single-use cases
-select * from (
-  select * from users where active = true
-) as active_users
-where id = 123;
--- Force materialization when CTE is used multiple times
-with expensive_calc as materialized (
-  select user_id, sum(amount) as total from orders group by user_id
-)
-select * from expensive_calc where total > 1000
-union all
-select * from expensive_calc where total < 100;
--- Calculation runs once, not twice
-```
-
-When to use MATERIALIZED:
-[WITH Queries](https://www.postgresql.org/docs/current/queries-with.html)
-
----
-
-### 8.2 Index JSONB Columns for Efficient Querying
+### 8.1 Index JSONB Columns for Efficient Querying
 
 **Impact: MEDIUM (10-100x faster JSONB queries with proper indexing)**
 
@@ -1431,7 +1430,7 @@ Reference: https://www.postgresql.org/docs/current/datatype-json.html#JSON-INDEX
 
 ---
 
-### 8.3 Use tsvector for Full-Text Search
+### 8.2 Use tsvector for Full-Text Search
 
 **Impact: MEDIUM (100x faster than LIKE, with ranking support)**
 
