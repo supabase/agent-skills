@@ -34,7 +34,7 @@ Comprehensive PostgreSQL performance optimization guide for developers using Sup
    - 3.2 [Index Foreign Key Columns](#32-index-foreign-key-columns)
    - 3.3 [Partition Large Tables for Better Performance](#33-partition-large-tables-for-better-performance)
    - 3.4 [Select Optimal Primary Key Strategy](#34-select-optimal-primary-key-strategy)
-   - 3.5 [Use CHECK Constraints for Data Validation](#35-use-check-constraints-for-data-validation)
+   - 3.5 [Use Lowercase Identifiers for Compatibility](#35-use-lowercase-identifiers-for-compatibility)
 
 4. [Concurrency & Locking](#concurrency-locking) - **MEDIUM-HIGH**
    - 4.1 [Keep Transactions Short to Reduce Lock Contention](#41-keep-transactions-short-to-reduce-lock-contention)
@@ -636,52 +636,53 @@ Guidelines:
 
 ---
 
-### 3.5 Use CHECK Constraints for Data Validation
+### 3.5 Use Lowercase Identifiers for Compatibility
 
-**Impact: MEDIUM (Prevent invalid data at the database level, reduce application bugs)**
+**Impact: MEDIUM (Avoid case-sensitivity bugs with tools, ORMs, and AI assistants)**
 
-Application-level validation can be bypassed. CHECK constraints enforce data integrity at the database level, catching bugs early and keeping data clean. Check constraints are optional and should complement, not replace, application validation.
+PostgreSQL folds unquoted identifiers to lowercase. Quoted mixed-case identifiers require quotes forever and cause issues with tools, ORMs, and AI assistants that may not recognize them.
 
-**Incorrect (no database-level validation):**
-
-```sql
-create table products (
-  id bigint primary key,
-  name text,
-  price numeric,
-  quantity int,
-  status text,
-  discount_percent numeric
-);
-
--- Invalid data can slip through
-insert into products values (1, '', -10, -5, 'bogus', 150);
--- Empty name, negative price, negative quantity, invalid status, 150% discount
-```
-
-**Correct (CHECK constraints enforce rules):**
+**Incorrect (mixed-case identifiers):**
 
 ```sql
-create table products (
-  id bigint primary key,
-  name text not null check (length(name) > 0),
-  price numeric not null check (price >= 0),
-  quantity int not null check (quantity >= 0),
-  status text not null check (status in ('draft', 'active', 'archived')),
-  discount_percent numeric check (discount_percent between 0 and 100)
+-- Quoted identifiers preserve case but require quotes everywhere
+CREATE TABLE "Users" (
+  "userId" bigint PRIMARY KEY,
+  "firstName" text,
+  "lastName" text
 );
 
--- Database rejects invalid data immediately
-insert into products values (1, '', -10, -5, 'bogus', 150);
--- ERROR: new row violates check constraint
-alter table orders
-  add constraint orders_total_positive check (total >= 0),
-  add constraint orders_valid_status check (status in ('pending', 'paid', 'shipped'));
+-- Must always quote or queries fail
+SELECT "firstName" FROM "Users" WHERE "userId" = 1;
+
+-- This fails - Users becomes users without quotes
+SELECT firstName FROM Users;
+-- ERROR: relation "users" does not exist
 ```
 
-Named constraints for clearer error messages:
+**Correct (lowercase snake_case):**
 
-Reference: https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-CHECK-CONSTRAINTS
+```sql
+-- Unquoted lowercase identifiers are portable and tool-friendly
+CREATE TABLE users (
+  user_id bigint PRIMARY KEY,
+  first_name text,
+  last_name text
+);
+
+-- Works without quotes, recognized by all tools
+SELECT first_name FROM users WHERE user_id = 1;
+-- ORMs often generate quoted camelCase - configure them to use snake_case
+-- Migrations from other databases may preserve original casing
+-- Some GUI tools quote identifiers by default - disable this
+
+-- If stuck with mixed-case, create views as a compatibility layer
+CREATE VIEW users AS SELECT "userId" AS user_id, "firstName" AS first_name FROM "Users";
+```
+
+Common sources of mixed-case identifiers:
+
+Reference: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
 
 ---
 
