@@ -1,6 +1,7 @@
 # Postgres Best Practices - Contributor Guide
 
-This repository contains Postgres performance optimization rules optimized for AI agents and LLMs.
+This repository contains Postgres performance optimization rules optimized for
+AI agents and LLMs.
 
 ## Quick Start
 
@@ -67,7 +68,7 @@ packages/postgres-best-practices-build/
 
 See `rules/_template.md` for the complete template. Key elements:
 
-```markdown
+````markdown
 ---
 title: Clear, Action-Oriented Title
 impact: CRITICAL|HIGH|MEDIUM-HIGH|MEDIUM|LOW-MEDIUM|LOW
@@ -85,6 +86,7 @@ tags: relevant, keywords
 -- Comment explaining what's wrong
 [Bad SQL example]
 ```
+````
 
 **Correct (description):**
 
@@ -93,11 +95,7 @@ tags: relevant, keywords
 [Good SQL example]
 ```
 
-**Supabase Note:** [Optional platform-specific guidance]
-
-Reference: [Link](url)
 ```
-
 ## Writing Guidelines
 
 See `rules/_contributing.md` for detailed guidelines. Key principles:
@@ -118,11 +116,4 @@ See `rules/_contributing.md` for detailed guidelines. Key principles:
 | MEDIUM | 1.5-3x | Redundant indexes, stale statistics |
 | LOW-MEDIUM | 1.2-2x | VACUUM tuning, config tweaks |
 | LOW | Incremental | Advanced patterns, edge cases |
-
-## Supabase-Specific Content
-
-Keep ~90% of content as universal Postgres patterns. Add Supabase notes for:
-- Supavisor connection pooling
-- Dashboard features (index monitoring, query stats)
-- RLS best practices with Supabase auth
-- PostgREST considerations
+```

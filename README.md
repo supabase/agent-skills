@@ -1,8 +1,9 @@
 # Supabase Agent Skills
 
-Battle-tested database expertise from Supabase, packaged as AI agent skills.
-These skills provide AI coding agents with proven patterns for building and
-optimizing production Postgres applications.
+Agents skills to help you develope with Supabase. These skills provide AI coding
+agents like Claude Code, Cursor, Github Copilot, etc... with specialized
+instructions for building and optimizing production Postgres and Supabase
+applications.
 
 Skills follow the [Agent Skills](https://agentskills.io/) format.
 
