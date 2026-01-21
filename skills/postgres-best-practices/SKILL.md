@@ -4,7 +4,7 @@ description: Postgres performance optimization and best practices from Supabase.
 license: MIT
 metadata:
   author: supabase
-  version: "0.1.0"
+  version: "1.0.0"
 ---
 
 # Supabase Postgres Best Practices

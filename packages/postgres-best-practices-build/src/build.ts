@@ -57,7 +57,7 @@ function getDefaultSections(): Section[] {
 function loadMetadata(): Metadata {
   if (!existsSync(METADATA_FILE)) {
     return {
-      version: "0.1.0",
+      version: "1.0.0",
       organization: "Supabase",
       date: new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" }),
       abstract: "Postgres performance optimization guide for developers.",
