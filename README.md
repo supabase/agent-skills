@@ -5,6 +5,21 @@ and scripts that extend agent capabilities.
 
 Skills follow the [Agent Skills](https://agentskills.io/) format.
 
+## Installation
+
+```bash
+npx skills add supabase/agent-skills
+```
+
+### Claude Code Plugin
+
+You can also install the skills in this repo as Claude Code plugins
+
+```bash
+/plugin marketplace add supabase/agent-skills
+/plugin install postgres-best-practices@supabase-agent-skills
+```
+
 ## Available Skills
 
 ### postgres-best-practices
@@ -30,12 +45,6 @@ across 8 categories, prioritized by impact.
 - Data Access Patterns (Medium)
 - Monitoring & Diagnostics (Low-Medium)
 - Advanced Features (Low)
-
-## Installation
-
-```bash
-npx skills add supabase/agent-skills
-```
 
 ## Usage
 
