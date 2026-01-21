@@ -31,6 +31,12 @@ across 8 categories, prioritized by impact.
 - Monitoring & Diagnostics (Low-Medium)
 - Advanced Features (Low)
 
+## Installation
+
+```bash
+npx skills add supabase/agent-skills
+```
+
 ## Usage
 
 Skills are automatically available once installed. The agent will use them when
