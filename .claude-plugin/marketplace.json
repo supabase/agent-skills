@@ -1,11 +1,11 @@
 {
-  "name": "supabase-postgres",
+  "name": "supabase-plugins",
   "owner": {
     "name": "Supabase",
     "email": "support@supabase.io"
   },
   "metadata": {
-    "description": "Postgres best practices and performance optimization skills from Supabase",
+    "description": "Official Supabase agent skills for Claude Code",
     "version": "1.0.0"
   },
   "plugins": [
