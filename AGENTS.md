@@ -9,6 +9,12 @@ A collection of Postgres best practices skills for Claude.ai and Claude Code,
 maintained by Supabase. Skills are packaged instructions that extend agent
 capabilities for database optimization.
 
+## Installation
+
+```bash
+npx skills add supabase/agent-skills
+```
+
 ## Creating a New Rule
 
 ### Directory Structure
@@ -118,7 +124,3 @@ npm run build     # Generate AGENTS.md
 | `monitor-`  | Monitoring & Diagnostics | 7 (LOW-MEDIUM)  |
 | `advanced-` | Advanced Features        | 8 (LOW)         |
 
-### End-User Installation
-
-**claude.ai:** Add the skill to project knowledge or paste SKILL.md contents
-into the conversation.
