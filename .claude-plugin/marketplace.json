@@ -1,8 +1,7 @@
 {
   "name": "supabase-plugins",
   "owner": {
-    "name": "Supabase",
-    "email": "support@supabase.io"
+    "name": "Supabase"
   },
   "metadata": {
     "description": "Official Supabase agent skills for Claude Code",
@@ -15,9 +14,8 @@
       "description": "Postgres performance optimization and best practices. Use when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations.",
       "version": "1.0.0",
       "author": {
-        "name": "Supabase PostgreSQL Team"
+        "name": "Supabase"
       },
-      "homepage": "https://supabase.com/docs/guides/database",
       "repository": "https://github.com/supabase/agent-skills",
       "license": "MIT",
       "keywords": [
