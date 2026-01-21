@@ -1,0 +1,37 @@
+{
+  "name": "supabase-postgres",
+  "owner": {
+    "name": "Supabase",
+    "email": "support@supabase.io"
+  },
+  "metadata": {
+    "description": "Postgres best practices and performance optimization skills from Supabase",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "postgres-best-practices",
+      "source": "./skills/postgres-best-practices",
+      "description": "Postgres performance optimization and best practices. Use when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Supabase PostgreSQL Team"
+      },
+      "homepage": "https://supabase.com/docs/guides/database",
+      "repository": "https://github.com/supabase/agent-skills",
+      "license": "MIT",
+      "keywords": [
+        "postgres",
+        "postgresql",
+        "database",
+        "sql",
+        "performance",
+        "optimization",
+        "supabase",
+        "rls",
+        "indexing"
+      ],
+      "category": "database"
+    }
+  ]
+}
