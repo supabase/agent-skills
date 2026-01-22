@@ -55,6 +55,34 @@ across 8 categories, prioritized by impact.
 
 </details>
 
+<details>
+<summary><strong>postgrest-best-practices</strong></summary>
+
+PostgREST API best practices for Supabase. Contains rules across 9 categories covering query syntax, filtering operators, resource embedding, mutations, RPC calls, and performance optimization.
+
+**Use when:**
+
+- Using supabase-js or any Supabase client library
+- Writing PostgREST or Supabase API queries
+- Using filtering operators and logical combinations
+- Implementing resource embedding for related data
+- Performing mutations (INSERT, UPDATE, DELETE, UPSERT)
+- Calling stored functions via RPC
+
+**Categories covered:**
+
+- Query Filtering (Critical)
+- Resource Embedding (Critical)
+- Column Selection (High)
+- Data Mutations (High)
+- Functions/RPC (Medium-High)
+- Pagination & Ordering (Medium-High)
+- Response Handling (Medium)
+- Authentication (Medium)
+- Performance (Low-Medium)
+
+</details>
+
 ## Usage
 
 Skills are automatically available once installed. The agent will use them when
@@ -72,6 +100,14 @@ Review my schema for performance issues
 
 ```
 Help me add proper indexes to this table
+```
+
+```
+How do I filter by multiple conditions in supabase-js?
+```
+
+```
+Show me how to embed related data in a single query
 ```
 
 ## Skill Structure
