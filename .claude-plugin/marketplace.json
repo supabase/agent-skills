@@ -15,6 +15,13 @@
 			"source": "./",
 			"strict": false,
 			"skills": ["./skills/postgres-best-practices"]
+		},
+		{
+			"name": "postgrest-best-practices",
+			"description": "PostgREST API usage patterns and best practices. Use when writing, reviewing, or optimizing PostgREST queries, resource embedding, filtering, mutations, or RPC calls.",
+			"source": "./",
+			"strict": false,
+			"skills": ["./skills/postgrest-best-practices"]
 		}
 	]
 }
