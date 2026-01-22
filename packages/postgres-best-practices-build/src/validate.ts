@@ -1,5 +1,6 @@
 import { readdirSync } from "node:fs";
 import { basename, join } from "node:path";
+import { generateSectionMap, parseSections } from "./build.js";
 import { IMPACT_LEVELS, RULES_DIR } from "./config.js";
 import { parseRuleFile } from "./parser.js";
 import type { ValidationResult } from "./types.js";
@@ -34,11 +35,20 @@ function isGoodExample(label: string): boolean {
 /**
  * Validate a single rule file
  */
-export function validateRuleFile(filePath: string): ValidationResult {
+export function validateRuleFile(
+	filePath: string,
+	sectionMap?: Record<string, number>,
+): ValidationResult {
 	const errors: string[] = [];
 	const warnings: string[] = [];
 
-	const result = parseRuleFile(filePath);
+	// Generate section map if not provided
+	if (!sectionMap) {
+		const sections = parseSections();
+		sectionMap = generateSectionMap(sections);
+	}
+
+	const result = parseRuleFile(filePath, sectionMap);
 
 	// Add parser errors and warnings
 	errors.push(...result.errors);

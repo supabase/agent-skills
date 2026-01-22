@@ -89,6 +89,12 @@ npm run validate  # Check rule format
 npm run build     # Generate AGENTS.md
 ```
 
+**Automatic Section Ordering**: The build system automatically reads section order
+from `_sections.md`. To reorder sections (e.g., promoting Security from MEDIUM-HIGH
+to CRITICAL priority), simply edit the section numbers in `_sections.md` and
+rebuild. The section mapping is generated dynamically, so manual updates to
+`config.ts` are no longer needed.
+
 ### Impact Levels
 
 | Level       | Improvement | Examples                               |

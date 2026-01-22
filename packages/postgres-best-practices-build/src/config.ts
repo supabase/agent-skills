@@ -20,14 +20,17 @@ export const RULES_DIR = join(SKILL_DIR, "rules");
 export const AGENTS_OUTPUT = join(SKILL_DIR, "AGENTS.md");
 export const METADATA_FILE = join(SKILL_DIR, "metadata.json");
 
-// Section prefix to number mapping
+// Section prefix to number mapping (DEPRECATED)
+// This is kept as a fallback, but the build system now generates
+// the section map dynamically from _sections.md.
+// To reorder sections, simply change the order in _sections.md.
 export const SECTION_MAP: Record<string, number> = {
 	query: 1,
 	conn: 2,
 	connection: 2,
-	schema: 3,
-	lock: 4,
-	security: 5,
+	security: 3,
+	schema: 4,
+	lock: 5,
 	data: 6,
 	monitor: 7,
 	advanced: 8,

@@ -30,22 +30,22 @@ Comprehensive Postgres performance optimization guide for developers using Supab
    - 2.4 [Use Prepared Statements Correctly with Pooling](#24-use-prepared-statements-correctly-with-pooling)
 
 3. [Security & RLS](#security-rls) - **CRITICAL**
-   - 3.1 [Choose Appropriate Data Types](#31-choose-appropriate-data-types)
-   - 3.2 [Index Foreign Key Columns](#32-index-foreign-key-columns)
-   - 3.3 [Partition Large Tables for Better Performance](#33-partition-large-tables-for-better-performance)
-   - 3.4 [Select Optimal Primary Key Strategy](#34-select-optimal-primary-key-strategy)
-   - 3.5 [Use Lowercase Identifiers for Compatibility](#35-use-lowercase-identifiers-for-compatibility)
+   - 3.1 [Apply Principle of Least Privilege](#31-apply-principle-of-least-privilege)
+   - 3.2 [Enable Row Level Security for Multi-Tenant Data](#32-enable-row-level-security-for-multi-tenant-data)
+   - 3.3 [Optimize RLS Policies for Performance](#33-optimize-rls-policies-for-performance)
 
 4. [Schema Design](#schema-design) - **HIGH**
-   - 4.1 [Keep Transactions Short to Reduce Lock Contention](#41-keep-transactions-short-to-reduce-lock-contention)
-   - 4.2 [Prevent Deadlocks with Consistent Lock Ordering](#42-prevent-deadlocks-with-consistent-lock-ordering)
-   - 4.3 [Use Advisory Locks for Application-Level Locking](#43-use-advisory-locks-for-application-level-locking)
-   - 4.4 [Use SKIP LOCKED for Non-Blocking Queue Processing](#44-use-skip-locked-for-non-blocking-queue-processing)
+   - 4.1 [Choose Appropriate Data Types](#41-choose-appropriate-data-types)
+   - 4.2 [Index Foreign Key Columns](#42-index-foreign-key-columns)
+   - 4.3 [Partition Large Tables for Better Performance](#43-partition-large-tables-for-better-performance)
+   - 4.4 [Select Optimal Primary Key Strategy](#44-select-optimal-primary-key-strategy)
+   - 4.5 [Use Lowercase Identifiers for Compatibility](#45-use-lowercase-identifiers-for-compatibility)
 
 5. [Concurrency & Locking](#concurrency-locking) - **MEDIUM-HIGH**
-   - 5.1 [Apply Principle of Least Privilege](#51-apply-principle-of-least-privilege)
-   - 5.2 [Enable Row Level Security for Multi-Tenant Data](#52-enable-row-level-security-for-multi-tenant-data)
-   - 5.3 [Optimize RLS Policies for Performance](#53-optimize-rls-policies-for-performance)
+   - 5.1 [Keep Transactions Short to Reduce Lock Contention](#51-keep-transactions-short-to-reduce-lock-contention)
+   - 5.2 [Prevent Deadlocks with Consistent Lock Ordering](#52-prevent-deadlocks-with-consistent-lock-ordering)
+   - 5.3 [Use Advisory Locks for Application-Level Locking](#53-use-advisory-locks-for-application-level-locking)
+   - 5.4 [Use SKIP LOCKED for Non-Blocking Queue Processing](#54-use-skip-locked-for-non-blocking-queue-processing)
 
 6. [Data Access Patterns](#data-access-patterns) - **MEDIUM**
    - 6.1 [Batch INSERT Statements for Bulk Data](#61-batch-insert-statements-for-bulk-data)
@@ -433,7 +433,155 @@ Reference: https://supabase.com/docs/guides/database/connecting-to-postgres#conn
 
 Row-Level Security policies, privilege management, and authentication patterns.
 
-### 3.1 Choose Appropriate Data Types
+### 3.1 Apply Principle of Least Privilege
+
+**Impact: MEDIUM (Reduced attack surface, better audit trail)**
+
+Grant only the minimum permissions required. Never use superuser for application queries.
+
+**Incorrect (overly broad permissions):**
+
+```sql
+-- Application uses superuser connection
+-- Or grants ALL to application role
+grant all privileges on all tables in schema public to app_user;
+grant all privileges on all sequences in schema public to app_user;
+
+-- Any SQL injection becomes catastrophic
+-- drop table users; cascades to everything
+```
+
+**Correct (minimal, specific grants):**
+
+```sql
+-- Create role with no default privileges
+create role app_readonly nologin;
+
+-- Grant only SELECT on specific tables
+grant usage on schema public to app_readonly;
+grant select on public.products, public.categories to app_readonly;
+
+-- Create role for writes with limited scope
+create role app_writer nologin;
+grant usage on schema public to app_writer;
+grant select, insert, update on public.orders to app_writer;
+grant usage on sequence orders_id_seq to app_writer;
+-- No DELETE permission
+
+-- Login role inherits from these
+create role app_user login password 'xxx';
+grant app_writer to app_user;
+-- Revoke default public access
+revoke all on schema public from public;
+revoke all on all tables in schema public from public;
+```
+
+Revoke public defaults:
+
+Reference: https://supabase.com/blog/postgres-roles-and-privileges
+
+---
+
+### 3.2 Enable Row Level Security for Multi-Tenant Data
+
+**Impact: CRITICAL (Database-enforced tenant isolation, prevent data leaks)**
+
+Row Level Security (RLS) enforces data access at the database level, ensuring users only see their own data.
+
+**Incorrect (application-level filtering only):**
+
+```sql
+-- Relying only on application to filter
+select * from orders where user_id = $current_user_id;
+
+-- Bug or bypass means all data is exposed!
+select * from orders;  -- Returns ALL orders
+```
+
+**Correct (database-enforced RLS):**
+
+```sql
+-- Enable RLS on the table
+alter table orders enable row level security;
+
+-- Create policy for users to see only their orders
+create policy orders_user_policy on orders
+  for all
+  using (user_id = current_setting('app.current_user_id')::bigint);
+
+-- Force RLS even for table owners
+alter table orders force row level security;
+
+-- Set user context and query
+set app.current_user_id = '123';
+select * from orders;  -- Only returns orders for user 123
+create policy orders_user_policy on orders
+  for all
+  to authenticated
+  using (user_id = auth.uid());
+```
+
+Policy for authenticated role:
+
+Reference: https://supabase.com/docs/guides/database/postgres/row-level-security
+
+---
+
+### 3.3 Optimize RLS Policies for Performance
+
+**Impact: HIGH (5-10x faster RLS queries with proper patterns)**
+
+Poorly written RLS policies can cause severe performance issues. Use subqueries and indexes strategically.
+
+**Incorrect (function called for every row):**
+
+```sql
+create policy orders_policy on orders
+  using (auth.uid() = user_id);  -- auth.uid() called per row!
+
+-- With 1M rows, auth.uid() is called 1M times
+```
+
+**Correct (wrap functions in SELECT):**
+
+```sql
+create policy orders_policy on orders
+  using ((select auth.uid()) = user_id);  -- Called once, cached
+
+-- 100x+ faster on large tables
+-- Create helper function (runs as definer, bypasses RLS)
+create or replace function is_team_member(team_id bigint)
+returns boolean
+language sql
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.team_members
+    where team_id = $1 and user_id = (select auth.uid())
+  );
+$$;
+
+-- Use in policy (indexed lookup, not per-row check)
+create policy team_orders_policy on orders
+  using ((select is_team_member(team_id)));
+create index orders_user_id_idx on orders (user_id);
+```
+
+Use security definer functions for complex checks:
+Always add indexes on columns used in RLS policies:
+
+Reference: https://supabase.com/docs/guides/database/postgres/row-level-security#rls-performance-recommendations
+
+---
+
+## 4. Schema Design
+
+**Impact: HIGH**
+
+Table design, index strategies, partitioning, and data type selection. Foundation for long-term performance.
+
+### 4.1 Choose Appropriate Data Types
 
 **Impact: HIGH (50% storage reduction, faster comparisons)**
 
@@ -474,7 +622,7 @@ Reference: https://www.postgresql.org/docs/current/datatype.html
 
 ---
 
-### 3.2 Index Foreign Key Columns
+### 4.2 Index Foreign Key Columns
 
 **Impact: HIGH (10-100x faster JOINs and CASCADE operations)**
 
@@ -528,7 +676,7 @@ Reference: https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONS
 
 ---
 
-### 3.3 Partition Large Tables for Better Performance
+### 4.3 Partition Large Tables for Better Performance
 
 **Impact: MEDIUM-HIGH (5-20x faster queries and maintenance on large tables)**
 
@@ -580,7 +728,7 @@ Reference: https://www.postgresql.org/docs/current/ddl-partitioning.html
 
 ---
 
-### 3.4 Select Optimal Primary Key Strategy
+### 4.4 Select Optimal Primary Key Strategy
 
 **Impact: HIGH (Better index locality, reduced fragmentation)**
 
@@ -636,7 +784,7 @@ Guidelines:
 
 ---
 
-### 3.5 Use Lowercase Identifiers for Compatibility
+### 4.5 Use Lowercase Identifiers for Compatibility
 
 **Impact: MEDIUM (Avoid case-sensitivity bugs with tools, ORMs, and AI assistants)**
 
@@ -686,13 +834,13 @@ Reference: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-S
 
 ---
 
-## 4. Schema Design
+## 5. Concurrency & Locking
 
-**Impact: HIGH**
+**Impact: MEDIUM-HIGH**
 
-Table design, index strategies, partitioning, and data type selection. Foundation for long-term performance.
+Transaction management, isolation levels, deadlock prevention, and lock contention patterns.
 
-### 4.1 Keep Transactions Short to Reduce Lock Contention
+### 5.1 Keep Transactions Short to Reduce Lock Contention
 
 **Impact: MEDIUM-HIGH (3-5x throughput improvement, fewer deadlocks)**
 
@@ -737,7 +885,7 @@ Reference: https://www.postgresql.org/docs/current/tutorial-transactions.html
 
 ---
 
-### 4.2 Prevent Deadlocks with Consistent Lock Ordering
+### 5.2 Prevent Deadlocks with Consistent Lock Ordering
 
 **Impact: MEDIUM-HIGH (Eliminate deadlock errors, improve reliability)**
 
@@ -794,7 +942,7 @@ Detect deadlocks in logs:
 
 ---
 
-### 4.3 Use Advisory Locks for Application-Level Locking
+### 5.3 Use Advisory Locks for Application-Level Locking
 
 **Impact: MEDIUM (Efficient coordination without row-level lock overhead)**
 
@@ -845,7 +993,7 @@ Reference: https://www.postgresql.org/docs/current/explicit-locking.html#ADVISOR
 
 ---
 
-### 4.4 Use SKIP LOCKED for Non-Blocking Queue Processing
+### 5.4 Use SKIP LOCKED for Non-Blocking Queue Processing
 
 **Impact: MEDIUM-HIGH (10x throughput for worker queues)**
 
@@ -891,154 +1039,6 @@ returning *;
 Complete queue pattern:
 
 Reference: https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE
-
----
-
-## 5. Concurrency & Locking
-
-**Impact: MEDIUM-HIGH**
-
-Transaction management, isolation levels, deadlock prevention, and lock contention patterns.
-
-### 5.1 Apply Principle of Least Privilege
-
-**Impact: MEDIUM (Reduced attack surface, better audit trail)**
-
-Grant only the minimum permissions required. Never use superuser for application queries.
-
-**Incorrect (overly broad permissions):**
-
-```sql
--- Application uses superuser connection
--- Or grants ALL to application role
-grant all privileges on all tables in schema public to app_user;
-grant all privileges on all sequences in schema public to app_user;
-
--- Any SQL injection becomes catastrophic
--- drop table users; cascades to everything
-```
-
-**Correct (minimal, specific grants):**
-
-```sql
--- Create role with no default privileges
-create role app_readonly nologin;
-
--- Grant only SELECT on specific tables
-grant usage on schema public to app_readonly;
-grant select on public.products, public.categories to app_readonly;
-
--- Create role for writes with limited scope
-create role app_writer nologin;
-grant usage on schema public to app_writer;
-grant select, insert, update on public.orders to app_writer;
-grant usage on sequence orders_id_seq to app_writer;
--- No DELETE permission
-
--- Login role inherits from these
-create role app_user login password 'xxx';
-grant app_writer to app_user;
--- Revoke default public access
-revoke all on schema public from public;
-revoke all on all tables in schema public from public;
-```
-
-Revoke public defaults:
-
-Reference: https://supabase.com/blog/postgres-roles-and-privileges
-
----
-
-### 5.2 Enable Row Level Security for Multi-Tenant Data
-
-**Impact: CRITICAL (Database-enforced tenant isolation, prevent data leaks)**
-
-Row Level Security (RLS) enforces data access at the database level, ensuring users only see their own data.
-
-**Incorrect (application-level filtering only):**
-
-```sql
--- Relying only on application to filter
-select * from orders where user_id = $current_user_id;
-
--- Bug or bypass means all data is exposed!
-select * from orders;  -- Returns ALL orders
-```
-
-**Correct (database-enforced RLS):**
-
-```sql
--- Enable RLS on the table
-alter table orders enable row level security;
-
--- Create policy for users to see only their orders
-create policy orders_user_policy on orders
-  for all
-  using (user_id = current_setting('app.current_user_id')::bigint);
-
--- Force RLS even for table owners
-alter table orders force row level security;
-
--- Set user context and query
-set app.current_user_id = '123';
-select * from orders;  -- Only returns orders for user 123
-create policy orders_user_policy on orders
-  for all
-  to authenticated
-  using (user_id = auth.uid());
-```
-
-Policy for authenticated role:
-
-Reference: https://supabase.com/docs/guides/database/postgres/row-level-security
-
----
-
-### 5.3 Optimize RLS Policies for Performance
-
-**Impact: HIGH (5-10x faster RLS queries with proper patterns)**
-
-Poorly written RLS policies can cause severe performance issues. Use subqueries and indexes strategically.
-
-**Incorrect (function called for every row):**
-
-```sql
-create policy orders_policy on orders
-  using (auth.uid() = user_id);  -- auth.uid() called per row!
-
--- With 1M rows, auth.uid() is called 1M times
-```
-
-**Correct (wrap functions in SELECT):**
-
-```sql
-create policy orders_policy on orders
-  using ((select auth.uid()) = user_id);  -- Called once, cached
-
--- 100x+ faster on large tables
--- Create helper function (runs as definer, bypasses RLS)
-create or replace function is_team_member(team_id bigint)
-returns boolean
-language sql
-security definer
-set search_path = ''
-as $$
-  select exists (
-    select 1 from public.team_members
-    where team_id = $1 and user_id = (select auth.uid())
-  );
-$$;
-
--- Use in policy (indexed lookup, not per-row check)
-create policy team_orders_policy on orders
-  using ((select is_team_member(team_id)));
-create index orders_user_id_idx on orders (user_id);
-```
-
-Use security definer functions for complex checks:
-Always add indexes on columns used in RLS policies:
-
-Reference: https://supabase.com/docs/guides/database/postgres/row-level-security#rls-performance-recommendations
 
 ---
 

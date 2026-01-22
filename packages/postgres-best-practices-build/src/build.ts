@@ -18,6 +18,10 @@ function parseSections(): Section[] {
 	const content = readFileSync(sectionsFile, "utf-8");
 	const sections: Section[] = [];
 
+	// Match format: Impact and Description on separate lines
+	// ## 1. Query Performance (query)
+	// **Impact:** CRITICAL
+	// **Description:** Description text
 	const sectionMatches = content.matchAll(
 		/##\s+(\d+)\.\s+([^\n(]+)\s*\((\w+)\)\s*\n\*\*Impact:\*\*\s*(\w+(?:-\w+)?)\s*\n\*\*Description:\*\*\s*([^\n]+)/g,
 	);
@@ -56,24 +60,24 @@ function getDefaultSections(): Section[] {
 		},
 		{
 			number: 3,
+			title: "Security & RLS",
+			prefix: "security",
+			impact: "CRITICAL",
+			description: "Row-Level Security, privileges, auth patterns",
+		},
+		{
+			number: 4,
 			title: "Schema Design",
 			prefix: "schema",
 			impact: "HIGH",
 			description: "Table design, indexes, partitioning, data types",
 		},
 		{
-			number: 4,
+			number: 5,
 			title: "Concurrency & Locking",
 			prefix: "lock",
 			impact: "MEDIUM-HIGH",
 			description: "Transactions, isolation, deadlocks",
-		},
-		{
-			number: 5,
-			title: "Security & RLS",
-			prefix: "security",
-			impact: "MEDIUM-HIGH",
-			description: "Row-Level Security, privileges, auth patterns",
 		},
 		{
 			number: 6,
@@ -130,6 +134,19 @@ function toAnchor(text: string): string {
 }
 
 /**
+ * Generate SECTION_MAP from parsed sections
+ */
+export function generateSectionMap(
+	sections: Section[],
+): Record<string, number> {
+	const map: Record<string, number> = {};
+	for (const section of sections) {
+		map[section.prefix] = section.number;
+	}
+	return map;
+}
+
+/**
  * Build AGENTS.md from all rule files
  */
 function buildAgents(): void {
@@ -138,6 +155,7 @@ function buildAgents(): void {
 	// Load metadata and sections
 	const metadata = loadMetadata();
 	const sections = parseSections();
+	const sectionMap = generateSectionMap(sections);
 
 	// Get all rule files
 	const ruleFiles = readdirSync(RULES_DIR)
@@ -152,7 +170,7 @@ function buildAgents(): void {
 	const rules: Rule[] = [];
 
 	for (const file of ruleFiles) {
-		const validation = validateRuleFile(file);
+		const validation = validateRuleFile(file, sectionMap);
 		if (!validation.valid) {
 			console.error(`Skipping invalid file ${basename(file)}:`);
 			for (const e of validation.errors) {
@@ -161,7 +179,7 @@ function buildAgents(): void {
 			continue;
 		}
 
-		const result = parseRuleFile(file);
+		const result = parseRuleFile(file, sectionMap);
 		if (result.success && result.rule) {
 			rules.push(result.rule);
 		}
@@ -303,4 +321,4 @@ if (isMainModule) {
 	buildAgents();
 }
 
-export { buildAgents };
+export { buildAgents, parseSections };

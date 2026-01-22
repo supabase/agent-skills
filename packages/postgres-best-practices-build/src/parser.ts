@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
-import { IMPACT_LEVELS, SECTION_MAP } from "./config.js";
+import { IMPACT_LEVELS } from "./config.js";
 import type { CodeExample, ImpactLevel, ParseResult, Rule } from "./types.js";
 
 /**
@@ -48,10 +48,13 @@ function parseFrontmatter(content: string): {
 /**
  * Extract section number from filename prefix
  */
-function getSectionFromFilename(filename: string): number | null {
+function getSectionFromFilename(
+	filename: string,
+	sectionMap: Record<string, number>,
+): number | null {
 	const base = basename(filename, ".md");
 	const prefix = base.split("-")[0];
-	return SECTION_MAP[prefix] ?? null;
+	return sectionMap[prefix] ?? null;
 }
 
 /**
@@ -207,7 +210,10 @@ function extractReferences(body: string): string[] {
 /**
  * Parse a rule file and return structured data
  */
-export function parseRuleFile(filePath: string): ParseResult {
+export function parseRuleFile(
+	filePath: string,
+	sectionMap: Record<string, number>,
+): ParseResult {
 	const errors: string[] = [];
 	const warnings: string[] = [];
 
@@ -216,7 +222,7 @@ export function parseRuleFile(filePath: string): ParseResult {
 		const { frontmatter, body } = parseFrontmatter(content);
 
 		// Extract section from filename
-		const section = getSectionFromFilename(filePath);
+		const section = getSectionFromFilename(filePath, sectionMap);
 		if (section === null) {
 			errors.push(
 				`Could not determine section from filename: ${basename(filePath)}`,
