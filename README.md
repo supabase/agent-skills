@@ -1,4 +1,7 @@
+![Supabase Agent Skills](assets/og.png)
+
 # Supabase Agent Skills
+
 
 Agent Skills to help developers using AI agents with Supabase. Agent Skills are
 folders of instructions, scripts, and resources that agents like Claude Code,
