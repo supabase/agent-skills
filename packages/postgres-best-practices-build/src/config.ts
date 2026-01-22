@@ -1,5 +1,5 @@
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -8,7 +8,10 @@ const __dirname = dirname(__filename);
 export const BUILD_DIR = join(__dirname, "..");
 
 // Skill directory (relative to build package)
-export const SKILL_DIR = join(BUILD_DIR, "../../skills/postgres-best-practices");
+export const SKILL_DIR = join(
+	BUILD_DIR,
+	"../../skills/postgres-best-practices",
+);
 
 // Rules directory
 export const RULES_DIR = join(SKILL_DIR, "rules");
@@ -19,23 +22,23 @@ export const METADATA_FILE = join(SKILL_DIR, "metadata.json");
 
 // Section prefix to number mapping
 export const SECTION_MAP: Record<string, number> = {
-  query: 1,
-  conn: 2,
-  connection: 2,
-  schema: 3,
-  lock: 4,
-  security: 5,
-  data: 6,
-  monitor: 7,
-  advanced: 8,
+	query: 1,
+	conn: 2,
+	connection: 2,
+	schema: 3,
+	lock: 4,
+	security: 5,
+	data: 6,
+	monitor: 7,
+	advanced: 8,
 };
 
 // Valid impact levels in priority order
 export const IMPACT_LEVELS = [
-  "CRITICAL",
-  "HIGH",
-  "MEDIUM-HIGH",
-  "MEDIUM",
-  "LOW-MEDIUM",
-  "LOW",
+	"CRITICAL",
+	"HIGH",
+	"MEDIUM-HIGH",
+	"MEDIUM",
+	"LOW-MEDIUM",
+	"LOW",
 ] as const;
