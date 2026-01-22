@@ -1,18 +1,18 @@
 {
-  "name": "postgres-best-practices-build",
-  "version": "1.0.0",
-  "type": "module",
-  "author": "Supabase",
-  "license": "MIT",
-  "description": "Build system for Supabase agent skills",
-  "scripts": {
-    "build": "tsx src/build.ts",
-    "validate": "tsx src/validate.ts",
-    "dev": "npm run validate && npm run build"
-  },
-  "devDependencies": {
-    "@types/node": "^20.10.0",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.0"
-  }
+	"name": "postgres-best-practices-build",
+	"version": "1.0.0",
+	"type": "module",
+	"author": "Supabase",
+	"license": "MIT",
+	"description": "Build system for Supabase agent skills",
+	"scripts": {
+		"build": "tsx src/build.ts",
+		"validate": "tsx src/validate.ts",
+		"dev": "npm run validate && npm run build"
+	},
+	"devDependencies": {
+		"@types/node": "^20.10.0",
+		"tsx": "^4.7.0",
+		"typescript": "^5.3.0"
+	}
 }

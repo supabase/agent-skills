@@ -1,11 +1,20 @@
 {
-  "name": "supabase-agent-skills",
-  "version": "1.0.0",
-  "author": "Supabase",
-  "license": "MIT",
-  "description": "Official Supabase agent skills",
-  "scripts": {
-    "build": "npm --prefix packages/postgres-best-practices-build run build",
-    "validate": "npm --prefix packages/postgres-best-practices-build run validate"
-  }
+	"name": "supabase-agent-skills",
+	"version": "1.0.0",
+	"author": "Supabase",
+	"license": "MIT",
+	"description": "Official Supabase agent skills",
+	"scripts": {
+		"build": "npm --prefix packages/postgres-best-practices-build run build",
+		"validate": "npm --prefix packages/postgres-best-practices-build run validate",
+		"format": "biome format --write .",
+		"format:check": "biome format .",
+		"lint": "biome lint --write .",
+		"lint:check": "biome lint .",
+		"check": "biome check --write .",
+		"ci:check": "biome ci ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.11"
+	}
 }
