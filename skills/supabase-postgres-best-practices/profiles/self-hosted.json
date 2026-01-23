@@ -1,18 +1,18 @@
 {
-  "name": "self-hosted",
-  "minVersion": "12",
-  "extensions": {
-    "available": [],
-    "installable": [
-      "pg_stat_statements",
-      "pgcrypto",
-      "uuid-ossp",
-      "postgis",
-      "pg_trgm",
-      "btree_gin",
-      "btree_gist"
-    ],
-    "unavailable": []
-  },
-  "notes": "Generic self-hosted PostgreSQL. Extension availability depends on server configuration. Check pg_available_extensions for what can be installed."
+	"name": "self-hosted",
+	"minVersion": "12",
+	"extensions": {
+		"available": [],
+		"installable": [
+			"pg_stat_statements",
+			"pgcrypto",
+			"uuid-ossp",
+			"postgis",
+			"pg_trgm",
+			"btree_gin",
+			"btree_gist"
+		],
+		"unavailable": []
+	},
+	"notes": "Generic self-hosted PostgreSQL. Extension availability depends on server configuration. Check pg_available_extensions for what can be installed."
 }

@@ -5,7 +5,10 @@ import type { Profile, Rule } from "./types.js";
 /**
  * Load a profile from the profiles directory
  */
-export function loadProfile(profilesDir: string, profileName: string): Profile | null {
+export function loadProfile(
+	profilesDir: string,
+	profileName: string,
+): Profile | null {
 	const profileFile = join(profilesDir, `${profileName}.json`);
 	if (!existsSync(profileFile)) {
 		return null;
@@ -54,14 +57,20 @@ function compareVersions(a: string, b: string): number {
 /**
  * Check if a rule is compatible with a profile
  */
-export function isRuleCompatibleWithProfile(rule: Rule, profile: Profile): boolean {
+export function isRuleCompatibleWithProfile(
+	rule: Rule,
+	profile: Profile,
+): boolean {
 	// Check version requirement
 	if (rule.minVersion) {
 		if (compareVersions(rule.minVersion, profile.minVersion) > 0) {
 			// Rule requires a higher version than profile supports
 			return false;
 		}
-		if (profile.maxVersion && compareVersions(rule.minVersion, profile.maxVersion) > 0) {
+		if (
+			profile.maxVersion &&
+			compareVersions(rule.minVersion, profile.maxVersion) > 0
+		) {
 			// Rule requires a version higher than profile's max
 			return false;
 		}

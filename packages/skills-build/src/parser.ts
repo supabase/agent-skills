@@ -251,7 +251,8 @@ export function parseRuleFile(
 		const examples = extractExamples(body);
 
 		const tags = frontmatter.tags?.split(",").map((t) => t.trim()) || [];
-		const extensions = frontmatter.extensions?.split(",").map((e) => e.trim()) || [];
+		const extensions =
+			frontmatter.extensions?.split(",").map((e) => e.trim()) || [];
 
 		// Validation warnings
 		if (!explanation || explanation.length < 20) {

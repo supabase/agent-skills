@@ -7,7 +7,11 @@ import {
 	validateSkillExists,
 } from "./config.js";
 import { parseRuleFile } from "./parser.js";
-import { filterRulesForProfile, listProfiles, loadProfile } from "./profiles.js";
+import {
+	filterRulesForProfile,
+	listProfiles,
+	loadProfile,
+} from "./profiles.js";
 import type { Metadata, Profile, Rule, Section } from "./types.js";
 import { validateRuleFile } from "./validate.js";
 
@@ -243,10 +247,7 @@ function buildSkill(paths: SkillPaths, profile?: Profile): void {
 	// Check if references directory exists
 	if (!existsSync(paths.referencesDir)) {
 		console.log(`  No references directory found. Generating empty AGENTS.md.`);
-		writeFileSync(
-			outputFile,
-			`# ${skillTitle}\n\nNo rules defined yet.\n`,
-		);
+		writeFileSync(outputFile, `# ${skillTitle}\n\nNo rules defined yet.\n`);
 		return;
 	}
 
@@ -282,7 +283,9 @@ function buildSkill(paths: SkillPaths, profile?: Profile): void {
 	let filteredRules = rules;
 	if (profile) {
 		filteredRules = filterRulesForProfile(rules, profile);
-		console.log(`  Filtered to ${filteredRules.length} rules for profile "${profile.name}"`);
+		console.log(
+			`  Filtered to ${filteredRules.length} rules for profile "${profile.name}"`,
+		);
 	}
 
 	// Group rules by section and assign IDs
@@ -369,7 +372,9 @@ function buildSkill(paths: SkillPaths, profile?: Profile): void {
 				prerequisites.push(`PostgreSQL ${rule.minVersion}+`);
 			}
 			if (rule.extensions && rule.extensions.length > 0) {
-				prerequisites.push(`Extension${rule.extensions.length > 1 ? "s" : ""}: ${rule.extensions.join(", ")}`);
+				prerequisites.push(
+					`Extension${rule.extensions.length > 1 ? "s" : ""}: ${rule.extensions.join(", ")}`,
+				);
 			}
 			if (prerequisites.length > 0) {
 				output.push(`**Prerequisites:** ${prerequisites.join(" | ")}\n`);
@@ -427,7 +432,11 @@ function buildSkill(paths: SkillPaths, profile?: Profile): void {
 /**
  * Parse CLI arguments
  */
-function parseArgs(): { skill?: string; profile?: string; allProfiles: boolean } {
+function parseArgs(): {
+	skill?: string;
+	profile?: string;
+	allProfiles: boolean;
+} {
 	const args = process.argv.slice(2);
 	let skill: string | undefined;
 	let profile: string | undefined;

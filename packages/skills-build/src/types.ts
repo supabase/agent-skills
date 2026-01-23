@@ -26,8 +26,8 @@ export interface Rule {
 	references?: string[];
 	tags?: string[];
 	supabaseNotes?: string;
-	minVersion?: string;      // Minimum PostgreSQL version required (e.g., "11", "14")
-	extensions?: string[];    // Required PostgreSQL extensions (e.g., ["pg_stat_statements"])
+	minVersion?: string; // Minimum PostgreSQL version required (e.g., "11", "14")
+	extensions?: string[]; // Required PostgreSQL extensions (e.g., ["pg_stat_statements"])
 }
 
 export interface Section {

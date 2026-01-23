@@ -1,18 +1,18 @@
 {
-  "name": "postgres-best-practices-evals",
-  "version": "1.0.0",
-  "description": "Evaluation scenarios for Postgres Best Practices skill",
-  "type": "module",
-  "scripts": {
-    "eval": "vitest run",
-    "eval:watch": "vitest",
-    "eval:ui": "vitest --ui"
-  },
-  "devDependencies": {
-    "@ai-sdk/anthropic": "^0.0.30",
-    "@types/node": "^20.0.0",
-    "ai": "^3.0.0",
-    "typescript": "^5.0.0",
-    "vitest": "^1.0.0"
-  }
+	"name": "postgres-best-practices-evals",
+	"version": "1.0.0",
+	"description": "Evaluation scenarios for Postgres Best Practices skill",
+	"type": "module",
+	"scripts": {
+		"eval": "vitest run",
+		"eval:watch": "vitest",
+		"eval:ui": "vitest --ui"
+	},
+	"devDependencies": {
+		"@ai-sdk/anthropic": "^0.0.30",
+		"@types/node": "^20.0.0",
+		"ai": "^3.0.0",
+		"typescript": "^5.0.0",
+		"vitest": "^1.0.0"
+	}
 }
