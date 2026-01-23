@@ -61,11 +61,11 @@ tags: keywords
 
 ## Impact Levels
 
-| Level       | Improvement | Use For                    |
-| ----------- | ----------- | -------------------------- |
-| CRITICAL    | 10-100x     | Missing indexes, security  |
-| HIGH        | 5-20x       | Schema design, partitions  |
-| MEDIUM-HIGH | 2-5x        | Query patterns, N+1        |
-| MEDIUM      | 1.5-3x      | Optimization, tuning       |
-| LOW-MEDIUM  | 1.2-2x      | Config, maintenance        |
-| LOW         | Incremental | Edge cases, advanced       |
+| Level       | Improvement                   | Use For                                                    |
+| ----------- | ----------------------------- | ---------------------------------------------------------- |
+| CRITICAL    | 10-100x or prevents failure   | Security vulnerabilities, data loss, breaking changes      |
+| HIGH        | 5-20x or major quality gain   | Architecture decisions, core functionality, scalability    |
+| MEDIUM-HIGH | 2-5x or significant benefit   | Design patterns, common anti-patterns, reliability         |
+| MEDIUM      | 1.5-3x or noticeable gain     | Optimization, best practices, maintainability              |
+| LOW-MEDIUM  | 1.2-2x or minor benefit       | Configuration, tooling, code organization                  |
+| LOW         | Incremental or edge cases     | Advanced techniques, rare scenarios, polish                |
