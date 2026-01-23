@@ -1,4 +1,4 @@
-name: Postgres Best Practices CI
+name: Skills CI
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         run: npm run ci:check
 
   validate-and-build:
-    name: Validate and Build
+    name: Validate and Build Skills
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,22 +33,22 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        working-directory: packages/postgres-best-practices-build
+        working-directory: packages/skills-build
         run: npm install
 
-      - name: Validate rule files
-        working-directory: packages/postgres-best-practices-build
+      - name: Validate all skills
+        working-directory: packages/skills-build
         run: npm run validate
 
-      - name: Build AGENTS.md
-        working-directory: packages/postgres-best-practices-build
+      - name: Build all skills
+        working-directory: packages/skills-build
         run: npm run build
 
       - name: Check for uncommitted changes
         run: |
-          if [[ -n $(git status --porcelain skills/postgres-best-practices/AGENTS.md) ]]; then
-            echo "Error: AGENTS.md is not up to date"
+          if [[ -n $(git status --porcelain 'skills/*/AGENTS.md') ]]; then
+            echo "Error: AGENTS.md files are not up to date"
             echo "Run 'npm run build' and commit the changes"
-            git diff skills/postgres-best-practices/AGENTS.md
+            git diff skills/*/AGENTS.md
             exit 1
           fi

@@ -6,8 +6,7 @@ AI agents and LLMs.
 ## Quick Start
 
 ```bash
-# Install dependencies
-cd packages/postgres-best-practices-build
+# From repository root
 npm install
 
 # Validate existing rules
@@ -58,8 +57,8 @@ skills/postgres-best-practices/
     ├── _contributing.md  # Writing guidelines
     └── *.md              # Individual rules
 
-packages/postgres-best-practices-build/
-├── src/               # Build system source
+packages/skills-build/
+├── src/               # Generic build system source
 ├── package.json       # NPM scripts
 └── test-cases.json    # [GENERATED] Test artifacts
 ```
