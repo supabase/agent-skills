@@ -3,6 +3,10 @@
 		"supabase": {
 			"type": "http",
 			"url": "https://mcp.supabase.com/mcp?features=docs"
+		},
+		"linear": {
+			"type": "http",
+			"url": "https://mcp.linear.app/mcp"
 		}
 	}
 }

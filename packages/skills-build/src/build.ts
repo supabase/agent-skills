@@ -7,7 +7,8 @@ import {
 	validateSkillExists,
 } from "./config.js";
 import { parseRuleFile } from "./parser.js";
-import type { Metadata, Rule, Section } from "./types.js";
+import { filterRulesForProfile, listProfiles, loadProfile } from "./profiles.js";
+import type { Metadata, Profile, Rule, Section } from "./types.js";
 import { validateRuleFile } from "./validate.js";
 
 /**
@@ -225,8 +226,13 @@ export function generateSectionMap(
 /**
  * Build AGENTS.md for a specific skill
  */
-function buildSkill(paths: SkillPaths): void {
-	console.log(`[${paths.name}] Building AGENTS.md...`);
+function buildSkill(paths: SkillPaths, profile?: Profile): void {
+	const profileSuffix = profile ? `.${profile.name}` : "";
+	const outputFile = profile
+		? paths.agentsOutput.replace(".md", `${profileSuffix}.md`)
+		: paths.agentsOutput;
+
+	console.log(`[${paths.name}] Building AGENTS${profileSuffix}.md...`);
 
 	// Load metadata and sections
 	const metadata = loadMetadata(paths.skillFile, paths.name);
@@ -238,7 +244,7 @@ function buildSkill(paths: SkillPaths): void {
 	if (!existsSync(paths.referencesDir)) {
 		console.log(`  No references directory found. Generating empty AGENTS.md.`);
 		writeFileSync(
-			paths.agentsOutput,
+			outputFile,
 			`# ${skillTitle}\n\nNo rules defined yet.\n`,
 		);
 		return;
@@ -272,10 +278,17 @@ function buildSkill(paths: SkillPaths): void {
 		}
 	}
 
+	// Filter rules by profile if specified
+	let filteredRules = rules;
+	if (profile) {
+		filteredRules = filterRulesForProfile(rules, profile);
+		console.log(`  Filtered to ${filteredRules.length} rules for profile "${profile.name}"`);
+	}
+
 	// Group rules by section and assign IDs
 	const rulesBySection = new Map<number, Rule[]>();
 
-	for (const rule of rules) {
+	for (const rule of filteredRules) {
 		const sectionRules = rulesBySection.get(rule.section) || [];
 		sectionRules.push(rule);
 		rulesBySection.set(rule.section, sectionRules);
@@ -350,6 +363,18 @@ function buildSkill(paths: SkillPaths): void {
 				output.push(`**Impact: ${rule.impact}**\n`);
 			}
 
+			// Add prerequisites if minVersion or extensions are specified
+			const prerequisites: string[] = [];
+			if (rule.minVersion) {
+				prerequisites.push(`PostgreSQL ${rule.minVersion}+`);
+			}
+			if (rule.extensions && rule.extensions.length > 0) {
+				prerequisites.push(`Extension${rule.extensions.length > 1 ? "s" : ""}: ${rule.extensions.join(", ")}`);
+			}
+			if (prerequisites.length > 0) {
+				output.push(`**Prerequisites:** ${prerequisites.join(" | ")}\n`);
+			}
+
 			output.push(`${rule.explanation}\n`);
 
 			for (const example of rule.examples) {
@@ -394,9 +419,52 @@ function buildSkill(paths: SkillPaths): void {
 	}
 
 	// Write output
-	writeFileSync(paths.agentsOutput, output.join("\n"));
-	console.log(`  Generated: ${paths.agentsOutput}`);
-	console.log(`  Total rules: ${rules.length}`);
+	writeFileSync(outputFile, output.join("\n"));
+	console.log(`  Generated: ${outputFile}`);
+	console.log(`  Total rules: ${filteredRules.length}`);
+}
+
+/**
+ * Parse CLI arguments
+ */
+function parseArgs(): { skill?: string; profile?: string; allProfiles: boolean } {
+	const args = process.argv.slice(2);
+	let skill: string | undefined;
+	let profile: string | undefined;
+	let allProfiles = false;
+
+	for (let i = 0; i < args.length; i++) {
+		const arg = args[i];
+		if (arg === "--profile" && args[i + 1]) {
+			profile = args[i + 1];
+			i++;
+		} else if (arg === "--all-profiles") {
+			allProfiles = true;
+		} else if (!arg.startsWith("--")) {
+			skill = arg;
+		}
+	}
+
+	return { skill, profile, allProfiles };
+}
+
+/**
+ * Build a skill with all available profiles
+ */
+function buildSkillWithAllProfiles(paths: SkillPaths): void {
+	const profilesDir = join(paths.skillDir, "profiles");
+	const profiles = listProfiles(profilesDir);
+
+	// Build default (no profile)
+	buildSkill(paths);
+
+	// Build each profile variant
+	for (const profileName of profiles) {
+		const profile = loadProfile(profilesDir, profileName);
+		if (profile) {
+			buildSkill(paths, profile);
+		}
+	}
 }
 
 // Run build when executed directly
@@ -405,7 +473,7 @@ const isMainModule =
 	process.argv[1]?.endsWith("build.js");
 
 if (isMainModule) {
-	const targetSkill = process.argv[2];
+	const { skill: targetSkill, profile: profileName, allProfiles } = parseArgs();
 
 	if (targetSkill) {
 		// Build specific skill
@@ -417,7 +485,29 @@ if (isMainModule) {
 			}
 			process.exit(1);
 		}
-		buildSkill(getSkillPaths(targetSkill));
+
+		const paths = getSkillPaths(targetSkill);
+
+		if (allProfiles) {
+			// Build all profile variants
+			buildSkillWithAllProfiles(paths);
+		} else if (profileName) {
+			// Build with specific profile
+			const profilesDir = join(paths.skillDir, "profiles");
+			const profile = loadProfile(profilesDir, profileName);
+			if (!profile) {
+				console.error(`Error: Profile "${profileName}" not found`);
+				const available = listProfiles(profilesDir);
+				if (available.length > 0) {
+					console.error(`Available profiles: ${available.join(", ")}`);
+				}
+				process.exit(1);
+			}
+			buildSkill(paths, profile);
+		} else {
+			// Build default
+			buildSkill(paths);
+		}
 	} else {
 		// Build all skills
 		const skills = discoverSkills();
@@ -428,7 +518,12 @@ if (isMainModule) {
 
 		console.log(`Found ${skills.length} skill(s): ${skills.join(", ")}\n`);
 		for (const skill of skills) {
-			buildSkill(getSkillPaths(skill));
+			const paths = getSkillPaths(skill);
+			if (allProfiles) {
+				buildSkillWithAllProfiles(paths);
+			} else {
+				buildSkill(paths);
+			}
 			console.log("");
 		}
 	}

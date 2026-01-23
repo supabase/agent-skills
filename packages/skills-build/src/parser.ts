@@ -251,6 +251,7 @@ export function parseRuleFile(
 		const examples = extractExamples(body);
 
 		const tags = frontmatter.tags?.split(",").map((t) => t.trim()) || [];
+		const extensions = frontmatter.extensions?.split(",").map((e) => e.trim()) || [];
 
 		// Validation warnings
 		if (!explanation || explanation.length < 20) {
@@ -271,6 +272,8 @@ export function parseRuleFile(
 			examples,
 			references: extractReferences(body),
 			tags: tags.length > 0 ? tags : undefined,
+			minVersion: frontmatter.minVersion || undefined,
+			extensions: extensions.length > 0 ? extensions : undefined,
 		};
 
 		return { success: true, rule, errors, warnings };

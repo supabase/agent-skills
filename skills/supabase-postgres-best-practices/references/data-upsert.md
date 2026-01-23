@@ -3,6 +3,7 @@ title: Use UPSERT for Insert-or-Update Operations
 impact: MEDIUM
 impactDescription: Atomic operation, eliminates race conditions
 tags: upsert, on-conflict, insert, update
+minVersion: "9.5"
 ---
 
 ## Use UPSERT for Insert-or-Update Operations
