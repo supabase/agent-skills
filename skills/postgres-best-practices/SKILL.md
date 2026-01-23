@@ -27,9 +27,9 @@ Reference these guidelines when:
 |----------|----------|--------|--------|
 | 1 | Query Performance | CRITICAL | `query-` |
 | 2 | Connection Management | CRITICAL | `conn-` |
-| 3 | Schema Design | HIGH | `schema-` |
-| 4 | Concurrency & Locking | MEDIUM-HIGH | `lock-` |
-| 5 | Security & RLS | MEDIUM-HIGH | `security-` |
+| 3 | Security & RLS | CRITICAL | `security-` |
+| 4 | Schema Design | HIGH | `schema-` |
+| 5 | Concurrency & Locking | MEDIUM-HIGH | `lock-` |
 | 6 | Data Access Patterns | MEDIUM | `data-` |
 | 7 | Monitoring & Diagnostics | LOW-MEDIUM | `monitor-` |
 | 8 | Advanced Features | LOW | `advanced-` |
