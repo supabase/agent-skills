@@ -1,6 +1,11 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
-import { AGENTS_OUTPUT, METADATA_FILE, RULES_DIR } from "./config.js";
+import {
+	discoverSkills,
+	getSkillPaths,
+	type SkillPaths,
+	validateSkillExists,
+} from "./config.js";
 import { parseRuleFile } from "./parser.js";
 import type { Metadata, Rule, Section } from "./types.js";
 import { validateRuleFile } from "./validate.js";
@@ -8,11 +13,11 @@ import { validateRuleFile } from "./validate.js";
 /**
  * Parse section definitions from _sections.md
  */
-function parseSections(): Section[] {
-	const sectionsFile = join(RULES_DIR, "_sections.md");
+function parseSections(rulesDir: string): Section[] {
+	const sectionsFile = join(rulesDir, "_sections.md");
 	if (!existsSync(sectionsFile)) {
-		console.warn("Warning: _sections.md not found, using default sections");
-		return getDefaultSections();
+		console.warn("Warning: _sections.md not found, using empty sections");
+		return [];
 	}
 
 	const content = readFileSync(sectionsFile, "utf-8");
@@ -36,78 +41,14 @@ function parseSections(): Section[] {
 		});
 	}
 
-	return sections.length > 0 ? sections : getDefaultSections();
-}
-
-/**
- * Default sections if _sections.md is missing or unparseable
- */
-function getDefaultSections(): Section[] {
-	return [
-		{
-			number: 1,
-			title: "Query Performance",
-			prefix: "query",
-			impact: "CRITICAL",
-			description: "Slow queries, missing indexes, inefficient plans",
-		},
-		{
-			number: 2,
-			title: "Connection Management",
-			prefix: "conn",
-			impact: "CRITICAL",
-			description: "Pooling, limits, serverless strategies",
-		},
-		{
-			number: 3,
-			title: "Security & RLS",
-			prefix: "security",
-			impact: "CRITICAL",
-			description: "Row-Level Security, privileges, auth patterns",
-		},
-		{
-			number: 4,
-			title: "Schema Design",
-			prefix: "schema",
-			impact: "HIGH",
-			description: "Table design, indexes, partitioning, data types",
-		},
-		{
-			number: 5,
-			title: "Concurrency & Locking",
-			prefix: "lock",
-			impact: "MEDIUM-HIGH",
-			description: "Transactions, isolation, deadlocks",
-		},
-		{
-			number: 6,
-			title: "Data Access Patterns",
-			prefix: "data",
-			impact: "MEDIUM",
-			description: "N+1 queries, batch operations, pagination",
-		},
-		{
-			number: 7,
-			title: "Monitoring & Diagnostics",
-			prefix: "monitor",
-			impact: "LOW-MEDIUM",
-			description: "pg_stat_statements, EXPLAIN, metrics",
-		},
-		{
-			number: 8,
-			title: "Advanced Features",
-			prefix: "advanced",
-			impact: "LOW",
-			description: "Full-text search, JSONB, extensions",
-		},
-	];
+	return sections;
 }
 
 /**
  * Load metadata from metadata.json
  */
-function loadMetadata(): Metadata {
-	if (!existsSync(METADATA_FILE)) {
+function loadMetadata(metadataFile: string, skillName: string): Metadata {
+	if (!existsSync(metadataFile)) {
 		return {
 			version: "1.0.0",
 			organization: "Supabase",
@@ -115,12 +56,12 @@ function loadMetadata(): Metadata {
 				month: "long",
 				year: "numeric",
 			}),
-			abstract: "Postgres performance optimization guide for developers.",
+			abstract: `${skillName} guide for developers.`,
 			references: [],
 		};
 	}
 
-	return JSON.parse(readFileSync(METADATA_FILE, "utf-8"));
+	return JSON.parse(readFileSync(metadataFile, "utf-8"));
 }
 
 /**
@@ -131,6 +72,16 @@ function toAnchor(text: string): string {
 		.toLowerCase()
 		.replace(/[^a-z0-9\s-]/g, "")
 		.replace(/\s+/g, "-");
+}
+
+/**
+ * Convert skill name to title (e.g., "postgres-best-practices" -> "Postgres Best Practices")
+ */
+function skillNameToTitle(skillName: string): string {
+	return skillName
+		.split("-")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
 }
 
 /**
@@ -147,23 +98,34 @@ export function generateSectionMap(
 }
 
 /**
- * Build AGENTS.md from all rule files
+ * Build AGENTS.md for a specific skill
  */
-function buildAgents(): void {
-	console.log("Building AGENTS.md...\n");
+function buildSkill(paths: SkillPaths): void {
+	console.log(`[${paths.name}] Building AGENTS.md...`);
 
 	// Load metadata and sections
-	const metadata = loadMetadata();
-	const sections = parseSections();
+	const metadata = loadMetadata(paths.metadataFile, paths.name);
+	const sections = parseSections(paths.rulesDir);
 	const sectionMap = generateSectionMap(sections);
+	const skillTitle = skillNameToTitle(paths.name);
+
+	// Check if rules directory exists
+	if (!existsSync(paths.rulesDir)) {
+		console.log(`  No rules directory found. Generating empty AGENTS.md.`);
+		writeFileSync(
+			paths.agentsOutput,
+			`# ${skillTitle}\n\nNo rules defined yet.\n`,
+		);
+		return;
+	}
 
 	// Get all rule files
-	const ruleFiles = readdirSync(RULES_DIR)
+	const ruleFiles = readdirSync(paths.rulesDir)
 		.filter((f) => f.endsWith(".md") && !f.startsWith("_"))
-		.map((f) => join(RULES_DIR, f));
+		.map((f) => join(paths.rulesDir, f));
 
 	if (ruleFiles.length === 0) {
-		console.log("No rule files found. Generating empty AGENTS.md template.");
+		console.log(`  No rule files found. Generating empty AGENTS.md.`);
 	}
 
 	// Parse and validate all rules
@@ -172,9 +134,9 @@ function buildAgents(): void {
 	for (const file of ruleFiles) {
 		const validation = validateRuleFile(file, sectionMap);
 		if (!validation.valid) {
-			console.error(`Skipping invalid file ${basename(file)}:`);
+			console.error(`  Skipping invalid file ${basename(file)}:`);
 			for (const e of validation.errors) {
-				console.error(`  - ${e}`);
+				console.error(`    - ${e}`);
 			}
 			continue;
 		}
@@ -206,7 +168,7 @@ function buildAgents(): void {
 	const output: string[] = [];
 
 	// Header
-	output.push("# Postgres Best Practices\n");
+	output.push(`# ${skillTitle}\n`);
 	output.push(`**Version ${metadata.version}**`);
 	output.push(`${metadata.organization}`);
 	output.push(`${metadata.date}\n`);
@@ -307,9 +269,9 @@ function buildAgents(): void {
 	}
 
 	// Write output
-	writeFileSync(AGENTS_OUTPUT, output.join("\n"));
-	console.log(`Generated: ${AGENTS_OUTPUT}`);
-	console.log(`Total rules: ${rules.length}`);
+	writeFileSync(paths.agentsOutput, output.join("\n"));
+	console.log(`  Generated: ${paths.agentsOutput}`);
+	console.log(`  Total rules: ${rules.length}`);
 }
 
 // Run build when executed directly
@@ -318,7 +280,35 @@ const isMainModule =
 	process.argv[1]?.endsWith("build.js");
 
 if (isMainModule) {
-	buildAgents();
+	const targetSkill = process.argv[2];
+
+	if (targetSkill) {
+		// Build specific skill
+		if (!validateSkillExists(targetSkill)) {
+			console.error(`Error: Skill "${targetSkill}" not found in skills/`);
+			const available = discoverSkills();
+			if (available.length > 0) {
+				console.error(`Available skills: ${available.join(", ")}`);
+			}
+			process.exit(1);
+		}
+		buildSkill(getSkillPaths(targetSkill));
+	} else {
+		// Build all skills
+		const skills = discoverSkills();
+		if (skills.length === 0) {
+			console.log("No skills found in skills/ directory.");
+			process.exit(0);
+		}
+
+		console.log(`Found ${skills.length} skill(s): ${skills.join(", ")}\n`);
+		for (const skill of skills) {
+			buildSkill(getSkillPaths(skill));
+			console.log("");
+		}
+	}
+
+	console.log("✅ Done!");
 }
 
-export { buildAgents, parseSections };
+export { buildSkill, parseSections };

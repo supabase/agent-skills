@@ -1,7 +1,13 @@
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { basename, join } from "node:path";
 import { generateSectionMap, parseSections } from "./build.js";
-import { IMPACT_LEVELS, RULES_DIR } from "./config.js";
+import {
+	discoverSkills,
+	getSkillPaths,
+	IMPACT_LEVELS,
+	type SkillPaths,
+	validateSkillExists,
+} from "./config.js";
 import { parseRuleFile } from "./parser.js";
 import type { ValidationResult } from "./types.js";
 
@@ -38,14 +44,17 @@ function isGoodExample(label: string): boolean {
 export function validateRuleFile(
 	filePath: string,
 	sectionMap?: Record<string, number>,
+	rulesDir?: string,
 ): ValidationResult {
 	const errors: string[] = [];
 	const warnings: string[] = [];
 
 	// Generate section map if not provided
-	if (!sectionMap) {
-		const sections = parseSections();
+	if (!sectionMap && rulesDir) {
+		const sections = parseSections(rulesDir);
 		sectionMap = generateSectionMap(sections);
+	} else if (!sectionMap) {
+		sectionMap = {};
 	}
 
 	const result = parseRuleFile(filePath, sectionMap);
@@ -129,40 +138,64 @@ export function validateRuleFile(
 }
 
 /**
- * Validate all rule files in the rules directory
+ * Validate all rule files for a skill
  */
-export function validateAllRules(): {
-	totalFiles: number;
-	validFiles: number;
-	invalidFiles: number;
-	results: Map<string, ValidationResult>;
-} {
-	const results = new Map<string, ValidationResult>();
-	let validFiles = 0;
-	let invalidFiles = 0;
+function validateSkill(paths: SkillPaths): boolean {
+	console.log(`[${paths.name}] Validating...`);
+
+	// Check if rules directory exists
+	if (!existsSync(paths.rulesDir)) {
+		console.log(`  No rules directory found.`);
+		return true;
+	}
+
+	// Get section map
+	const sections = parseSections(paths.rulesDir);
+	const sectionMap = generateSectionMap(sections);
 
 	// Get all markdown files (excluding _ prefixed files)
-	const files = readdirSync(RULES_DIR)
+	const files = readdirSync(paths.rulesDir)
 		.filter((f) => f.endsWith(".md") && !f.startsWith("_"))
-		.map((f) => join(RULES_DIR, f));
+		.map((f) => join(paths.rulesDir, f));
+
+	if (files.length === 0) {
+		console.log(`  No rule files found.`);
+		return true;
+	}
+
+	let validFiles = 0;
+	let invalidFiles = 0;
+	let hasErrors = false;
 
 	for (const file of files) {
-		const result = validateRuleFile(file);
-		results.set(basename(file), result);
+		const result = validateRuleFile(file, sectionMap, paths.rulesDir);
+		const filename = basename(file);
 
 		if (result.valid) {
 			validFiles++;
 		} else {
 			invalidFiles++;
 		}
+
+		if (!result.valid || result.warnings.length > 0) {
+			console.log(`\n  ${filename}:`);
+
+			for (const error of result.errors) {
+				console.log(`    ERROR: ${error}`);
+				hasErrors = true;
+			}
+
+			for (const warning of result.warnings) {
+				console.log(`    WARNING: ${warning}`);
+			}
+		}
 	}
 
-	return {
-		totalFiles: files.length,
-		validFiles,
-		invalidFiles,
-		results,
-	};
+	console.log(
+		`\n  Total: ${files.length} | Valid: ${validFiles} | Invalid: ${invalidFiles}`,
+	);
+
+	return !hasErrors;
 }
 
 // Run validation when executed directly
@@ -171,44 +204,45 @@ const isMainModule =
 	process.argv[1]?.endsWith("validate.js");
 
 if (isMainModule) {
-	console.log("Validating Postgres best practices rules...\n");
+	const targetSkill = process.argv[2];
 
-	const { totalFiles, validFiles, invalidFiles, results } = validateAllRules();
-
-	if (totalFiles === 0) {
-		console.log("No rule files found (this is expected for initial setup).");
-		console.log("Create rule files in: skills/postgres-best-practices/rules/");
-		console.log("Use the _template.md as a starting point.\n");
-		process.exit(0);
-	}
-
-	let hasErrors = false;
-
-	for (const [filename, result] of results) {
-		if (!result.valid || result.warnings.length > 0) {
-			console.log(`\n${filename}:`);
-
-			for (const error of result.errors) {
-				console.log(`  ERROR: ${error}`);
-				hasErrors = true;
+	if (targetSkill) {
+		// Validate specific skill
+		if (!validateSkillExists(targetSkill)) {
+			console.error(`Error: Skill "${targetSkill}" not found in skills/`);
+			const available = discoverSkills();
+			if (available.length > 0) {
+				console.error(`Available skills: ${available.join(", ")}`);
 			}
-
-			for (const warning of result.warnings) {
-				console.log(`  WARNING: ${warning}`);
-			}
+			process.exit(1);
 		}
-	}
 
-	console.log(`\n${"=".repeat(50)}`);
-	console.log(
-		`Total: ${totalFiles} files | Valid: ${validFiles} | Invalid: ${invalidFiles}`,
-	);
-
-	if (hasErrors) {
-		console.log("\nValidation failed. Please fix the errors above.");
-		process.exit(1);
+		const valid = validateSkill(getSkillPaths(targetSkill));
+		console.log(valid ? "\n✅ Validation passed!" : "\n❌ Validation failed.");
+		process.exit(valid ? 0 : 1);
 	} else {
-		console.log("\nValidation passed!");
-		process.exit(0);
+		// Validate all skills
+		const skills = discoverSkills();
+		if (skills.length === 0) {
+			console.log("No skills found in skills/ directory.");
+			process.exit(0);
+		}
+
+		console.log(`Found ${skills.length} skill(s): ${skills.join(", ")}\n`);
+
+		let allValid = true;
+		for (const skill of skills) {
+			if (!validateSkill(getSkillPaths(skill))) {
+				allValid = false;
+			}
+			console.log("");
+		}
+
+		console.log(
+			allValid ? "✅ All validations passed!" : "❌ Some validations failed.",
+		);
+		process.exit(allValid ? 0 : 1);
 	}
 }
+
+export { validateSkill };

@@ -5,8 +5,8 @@
 	"license": "MIT",
 	"description": "Official Supabase agent skills",
 	"scripts": {
-		"build": "npm --prefix packages/postgres-best-practices-build run build",
-		"validate": "npm --prefix packages/postgres-best-practices-build run validate",
+		"build": "npm --prefix packages/skills-build run build",
+		"validate": "npm --prefix packages/skills-build run validate",
 		"format": "biome format --write .",
 		"format:check": "biome format .",
 		"lint": "biome lint --write .",

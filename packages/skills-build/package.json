@@ -1,10 +1,10 @@
 {
-	"name": "postgres-best-practices-build",
+	"name": "skills-build",
 	"version": "1.0.0",
 	"type": "module",
 	"author": "Supabase",
 	"license": "MIT",
-	"description": "Build system for Supabase agent skills",
+	"description": "Generic build system for Supabase agent skills",
 	"scripts": {
 		"build": "tsx src/build.ts",
 		"validate": "tsx src/validate.ts",

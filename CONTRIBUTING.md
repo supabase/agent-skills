@@ -2,10 +2,9 @@
 
 Thank you for contributing to Supabase Agent Skills! Here's how to get started:
 
-[1. Getting Started](#getting-started) [2. Issues](#issues)
-[3. Pull Requests](#pull-requests)
-[4. Contributing New Rules](#contributing-new-rules)
-[5. Extending Existing Skills](#extending-existing-skills)
+[1. Getting Started](#getting-started) | [2. Issues](#issues) |
+[3. Pull Requests](#pull-requests) | [4. Contributing New Rules](#contributing-new-rules) |
+[5. Creating a New Skill](#creating-a-new-skill)
 
 ## Getting Started
 
@@ -48,6 +47,68 @@ npm run build     # Generate AGENTS.md from rules
 ```
 
 Both commands must complete successfully.
+
+## Contributing New Rules
+
+To add a rule to an existing skill:
+
+1. Navigate to `skills/{skill-name}/rules/`
+2. Copy `_template.md` to `{prefix}-{your-rule-name}.md`
+3. Fill in the frontmatter (title, impact, tags)
+4. Write explanation and examples (Incorrect/Correct)
+5. Run validation and build:
+
+```bash
+npm run validate
+npm run build
+```
+
+## Creating a New Skill
+
+To create an entirely new skill:
+
+### 1. Create the directory structure
+
+```bash
+mkdir -p skills/my-skill/rules
+```
+
+### 2. Create metadata.json
+
+```json
+{
+  "version": "1.0.0",
+  "organization": "Your Org",
+  "date": "January 2026",
+  "abstract": "Brief description of this skill."
+}
+```
+
+### 3. Create rules/_sections.md
+
+```markdown
+## 1. First Category (first)
+**Impact:** HIGH
+**Description:** What this category covers.
+
+## 2. Second Category (second)
+**Impact:** MEDIUM
+**Description:** What this category covers.
+```
+
+### 4. Create rule files
+
+Name files as `{prefix}-{rule-name}.md` where prefix matches a section.
+
+Example: `first-example-rule.md` for section "First Category"
+
+### 5. Build
+
+```bash
+npm run build
+```
+
+The build system auto-discovers skills. No configuration needed.
 
 ## Questions or Feedback?
 
