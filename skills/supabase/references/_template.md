@@ -1,33 +1,53 @@
 ---
-title: Clear, Action-Oriented Title (e.g., "Set Up Authentication with Next.js")
-impact: MEDIUM
-impactDescription: Enables secure user authentication in minutes
+title: Clear, Action-Oriented Title (e.g., "Authentication with Next.js")
 tags: auth, nextjs, setup
 ---
 
-## [Reference Title]
+# [Feature/Topic Name]
 
-[1-2 sentence explanation of what this guide covers and why it matters.]
+Brief description of what this feature does and when to use it.
 
-**Incorrect (describe the problem):**
+For official documentation:
 
-```typescript
-// Comment explaining what makes this problematic
-const supabase = createClient("https://xxx.supabase.co", "hardcoded-key");
-// Hardcoded credentials are a security risk
+```bash
+curl -H "Accept: text/markdown" https://supabase.com/docs/guides/{feature}
 ```
 
-**Correct (describe the solution):**
+## Quick Setup
 
 ```typescript
-// Comment explaining why this is better
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-// Environment variables keep credentials secure
+// Installation and basic usage
 ```
 
-[Optional: Additional context, setup steps, or configuration details]
+## Common Patterns
 
-Reference: [Supabase Docs](https://supabase.com/docs)
+### Pattern 1
+
+```typescript
+// Code example
+```
+
+### Pattern 2
+
+```typescript
+// Code example
+```
+
+## Common Mistakes
+
+1. **Mistake description**: Brief explanation and how to fix it
+2. **Another common issue**: Explanation
+
+## Sub-Resources
+
+| Topic       | Resource                       |
+| ----------- | ------------------------------ |
+| Setup guide | `{feature}/setup.md`           |
+| Mistakes    | `{feature}/common-mistakes.md` |
+
+## Documentation Resources
+
+| Topic           | URL                                        |
+| --------------- | ------------------------------------------ |
+| Official Guide  | https://supabase.com/docs/guides/{feature} |
+| API Reference   | https://supabase.com/docs/reference        |
