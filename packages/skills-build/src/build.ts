@@ -45,10 +45,117 @@ function parseSections(rulesDir: string): Section[] {
 }
 
 /**
- * Load metadata from metadata.json
+ * Parse SKILL.md frontmatter to extract metadata
  */
-function loadMetadata(metadataFile: string, skillName: string): Metadata {
-	if (!existsSync(metadataFile)) {
+function parseSkillFrontmatter(content: string): Record<string, unknown> {
+	if (!content.startsWith("---")) {
+		return {};
+	}
+
+	const endIndex = content.indexOf("---", 3);
+	if (endIndex === -1) {
+		return {};
+	}
+
+	const frontmatterContent = content.slice(3, endIndex).trim();
+	const result: Record<string, unknown> = {};
+	let currentKey = "";
+	let inMetadata = false;
+	const metadataObj: Record<string, string> = {};
+
+	for (const line of frontmatterContent.split("\n")) {
+		// Check for metadata block start
+		if (line.trim() === "metadata:") {
+			inMetadata = true;
+			continue;
+		}
+
+		// Handle metadata nested values
+		if (inMetadata && line.startsWith("  ")) {
+			const colonIndex = line.indexOf(":");
+			if (colonIndex !== -1) {
+				const key = line.slice(0, colonIndex).trim();
+				let value = line.slice(colonIndex + 1).trim();
+				if (
+					(value.startsWith('"') && value.endsWith('"')) ||
+					(value.startsWith("'") && value.endsWith("'"))
+				) {
+					value = value.slice(1, -1);
+				}
+				metadataObj[key] = value;
+			}
+			continue;
+		}
+
+		// End metadata block when we hit a non-indented line
+		if (inMetadata && !line.startsWith("  ") && line.trim()) {
+			inMetadata = false;
+			result.metadata = metadataObj;
+		}
+
+		// Handle top-level key-value
+		const colonIndex = line.indexOf(":");
+		if (colonIndex === -1) continue;
+
+		currentKey = line.slice(0, colonIndex).trim();
+		let value = line.slice(colonIndex + 1).trim();
+
+		if (
+			(value.startsWith('"') && value.endsWith('"')) ||
+			(value.startsWith("'") && value.endsWith("'"))
+		) {
+			value = value.slice(1, -1);
+		}
+
+		if (value) {
+			result[currentKey] = value;
+		}
+	}
+
+	// Ensure metadata is captured if file ends in metadata block
+	if (inMetadata && Object.keys(metadataObj).length > 0) {
+		result.metadata = metadataObj;
+	}
+
+	return result;
+}
+
+/**
+ * Extract references from SKILL.md body
+ */
+function extractReferencesFromBody(content: string): string[] {
+	const references: string[] = [];
+	const lines = content.split("\n");
+	let inReferencesSection = false;
+
+	for (const line of lines) {
+		if (line.match(/^##\s+References/i)) {
+			inReferencesSection = true;
+			continue;
+		}
+
+		if (inReferencesSection) {
+			// Stop at next heading
+			if (line.startsWith("## ")) {
+				break;
+			}
+
+			// Match list items with URLs
+			const urlMatch = line.match(/^-\s*(https?:\/\/[^\s]+)/);
+			if (urlMatch) {
+				references.push(urlMatch[1]);
+			}
+		}
+	}
+
+	return references;
+}
+
+/**
+ * Load metadata from SKILL.md frontmatter (Agent Skills spec compliant)
+ */
+function loadMetadata(skillFile: string, skillName: string): Metadata {
+	if (!existsSync(skillFile)) {
 		return {
 			version: "1.0.0",
 			organization: "Supabase",
@@ -61,7 +168,25 @@ function loadMetadata(metadataFile: string, skillName: string): Metadata {
 		};
 	}
 
-	return JSON.parse(readFileSync(metadataFile, "utf-8"));
+	const content = readFileSync(skillFile, "utf-8");
+	const frontmatter = parseSkillFrontmatter(content);
+	const metadata = (frontmatter.metadata as Record<string, string>) || {};
+
+	return {
+		version: metadata.version || "1.0.0",
+		organization: metadata.organization || "Supabase",
+		date:
+			metadata.date ||
+			new Date().toLocaleDateString("en-US", {
+				month: "long",
+				year: "numeric",
+			}),
+		abstract:
+			metadata.abstract ||
+			(frontmatter.description as string) ||
+			`${skillName} guide for developers.`,
+		references: extractReferencesFromBody(content),
+	};
 }
 
 /**
@@ -104,14 +229,14 @@ function buildSkill(paths: SkillPaths): void {
 	console.log(`[${paths.name}] Building AGENTS.md...`);
 
 	// Load metadata and sections
-	const metadata = loadMetadata(paths.metadataFile, paths.name);
-	const sections = parseSections(paths.rulesDir);
+	const metadata = loadMetadata(paths.skillFile, paths.name);
+	const sections = parseSections(paths.referencesDir);
 	const sectionMap = generateSectionMap(sections);
 	const skillTitle = skillNameToTitle(paths.name);
 
-	// Check if rules directory exists
-	if (!existsSync(paths.rulesDir)) {
-		console.log(`  No rules directory found. Generating empty AGENTS.md.`);
+	// Check if references directory exists
+	if (!existsSync(paths.referencesDir)) {
+		console.log(`  No references directory found. Generating empty AGENTS.md.`);
 		writeFileSync(
 			paths.agentsOutput,
 			`# ${skillTitle}\n\nNo rules defined yet.\n`,
@@ -119,19 +244,19 @@ function buildSkill(paths: SkillPaths): void {
 		return;
 	}
 
-	// Get all rule files
-	const ruleFiles = readdirSync(paths.rulesDir)
+	// Get all reference files
+	const referenceFiles = readdirSync(paths.referencesDir)
 		.filter((f) => f.endsWith(".md") && !f.startsWith("_"))
-		.map((f) => join(paths.rulesDir, f));
+		.map((f) => join(paths.referencesDir, f));
 
-	if (ruleFiles.length === 0) {
-		console.log(`  No rule files found. Generating empty AGENTS.md.`);
+	if (referenceFiles.length === 0) {
+		console.log(`  No reference files found. Generating empty AGENTS.md.`);
 	}
 
 	// Parse and validate all rules
 	const rules: Rule[] = [];
 
-	for (const file of ruleFiles) {
+	for (const file of referenceFiles) {
 		const validation = validateRuleFile(file, sectionMap);
 		if (!validation.valid) {
 			console.error(`  Skipping invalid file ${basename(file)}:`);

@@ -4,7 +4,10 @@ description: Postgres performance optimization and best practices from Supabase.
 license: MIT
 metadata:
   author: supabase
-  version: "1.0.0"
+  version: "1.1.0"
+  organization: Supabase
+  date: January 2026
+  abstract: Comprehensive Postgres performance optimization guide for developers using Supabase and Postgres. Contains performance rules across 8 categories, prioritized by impact from critical (query performance, connection management) to incremental (advanced features). Each rule includes detailed explanations, incorrect vs. correct SQL examples, query plan analysis, and specific performance metrics to guide automated optimization and code generation.
 ---
 
 # Supabase Postgres Best Practices
@@ -39,9 +42,9 @@ Reference these guidelines when:
 Read individual rule files for detailed explanations and SQL examples:
 
 ```
-rules/query-missing-indexes.md
-rules/schema-partial-indexes.md
-rules/_sections.md
+references/query-missing-indexes.md
+references/schema-partial-indexes.md
+references/_sections.md
 ```
 
 Each rule file contains:
@@ -55,3 +58,11 @@ Each rule file contains:
 ## Full Compiled Document
 
 For the complete guide with all rules expanded: `AGENTS.md`
+
+## References
+
+- https://www.postgresql.org/docs/current/
+- https://supabase.com/docs
+- https://wiki.postgresql.org/wiki/Performance_Optimization
+- https://supabase.com/docs/guides/database/overview
+- https://supabase.com/docs/guides/auth/row-level-security

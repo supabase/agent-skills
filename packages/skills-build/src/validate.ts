@@ -44,14 +44,14 @@ function isGoodExample(label: string): boolean {
 export function validateRuleFile(
 	filePath: string,
 	sectionMap?: Record<string, number>,
-	rulesDir?: string,
+	referencesDir?: string,
 ): ValidationResult {
 	const errors: string[] = [];
 	const warnings: string[] = [];
 
 	// Generate section map if not provided
-	if (!sectionMap && rulesDir) {
-		const sections = parseSections(rulesDir);
+	if (!sectionMap && referencesDir) {
+		const sections = parseSections(referencesDir);
 		sectionMap = generateSectionMap(sections);
 	} else if (!sectionMap) {
 		sectionMap = {};
@@ -138,25 +138,25 @@ export function validateRuleFile(
 }
 
 /**
- * Validate all rule files for a skill
+ * Validate all reference files for a skill
  */
 function validateSkill(paths: SkillPaths): boolean {
 	console.log(`[${paths.name}] Validating...`);
 
-	// Check if rules directory exists
-	if (!existsSync(paths.rulesDir)) {
-		console.log(`  No rules directory found.`);
+	// Check if references directory exists
+	if (!existsSync(paths.referencesDir)) {
+		console.log(`  No references directory found.`);
 		return true;
 	}
 
 	// Get section map
-	const sections = parseSections(paths.rulesDir);
+	const sections = parseSections(paths.referencesDir);
 	const sectionMap = generateSectionMap(sections);
 
 	// Get all markdown files (excluding _ prefixed files)
-	const files = readdirSync(paths.rulesDir)
+	const files = readdirSync(paths.referencesDir)
 		.filter((f) => f.endsWith(".md") && !f.startsWith("_"))
-		.map((f) => join(paths.rulesDir, f));
+		.map((f) => join(paths.referencesDir, f));
 
 	if (files.length === 0) {
 		console.log(`  No rule files found.`);
@@ -168,7 +168,7 @@ function validateSkill(paths: SkillPaths): boolean {
 	let hasErrors = false;
 
 	for (const file of files) {
-		const result = validateRuleFile(file, sectionMap, paths.rulesDir);
+		const result = validateRuleFile(file, sectionMap, paths.referencesDir);
 		const filename = basename(file);
 
 		if (result.valid) {

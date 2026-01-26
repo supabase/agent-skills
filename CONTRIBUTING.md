@@ -3,7 +3,7 @@
 Thank you for contributing to Supabase Agent Skills! Here's how to get started:
 
 [1. Getting Started](#getting-started) | [2. Issues](#issues) |
-[3. Pull Requests](#pull-requests) | [4. Contributing New Rules](#contributing-new-rules) |
+[3. Pull Requests](#pull-requests) | [4. Contributing New References](#contributing-new-references) |
 [5. Creating a New Skill](#creating-a-new-skill)
 
 ## Getting Started
@@ -14,15 +14,15 @@ before contributing.
 
 ## Issues
 
-If you find a typo, have a suggestion for a new skill/rule, or want to improve
-existing skills/rules, please create an Issue.
+If you find a typo, have a suggestion for a new skill/reference, or want to improve
+existing skills/references, please create an Issue.
 
 - Please search
   [existing Issues](https://github.com/supabase/agent-skills/issues) before
   creating a new one.
 - Please include a clear description of the problem or suggestion.
 - Tag your issue appropriately (e.g., `bug`, `question`, `enhancement`,
-  `new-rule`, `new-skill`, `documentation`).
+  `new-reference`, `new-skill`, `documentation`).
 
 ## Pull Requests
 
@@ -42,18 +42,18 @@ We actively welcome your Pull Requests! Here's what to keep in mind:
 Before submitting your PR, please run these checks:
 
 ```bash
-npm run validate  # Check rule format and structure
-npm run build     # Generate AGENTS.md from rules
+npm run validate  # Check reference format and structure
+npm run build     # Generate AGENTS.md from references
 ```
 
 Both commands must complete successfully.
 
-## Contributing New Rules
+## Contributing New References
 
-To add a rule to an existing skill:
+To add a reference to an existing skill:
 
-1. Navigate to `skills/{skill-name}/rules/`
-2. Copy `_template.md` to `{prefix}-{your-rule-name}.md`
+1. Navigate to `skills/{skill-name}/references/`
+2. Copy `_template.md` to `{prefix}-{your-reference-name}.md`
 3. Fill in the frontmatter (title, impact, tags)
 4. Write explanation and examples (Incorrect/Correct)
 5. Run validation and build:
@@ -65,26 +65,39 @@ npm run build
 
 ## Creating a New Skill
 
-To create an entirely new skill:
+Skills follow the [Agent Skills Open Standard](https://agentskills.io/).
 
 ### 1. Create the directory structure
 
 ```bash
-mkdir -p skills/my-skill/rules
+mkdir -p skills/my-skill/references
 ```
 
-### 2. Create metadata.json
+### 2. Create SKILL.md
 
-```json
-{
-  "version": "1.0.0",
-  "organization": "Your Org",
-  "date": "January 2026",
-  "abstract": "Brief description of this skill."
-}
+```yaml
+---
+name: my-skill
+description: Brief description of what this skill does and when to use it.
+license: MIT
+metadata:
+  author: your-org
+  version: "1.0.0"
+  organization: Your Org
+  date: January 2026
+  abstract: Detailed description of this skill for the compiled AGENTS.md.
+---
+
+# My Skill
+
+Instructions for agents using this skill.
+
+## References
+
+- https://example.com/docs
 ```
 
-### 3. Create rules/_sections.md
+### 3. Create references/_sections.md
 
 ```markdown
 ## 1. First Category (first)
@@ -96,11 +109,11 @@ mkdir -p skills/my-skill/rules
 **Description:** What this category covers.
 ```
 
-### 4. Create rule files
+### 4. Create reference files
 
-Name files as `{prefix}-{rule-name}.md` where prefix matches a section.
+Name files as `{prefix}-{reference-name}.md` where prefix matches a section.
 
-Example: `first-example-rule.md` for section "First Category"
+Example: `first-example-reference.md` for section "First Category"
 
 ### 5. Build
 
@@ -108,7 +121,7 @@ Example: `first-example-rule.md` for section "First Category"
 npm run build
 ```
 
-The build system auto-discovers skills. No configuration needed.
+The build system auto-discovers skills by looking for `SKILL.md` files.
 
 ## Questions or Feedback?
 

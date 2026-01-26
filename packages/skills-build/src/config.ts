@@ -15,18 +15,18 @@ export const SKILLS_ROOT = join(BUILD_DIR, "../../skills");
 export interface SkillPaths {
 	name: string;
 	skillDir: string;
-	rulesDir: string;
+	referencesDir: string;
 	agentsOutput: string;
-	metadataFile: string;
+	skillFile: string;
 }
 
-// Discover all valid skills (directories with metadata.json)
+// Discover all valid skills (directories with SKILL.md per Agent Skills spec)
 export function discoverSkills(): string[] {
 	if (!existsSync(SKILLS_ROOT)) return [];
 
 	return readdirSync(SKILLS_ROOT, { withFileTypes: true })
 		.filter((d) => d.isDirectory())
-		.filter((d) => existsSync(join(SKILLS_ROOT, d.name, "metadata.json")))
+		.filter((d) => existsSync(join(SKILLS_ROOT, d.name, "SKILL.md")))
 		.map((d) => d.name);
 }
 
@@ -36,16 +36,16 @@ export function getSkillPaths(skillName: string): SkillPaths {
 	return {
 		name: skillName,
 		skillDir,
-		rulesDir: join(skillDir, "rules"),
+		referencesDir: join(skillDir, "references"),
 		agentsOutput: join(skillDir, "AGENTS.md"),
-		metadataFile: join(skillDir, "metadata.json"),
+		skillFile: join(skillDir, "SKILL.md"),
 	};
 }
 
 // Validate skill exists
 export function validateSkillExists(skillName: string): boolean {
 	const paths = getSkillPaths(skillName);
-	return existsSync(paths.metadataFile);
+	return existsSync(paths.skillFile);
 }
 
 // Valid impact levels in priority order

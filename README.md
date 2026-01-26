@@ -29,9 +29,9 @@ You can also install the skills in this repo as Claude Code plugins
 ## Available Skills
 
 <details>
-<summary><strong>postgres-best-practices</strong></summary>
+<summary><strong>supabase-postgres-best-practices</strong></summary>
 
-Postgres performance optimization guidelines from Supabase. Contains rules
+Postgres performance optimization guidelines from Supabase. Contains references
 across 8 categories, prioritized by impact.
 
 **Use when:**
@@ -76,12 +76,11 @@ Help me add proper indexes to this table
 
 ## Skill Structure
 
-Each skill contains:
+Each skill follows the [Agent Skills Open Standard](https://agentskills.io/):
 
-- `SKILL.md` - Instructions for the agent
-- `AGENTS.md` - Compiled rules document (generated)
-- `rules/` - Individual rule files
-- `metadata.json` - Version and metadata
+- `SKILL.md` - Required skill manifest with frontmatter (name, description, metadata)
+- `AGENTS.md` - Compiled references document (generated)
+- `references/` - Individual reference files
 
 ## License
 

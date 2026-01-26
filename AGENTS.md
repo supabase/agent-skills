@@ -2,16 +2,18 @@
 
 Guidance for AI coding agents working with this repository.
 
+> **Note:** `CLAUDE.md` is a symlink to this file.
+
 ## Repository Structure
 
 ```
 skills/
   {skill-name}/
-    metadata.json         # Required: skill metadata
-    AGENTS.md             # Generated: compiled rules
-    rules/
+    SKILL.md              # Required: skill manifest (Agent Skills spec)
+    AGENTS.md             # Generated: compiled references
+    references/
       _sections.md        # Required: section definitions
-      {prefix}-{name}.md  # Rule files
+      {prefix}-{name}.md  # Reference files
 
 packages/
   skills-build/           # Generic build system for all skills
@@ -31,13 +33,38 @@ npm run check                    # Format and lint (auto-fix)
 
 ## Creating a New Skill
 
-1. Create directory: `mkdir -p skills/{name}/rules`
-2. Add `metadata.json` with version, organization, abstract
-3. Add `rules/_sections.md` defining sections
-4. Add rule files: `{prefix}-{rule-name}.md`
+Skills follow the [Agent Skills Open Standard](https://agentskills.io/).
+
+1. Create directory: `mkdir -p skills/{skill-name}/references`
+2. Create `SKILL.md` with required frontmatter:
+   ```yaml
+   ---
+   name: skill-name
+   description: What this skill does and when to use it.
+   license: MIT
+   metadata:
+     author: your-org
+     version: "1.0.0"
+   ---
+   ```
+3. Add `references/_sections.md` defining sections
+4. Add reference files: `{prefix}-{reference-name}.md`
 5. Run `npm run build`
 
-## Rule File Format
+## SKILL.md Format (Agent Skills Spec)
+
+```yaml
+---
+name: skill-name                    # Required: must match directory name
+description: Description of skill.  # Required: what it does and when to use
+license: MIT                        # Optional: license
+metadata:                           # Optional: arbitrary key-value pairs
+  author: your-org
+  version: "1.0.0"
+---
+```
+
+## Reference File Format
 
 ```markdown
 ---
