@@ -3,4 +3,21 @@ dist/
 *.log
 .DS_Store
 
-.vscode
+# IDE/Editor directories
+.vscode/
+.cursor/
+.windsurf/
+.trae/
+
+# AI Agent directories
+.agent/
+.agents/
+.claude/
+.codex/
+.gemini/
+.goose/
+.kiro/
+.opencode/
+
+# Generated skills in any dot directory
+.*/skills/
