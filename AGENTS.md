@@ -24,7 +24,10 @@ npm run build                    # Build all skills
 npm run build -- {skill-name}    # Build specific skill
 npm run validate                 # Validate all skills
 npm run validate -- {skill-name} # Validate specific skill
+npm run check                    # Format and lint (auto-fix)
 ```
+
+**Before completing any task**, run `npm run check` and `npm run build` to ensure CI passes.
 
 ## Creating a New Skill
 
