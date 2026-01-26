@@ -7,65 +7,72 @@ metadata:
   version: "1.0.0"
   organization: Supabase
   date: January 2026
-  abstract: Comprehensive Supabase development guide for building applications with Supabase services. Contains guides across 8 categories covering Auth, Database, Storage, Edge Functions, Realtime, client libraries, CLI, and tooling. Each reference includes setup instructions, code examples, common mistakes, and integration patterns.
+  abstract: Comprehensive Supabase development guide for building applications with Supabase services. Contains guides covering Auth, Database, Storage, Edge Functions, Realtime, client libraries, CLI, and tooling. Each reference includes setup instructions, code examples, common mistakes, and integration patterns.
 ---
 
-# Using Supabase
+# Supabase
 
-Comprehensive development guide for building applications with Supabase, maintained by Supabase. Contains guides across 8 categories to help developers integrate Supabase services effectively.
+Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and works with any language, framework, or ORM.
 
-## When to Apply
+## Supabase Documentation
 
-Reference these guidelines when:
+Always reference the Supabase documentation before making Supabase-related claims. The documentation is the source of truth for all Supabase-related information.
 
-- Building applications with Supabase
-- Integrating Supabase services (Auth, Database, Storage, etc.)
-- Setting up local development with Supabase CLI
-- Troubleshooting Supabase-related issues
-- Configuring Supabase for production deployments
-- Using the supabase-js SDK
+You can use the `curl` commands to fetch the documentation page as markdown:
 
-## Guide Categories by Priority
+**Documentation:**
 
-| Priority | Category         | Impact      | Prefix      |
-| -------- | ---------------- | ----------- | ----------- |
-| 1        | Getting Started  | CRITICAL    | `setup`     |
-| 2        | Auth             | CRITICAL    | `auth`      |
-| 3        | Database         | CRITICAL    | `database`  |
-| 4        | Storage          | HIGH        | `storage`   |
-| 5        | Edge Functions   | HIGH        | `functions` |
-| 6        | Realtime         | MEDIUM-HIGH | `realtime`  |
-| 7        | Client Libraries | MEDIUM      | `client`    |
-| 8        | CLI & Tools      | LOW-MEDIUM  | `cli`       |
-
-## How to Use
-
-Read individual reference files for detailed explanations and code examples:
-
-```
-references/setup-project.md
-references/auth-nextjs.md
-references/_sections.md
+```bash
+# Fetch any doc page as markdown
+curl -H "Accept: text/markdown" https://supabase.com/docs/<path>
 ```
 
-Each reference file contains:
+## Overview of Resources
 
-- Brief explanation of the topic
-- Setup instructions and code examples
-- Common mistakes with wrong/correct patterns
-- Integration patterns with other Supabase services
-- Links to official documentation
+Reference the appropriate resource file based on the user's needs:
 
-## Full Compiled Document
+### Core Guides
 
-For the complete guide with all references expanded: `AGENTS.md`
+| Area             | Resource                         | When to Use                                              |
+| ---------------- | -------------------------------- | -------------------------------------------------------- |
+| Getting Started  | `references/getting-started.md`  | Setting up a project, connection strings, dependencies   |
+| Referencing Docs | `references/referencing-docs.md` | Looking up official documentation, verifying information |
 
-## References
+### Authentication & Security
 
-- https://supabase.com/docs
-- https://supabase.com/docs/guides/getting-started
-- https://supabase.com/docs/guides/auth
-- https://supabase.com/docs/guides/database
-- https://supabase.com/docs/guides/storage
-- https://supabase.com/docs/guides/functions
-- https://supabase.com/docs/guides/realtime
+| Area               | Resource             | When to Use                                |
+| ------------------ | -------------------- | ------------------------------------------ |
+| Auth Overview      | `references/auth.md` | Authentication, social login, sessions     |
+| Row Level Security | `references/rls.md`  | Database security policies, access control |
+
+### Database
+
+| Area     | Resource                 | When to Use                            |
+| -------- | ------------------------ | -------------------------------------- |
+| Database | `references/database.md` | Postgres queries, migrations, modeling |
+
+### Storage & Media
+
+| Area    | Resource                | When to Use                  |
+| ------- | ----------------------- | ---------------------------- |
+| Storage | `references/storage.md` | File uploads, buckets, media |
+
+### Edge Functions
+
+| Area           | Resource                       | When to Use                                  |
+| -------------- | ------------------------------ | -------------------------------------------- |
+| Edge Functions | `references/edge-functions.md` | Serverless functions, Deno runtime, webhooks |
+
+### Realtime
+
+| Area     | Resource                 | When to Use                                  |
+| -------- | ------------------------ | -------------------------------------------- |
+| Realtime | `references/realtime.md` | Real-time subscriptions, presence, broadcast |
+
+### Client Libraries & CLI
+
+| Area         | Resource                    | When to Use                              |
+| ------------ | --------------------------- | ---------------------------------------- |
+| supabase-js  | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
+| Supabase CLI | `references/cli.md`         | Local development, migrations, CI/CD     |
+| MCP Server   | `references/mcp.md`         | AI agent integration, MCP tooling        |
