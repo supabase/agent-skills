@@ -3,7 +3,5 @@
 	"organization": "Supabase",
 	"date": "January 2026",
 	"abstract": "Comprehensive Supabase development guide covering Auth, Storage, Edge Functions, Realtime, CLI, supabase-js SDK, and MCP integration.",
-	"references": [
-		"https://supabase.com/docs"
-	]
+	"references": ["https://supabase.com/docs"]
 }
