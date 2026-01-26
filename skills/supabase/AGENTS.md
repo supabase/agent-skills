@@ -1,4 +1,4 @@
-# Using Supabase
+# Supabase
 
 **Version 1.0.0**
 Supabase
