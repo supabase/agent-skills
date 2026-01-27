@@ -40,10 +40,16 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Authentication & Security
 
-| Area               | Resource             | When to Use                                |
-| ------------------ | -------------------- | ------------------------------------------ |
-| Auth Overview      | `references/auth.md` | Authentication, social login, sessions     |
-| Row Level Security | `references/rls.md`  | Database security policies, access control |
+| Area               | Resource                            | When to Use                                              |
+| ------------------ | ----------------------------------- | -------------------------------------------------------- |
+| Auth Core          | `references/auth/core-*.md`         | Sign-up, sign-in, sessions, password reset               |
+| OAuth/Social       | `references/auth/oauth-*.md`        | Google, GitHub, Apple login, PKCE flow                   |
+| Enterprise SSO     | `references/auth/sso-*.md`          | SAML 2.0, enterprise identity providers                  |
+| MFA                | `references/auth/mfa-*.md`          | TOTP authenticator apps, phone MFA, AAL levels           |
+| Passwordless       | `references/auth/passwordless-*.md` | Magic links, email OTP, phone OTP                        |
+| Auth Hooks         | `references/auth/hooks-*.md`        | Custom JWT claims, custom email templates                |
+| Server-Side Auth   | `references/auth/server-*.md`       | Admin API, SSR with Next.js/SvelteKit, service role auth |
+| Row Level Security | `references/db/rls-*.md`            | Database security policies, access control               |
 
 ### Database
 
