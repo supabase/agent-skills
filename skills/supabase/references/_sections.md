@@ -1,45 +1,36 @@
-# Reference Sections
+# Section Definitions
 
-## 1. Getting Started (getting)
+Reference files are grouped by prefix. Claude loads specific files based on user
+queries.
+
+---
+
+## 1. Row Level Security (rls)
+
 **Impact:** CRITICAL
-**Description:** Local development setup and CLI workflow guides
+**Description:** RLS policies, common mistakes, performance optimizations, and security patterns specific to Supabase's auth.uid() integration.
 
-## 2. Database (db)
+## 2. Connection Pooling (conn)
+
 **Impact:** CRITICAL
-**Description:** Database schema, RLS, migrations, and performance
+**Description:** Supabase-specific connection pooling with Supavisor. Transaction mode (port 6543) vs Session mode (port 5432).
 
-## 3. Authentication (auth)
-**Impact:** CRITICAL
-**Description:** Auth flows, sessions, OAuth, MFA, and SSO
+## 3. Schema Design (schema)
 
-## 4. Storage (storage)
 **Impact:** HIGH
-**Description:** File uploads, access control, and CDN
+**Description:** Supabase-specific schema patterns including auth.users foreign keys, timestamptz, JSONB usage, extensions, and Realtime.
 
-## 5. Edge Functions (edge)
+## 4. Migrations (migrations)
+
 **Impact:** HIGH
-**Description:** Serverless functions, deployment, and patterns
+**Description:** Migration workflows using Supabase CLI, idempotent patterns, supabase db diff, and local testing strategies.
 
-## 6. Realtime (realtime)
-**Impact:** MEDIUM-HIGH
-**Description:** Subscriptions, presence, and broadcast
+## 5. Performance (perf)
 
-## 7. SDK (sdk)
-**Impact:** HIGH
-**Description:** Client libraries, queries, and TypeScript
-
-## 8. CLI (cli)
 **Impact:** CRITICAL
-**Description:** CLI commands, migrations, and local development
+**Description:** Index strategies (BRIN, GIN, partial), query optimization for PostgREST, and Supabase-specific performance patterns.
 
-## 9. MCP (mcp)
-**Impact:** MEDIUM
-**Description:** MCP server setup and configuration
+## 6. Security (security)
 
-## 10. Tooling (tooling)
-**Impact:** MEDIUM
-**Description:** Tool selection and workflow guides
-
-## 11. Vectors (vectors)
-**Impact:** MEDIUM
-**Description:** pgvector, embeddings, and semantic search
+**Impact:** CRITICAL
+**Description:** Service role key handling, security definer functions in private schemas, and Supabase-specific security patterns.
