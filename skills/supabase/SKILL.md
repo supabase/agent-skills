@@ -47,15 +47,15 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Database
 
-| Area               | Resource                     | When to Use                                    |
-| ------------------ | ---------------------------- | ---------------------------------------------- |
-| Database           | `references/database.md`     | Postgres queries, migrations, modeling         |
-| RLS Security       | `references/rls-*.md`        | Row Level Security policies, common mistakes   |
-| Connection Pooling | `references/conn-pooling.md` | Transaction vs Session mode, port 6543 vs 5432 |
-| Schema Design      | `references/schema-*.md`     | auth.users FKs, timestamps, JSONB, extensions  |
-| Migrations         | `references/migrations-*.md` | CLI workflows, idempotent patterns, db diff    |
-| Performance        | `references/perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
-| Security           | `references/security-*.md`   | Service role key, security_definer functions   |
+| Area               | Resource                        | When to Use                                    |
+| ------------------ | ------------------------------- | ---------------------------------------------- |
+| Database           | `references/database.md`        | Postgres queries, migrations, modeling         |
+| RLS Security       | `references/db/rls-*.md`        | Row Level Security policies, common mistakes   |
+| Connection Pooling | `references/db/conn-pooling.md` | Transaction vs Session mode, port 6543 vs 5432 |
+| Schema Design      | `references/db/schema-*.md`     | auth.users FKs, timestamps, JSONB, extensions  |
+| Migrations         | `references/db/migrations-*.md` | CLI workflows, idempotent patterns, db diff    |
+| Performance        | `references/db/perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
+| Security           | `references/db/security-*.md`   | Service role key, security_definer functions   |
 
 ### Storage & Media
 
