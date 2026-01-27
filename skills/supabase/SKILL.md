@@ -65,9 +65,23 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Edge Functions
 
-| Area           | Resource                       | When to Use                                  |
-| -------------- | ------------------------------ | -------------------------------------------- |
-| Edge Functions | `references/edge-functions.md` | Serverless functions, Deno runtime, webhooks |
+| Area                 | Resource                                        | When to Use                                      |
+| -------------------- | ----------------------------------------------- | ------------------------------------------------ |
+| Quick Start          | `references/edge-functions/fun-quickstart.md`   | Creating and deploying first function            |
+| Project Structure    | `references/edge-functions/fun-project-structure.md` | Directory layout, shared code, fat functions |
+| JWT Authentication   | `references/edge-functions/auth-jwt-verification.md` | JWT verification, jose library, middleware  |
+| RLS Integration      | `references/edge-functions/auth-rls-integration.md` | Passing auth context, user-scoped queries    |
+| Database (supabase-js) | `references/edge-functions/db-supabase-client.md` | Queries, inserts, RPC calls                  |
+| Database (Direct)    | `references/edge-functions/db-direct-postgres.md` | Postgres pools, Drizzle ORM                  |
+| CORS                 | `references/edge-functions/pat-cors.md`         | Browser requests, preflight handling             |
+| Routing              | `references/edge-functions/pat-routing.md`      | Multi-route functions, Hono framework            |
+| Error Handling       | `references/edge-functions/pat-error-handling.md` | Error responses, validation                    |
+| Background Tasks     | `references/edge-functions/pat-background-tasks.md` | waitUntil, async processing                  |
+| Streaming            | `references/edge-functions/adv-streaming.md`    | SSE, streaming responses                         |
+| WebSockets           | `references/edge-functions/adv-websockets.md`   | Bidirectional communication                      |
+| Regional Invocation  | `references/edge-functions/adv-regional.md`     | Region selection, latency optimization           |
+| Testing              | `references/edge-functions/dbg-testing.md`      | Deno tests, local testing                        |
+| Limits & Debugging   | `references/edge-functions/dbg-limits.md`       | Troubleshooting, runtime limits                  |
 
 ### Realtime
 
