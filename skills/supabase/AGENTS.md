@@ -2,7 +2,7 @@
 
 ## Overview
 
-Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions.
+Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Vectors/AI, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions including vector search, embeddings, RAG, and semantic search.
 
 ## Structure
 
@@ -24,11 +24,17 @@ supabase/
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
 | 1 | Row Level Security | CRITICAL | `rls-` |
+| 1 | Setup | HIGH | `setup-` |
 | 2 | Connection Pooling | CRITICAL | `conn-` |
+| 2 | Indexing | CRITICAL | `index-` |
 | 3 | Schema Design | HIGH | `schema-` |
+| 3 | Search | CRITICAL | `search-` |
 | 4 | Migrations | HIGH | `migrations-` |
+| 4 | Embeddings | HIGH | `embed-` |
 | 5 | Performance | CRITICAL | `perf-` |
+| 5 | RAG | HIGH | `rag-` |
 | 6 | Security | CRITICAL | `security-` |
+| 6 | Performance | CRITICAL | `perf-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -45,6 +51,7 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 **Performance** (`perf-`):
 - `references/db/perf-indexes.md`
 - `references/db/perf-query-optimization.md`
+- `references/vectors/perf-tuning.md`
 
 **Row Level Security** (`rls-`):
 - `references/db/rls-common-mistakes.md`
@@ -64,6 +71,23 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db/security-functions.md`
 - `references/db/security-service-role.md`
 
+**Embeddings** (`embed-`):
+- `references/vectors/embed-generation.md`
+
+**Indexing** (`index-`):
+- `references/vectors/index-hnsw.md`
+- `references/vectors/index-ivfflat.md`
+
+**RAG** (`rag-`):
+- `references/vectors/rag-patterns.md`
+
+**Search** (`search-`):
+- `references/vectors/search-hybrid.md`
+- `references/vectors/search-semantic.md`
+
+**Setup** (`setup-`):
+- `references/vectors/setup-pgvector.md`
+
 ---
 
-*18 reference files across 6 categories*
+*26 reference files across 12 categories*
