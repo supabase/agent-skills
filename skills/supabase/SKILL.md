@@ -59,9 +59,14 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Storage & Media
 
-| Area    | Resource                | When to Use                  |
-| ------- | ----------------------- | ---------------------------- |
-| Storage | `references/storage.md` | File uploads, buckets, media |
+| Area             | Resource                            | When to Use                                    |
+| ---------------- | ----------------------------------- | ---------------------------------------------- |
+| Access Control   | `references/storage/access-*.md`    | Bucket visibility, Storage RLS policies        |
+| Uploads          | `references/storage/upload-*.md`    | Standard uploads, resumable/large file uploads |
+| Downloads        | `references/storage/download-*.md`  | Public URLs, signed URLs, download methods     |
+| Transformations  | `references/storage/transform-*.md` | Image resize, crop, format, Next.js loader     |
+| CDN & Caching    | `references/storage/cdn-*.md`       | Cache control, stale content, Smart CDN        |
+| File Operations  | `references/storage/ops-*.md`       | Move, copy, delete, list files                 |
 
 ### Edge Functions
 

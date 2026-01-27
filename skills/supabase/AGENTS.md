@@ -24,11 +24,17 @@ supabase/
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
 | 1 | Row Level Security | CRITICAL | `rls-` |
+| 1 | Access Control | CRITICAL | `access-` |
 | 2 | Connection Pooling | CRITICAL | `conn-` |
+| 2 | Uploads | HIGH | `upload-` |
 | 3 | Schema Design | HIGH | `schema-` |
+| 3 | Downloads | MEDIUM | `download-` |
 | 4 | Migrations | HIGH | `migrations-` |
+| 4 | Image Transformations | MEDIUM | `transform-` |
 | 5 | Performance | CRITICAL | `perf-` |
+| 5 | CDN & Caching | HIGH | `cdn-` |
 | 6 | Security | CRITICAL | `security-` |
+| 6 | File Operations | MEDIUM | `ops-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -64,6 +70,25 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db/security-functions.md`
 - `references/db/security-service-role.md`
 
+**Access Control** (`access-`):
+- `references/storage/access-control.md`
+
+**CDN & Caching** (`cdn-`):
+- `references/storage/cdn-caching.md`
+
+**Downloads** (`download-`):
+- `references/storage/download-urls.md`
+
+**File Operations** (`ops-`):
+- `references/storage/ops-file-management.md`
+
+**Image Transformations** (`transform-`):
+- `references/storage/transform-images.md`
+
+**Uploads** (`upload-`):
+- `references/storage/upload-resumable.md`
+- `references/storage/upload-standard.md`
+
 ---
 
-*18 reference files across 6 categories*
+*25 reference files across 12 categories*
