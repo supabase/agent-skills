@@ -1,4 +1,10 @@
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+	existsSync,
+	readdirSync,
+	readFileSync,
+	statSync,
+	writeFileSync,
+} from "node:fs";
 import { basename, join } from "node:path";
 import {
 	discoverSkills,
@@ -223,14 +229,99 @@ export function generateSectionMap(
 }
 
 /**
+ * Recursively get all markdown files from a directory
+ */
+function getMarkdownFilesRecursive(dir: string): string[] {
+	const files: string[] = [];
+
+	if (!existsSync(dir)) {
+		return files;
+	}
+
+	const entries = readdirSync(dir);
+
+	for (const entry of entries) {
+		// Skip files starting with underscore
+		if (entry.startsWith("_")) {
+			continue;
+		}
+
+		const fullPath = join(dir, entry);
+		const stat = statSync(fullPath);
+
+		if (stat.isDirectory()) {
+			// Recursively scan subdirectories
+			files.push(...getMarkdownFilesRecursive(fullPath));
+		} else if (entry.endsWith(".md")) {
+			files.push(fullPath);
+		}
+	}
+
+	return files;
+}
+
+/**
+ * Parse all _sections.md files from references directory and subdirectories
+ */
+function parseAllSections(referencesDir: string): Section[] {
+	const allSections: Section[] = [];
+
+	// Parse root _sections.md
+	const rootSectionsFile = join(referencesDir, "_sections.md");
+	if (existsSync(rootSectionsFile)) {
+		allSections.push(...parseSectionsFromFile(rootSectionsFile));
+	}
+
+	// Scan subdirectories for _sections.md files
+	if (existsSync(referencesDir)) {
+		const entries = readdirSync(referencesDir);
+		for (const entry of entries) {
+			const fullPath = join(referencesDir, entry);
+			if (statSync(fullPath).isDirectory()) {
+				const subSectionsFile = join(fullPath, "_sections.md");
+				if (existsSync(subSectionsFile)) {
+					allSections.push(...parseSectionsFromFile(subSectionsFile));
+				}
+			}
+		}
+	}
+
+	return allSections;
+}
+
+/**
+ * Parse section definitions from a specific _sections.md file
+ */
+function parseSectionsFromFile(filePath: string): Section[] {
+	const content = readFileSync(filePath, "utf-8");
+	const sections: Section[] = [];
+
+	const sectionMatches = content.matchAll(
+		/##\s+(\d+)\.\s+([^\n(]+)\s*\((\w+)\)\s*\n\*\*Impact:\*\*\s*(\w+(?:-\w+)?)\s*\n\*\*Description:\*\*\s*([^\n]+)/g,
+	);
+
+	for (const match of sectionMatches) {
+		sections.push({
+			number: parseInt(match[1], 10),
+			title: match[2].trim(),
+			prefix: match[3].trim(),
+			impact: match[4].trim() as Section["impact"],
+			description: match[5].trim(),
+		});
+	}
+
+	return sections;
+}
+
+/**
  * Build AGENTS.md for a specific skill
  */
 function buildSkill(paths: SkillPaths): void {
 	console.log(`[${paths.name}] Building AGENTS.md...`);
 
-	// Load metadata and sections
+	// Load metadata and sections (including from subdirectories)
 	const metadata = loadMetadata(paths.skillFile, paths.name);
-	const sections = parseSections(paths.referencesDir);
+	const sections = parseAllSections(paths.referencesDir);
 	const sectionMap = generateSectionMap(sections);
 	const skillTitle = skillNameToTitle(paths.name);
 
@@ -244,10 +335,8 @@ function buildSkill(paths: SkillPaths): void {
 		return;
 	}
 
-	// Get all reference files
-	const referenceFiles = readdirSync(paths.referencesDir)
-		.filter((f) => f.endsWith(".md") && !f.startsWith("_"))
-		.map((f) => join(paths.referencesDir, f));
+	// Get all reference files recursively
+	const referenceFiles = getMarkdownFilesRecursive(paths.referencesDir);
 
 	if (referenceFiles.length === 0) {
 		console.log(`  No reference files found. Generating empty AGENTS.md.`);
@@ -436,4 +525,9 @@ if (isMainModule) {
 	console.log("✅ Done!");
 }
 
-export { buildSkill, parseSections };
+export {
+	buildSkill,
+	getMarkdownFilesRecursive,
+	parseAllSections,
+	parseSections,
+};

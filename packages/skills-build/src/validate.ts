@@ -1,6 +1,11 @@
-import { existsSync, readdirSync } from "node:fs";
-import { basename, join } from "node:path";
-import { generateSectionMap, parseSections } from "./build.js";
+import { existsSync } from "node:fs";
+import { basename } from "node:path";
+import {
+	generateSectionMap,
+	getMarkdownFilesRecursive,
+	parseAllSections,
+	parseSections,
+} from "./build.js";
 import {
 	discoverSkills,
 	getSkillPaths,
@@ -149,14 +154,12 @@ function validateSkill(paths: SkillPaths): boolean {
 		return true;
 	}
 
-	// Get section map
-	const sections = parseSections(paths.referencesDir);
+	// Get section map (including from subdirectories)
+	const sections = parseAllSections(paths.referencesDir);
 	const sectionMap = generateSectionMap(sections);
 
-	// Get all markdown files (excluding _ prefixed files)
-	const files = readdirSync(paths.referencesDir)
-		.filter((f) => f.endsWith(".md") && !f.startsWith("_"))
-		.map((f) => join(paths.referencesDir, f));
+	// Get all markdown files recursively (excluding _ prefixed files)
+	const files = getMarkdownFilesRecursive(paths.referencesDir);
 
 	if (files.length === 0) {
 		console.log(`  No rule files found.`);
