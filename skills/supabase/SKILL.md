@@ -4,7 +4,7 @@ description: Guides and best practices for working with Supabase. Covers getting
 license: MIT
 metadata:
   author: supabase
-  version: '1.0.0'
+  version: "1.0.0"
   organization: Supabase
   date: January 2026
   abstract: Comprehensive Supabase development guide for building applications with Supabase services. Contains guides covering Auth, Database, Storage, Edge Functions, Realtime, client libraries, CLI, and tooling. Each reference includes setup instructions, code examples, common mistakes, and integration patterns.
@@ -17,6 +17,18 @@ Supabase is an open source Firebase alternative that provides a Postgres databas
 ## Overview of Resources
 
 Reference the appropriate resource file based on the user's needs:
+
+### Authentication & Security
+
+| Area               | Resource                            | When to Use                                              |
+| ------------------ | ----------------------------------- | -------------------------------------------------------- |
+| Auth Core          | `references/auth-core-*.md`        | Sign-up, sign-in, sessions, password reset               |
+| OAuth/Social       | `references/auth-oauth-*.md`       | Google, GitHub, Apple login, PKCE flow                   |
+| Enterprise SSO     | `references/auth-sso-*.md`         | SAML 2.0, enterprise identity providers                  |
+| MFA                | `references/auth-mfa-*.md`         | TOTP authenticator apps, phone MFA, AAL levels           |
+| Passwordless       | `references/auth-passwordless-*.md`| Magic links, email OTP, phone OTP                        |
+| Auth Hooks         | `references/auth-hooks-*.md`       | Custom JWT claims, custom email templates                |
+| Server-Side Auth   | `references/auth-server-*.md`      | Admin API, SSR with Next.js/SvelteKit, service role auth |
 
 ### Database
 
