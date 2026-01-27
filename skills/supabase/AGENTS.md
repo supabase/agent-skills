@@ -22,6 +22,51 @@ supabase/
 2. Browse `references/` for detailed documentation on specific topics
 3. Reference files are loaded on-demand - read only what you need
 
+## Reference Categories
+
+| Priority | Category | Impact | Prefix |
+|----------|----------|--------|--------|
+| 1 | Row Level Security | CRITICAL | `rls-` |
+| 2 | Connection Pooling | CRITICAL | `conn-` |
+| 3 | Schema Design | HIGH | `schema-` |
+| 4 | Migrations | HIGH | `migrations-` |
+| 5 | Performance | CRITICAL | `perf-` |
+| 6 | Security | CRITICAL | `security-` |
+
+Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
+
+## Available References
+
+**Connection Pooling** (`conn-`):
+- `references/conn-pooling.md`
+
+**Migrations** (`migrations-`):
+- `references/migrations-diff.md`
+- `references/migrations-idempotent.md`
+- `references/migrations-testing.md`
+
+**Performance** (`perf-`):
+- `references/perf-indexes.md`
+- `references/perf-query-optimization.md`
+
+**Row Level Security** (`rls-`):
+- `references/rls-common-mistakes.md`
+- `references/rls-mandatory.md`
+- `references/rls-performance.md`
+- `references/rls-policy-types.md`
+- `references/rls-views.md`
+
+**Schema Design** (`schema-`):
+- `references/schema-auth-fk.md`
+- `references/schema-extensions.md`
+- `references/schema-jsonb.md`
+- `references/schema-realtime.md`
+- `references/schema-timestamps.md`
+
+**Security** (`security-`):
+- `references/security-functions.md`
+- `references/security-service-role.md`
+
 ---
 
-*0 reference files across 0 categories*
+*18 reference files across 6 categories*
