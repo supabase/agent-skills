@@ -24,10 +24,15 @@ supabase/
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
 | 1 | Row Level Security | CRITICAL | `rls-` |
+| 1 | Channel Setup | HIGH | `setup-` |
 | 2 | Connection Pooling | CRITICAL | `conn-` |
+| 2 | Broadcast Messaging | CRITICAL | `broadcast-` |
 | 3 | Schema Design | HIGH | `schema-` |
+| 3 | Presence Tracking | MEDIUM | `presence-` |
 | 4 | Migrations | HIGH | `migrations-` |
+| 4 | Postgres Changes | MEDIUM | `postgres-` |
 | 5 | Performance | CRITICAL | `perf-` |
+| 5 | Implementation Patterns | CRITICAL | `patterns-` |
 | 6 | Security | CRITICAL | `security-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
@@ -64,6 +69,24 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db/security-functions.md`
 - `references/db/security-service-role.md`
 
+**Broadcast Messaging** (`broadcast-`):
+- `references/realtime/broadcast-basics.md`
+- `references/realtime/broadcast-database.md`
+
+**Implementation Patterns** (`patterns-`):
+- `references/realtime/patterns-cleanup.md`
+- `references/realtime/patterns-errors.md`
+
+**Postgres Changes** (`postgres-`):
+- `references/realtime/postgres-changes.md`
+
+**Presence Tracking** (`presence-`):
+- `references/realtime/presence-tracking.md`
+
+**Channel Setup** (`setup-`):
+- `references/realtime/setup-auth.md`
+- `references/realtime/setup-channels.md`
+
 ---
 
-*18 reference files across 6 categories*
+*26 reference files across 11 categories*

@@ -71,9 +71,14 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Realtime
 
-| Area     | Resource                 | When to Use                                  |
-| -------- | ------------------------ | -------------------------------------------- |
-| Realtime | `references/realtime.md` | Real-time subscriptions, presence, broadcast |
+| Area             | Resource                            | When to Use                                         |
+| ---------------- | ----------------------------------- | --------------------------------------------------- |
+| Realtime         | `references/realtime.md`            | Real-time subscriptions, presence, broadcast        |
+| Channel Setup    | `references/realtime/setup-*.md`    | Creating channels, naming conventions, auth         |
+| Broadcast        | `references/realtime/broadcast-*.md`| Client messaging, database-triggered broadcasts     |
+| Presence         | `references/realtime/presence-*.md` | User online status, shared state tracking           |
+| Postgres Changes | `references/realtime/postgres-*.md` | Database change listeners (prefer Broadcast)        |
+| Patterns         | `references/realtime/patterns-*.md` | Cleanup, error handling, React integration          |
 
 ### Client Libraries & CLI
 
