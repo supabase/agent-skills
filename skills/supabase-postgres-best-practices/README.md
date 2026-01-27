@@ -3,6 +3,26 @@
 This skill contains Postgres performance optimization references optimized for
 AI agents and LLMs. It follows the [Agent Skills Open Standard](https://agentskills.io/).
 
+## Requirements
+
+- **Minimum PostgreSQL Version:** 9.5 (some rules require newer versions)
+- **Recommended Version:** 15+
+- **Optional Extensions:** pg_stat_statements (for monitoring rules)
+
+### Version Compatibility
+
+Some rules require specific PostgreSQL versions due to feature availability:
+
+| Feature | Min Version | Affected Rules |
+|---------|-------------|----------------|
+| ON CONFLICT (UPSERT) | 9.5 | data-upsert |
+| SKIP LOCKED | 9.5 | lock-skip-locked |
+| JSONB type | 9.4 | advanced-jsonb-indexing |
+| Declarative Partitioning | 10 | schema-partitioning |
+| Covering Indexes (INCLUDE) | 11 | query-covering-indexes |
+
+Rules include `minVersion` and `extensions` frontmatter fields. Agents should check these against the target environment before recommending specific rules.
+
 ## Quick Start
 
 ```bash

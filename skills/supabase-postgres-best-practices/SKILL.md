@@ -59,6 +59,55 @@ Each rule file contains:
 
 For the complete guide with all rules expanded: `AGENTS.md`
 
+## Runtime Detection
+
+Before applying rules, agents should detect the PostgreSQL environment to ensure compatibility:
+
+### Version Detection
+
+```sql
+SELECT version();
+-- Example output: PostgreSQL 15.4 on x86_64-pc-linux-gnu
+```
+
+Extract the major version number (e.g., "15" from "PostgreSQL 15.4") to check against rule `minVersion` requirements.
+
+### Extension Availability
+
+```sql
+SELECT name, installed_version, default_version
+FROM pg_available_extensions
+WHERE name IN ('pg_stat_statements', 'pgcrypto', 'uuid-ossp', 'postgis')
+ORDER BY name;
+```
+
+Check if required extensions are available before recommending rules that depend on them.
+
+### Configuration Check
+
+```sql
+SELECT name, setting
+FROM pg_settings
+WHERE name IN ('shared_preload_libraries', 'max_connections', 'work_mem');
+```
+
+## Rule Filtering
+
+Only recommend rules where:
+- `minVersion` <= detected PostgreSQL version (or minVersion is unset)
+- All required `extensions` are available or installable
+- The rule is appropriate for the user's deployment context
+
+### Version Compatibility
+
+| Feature | Min Version | Affected Rules |
+|---------|-------------|----------------|
+| ON CONFLICT (UPSERT) | 9.5 | data-upsert |
+| SKIP LOCKED | 9.5 | lock-skip-locked |
+| JSONB type | 9.4 | advanced-jsonb-indexing |
+| Declarative Partitioning | 10 | schema-partitioning |
+| Covering Indexes (INCLUDE) | 11 | query-covering-indexes |
+
 ## References
 
 - https://www.postgresql.org/docs/current/

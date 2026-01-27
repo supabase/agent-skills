@@ -1,0 +1,11 @@
+{
+	"name": "aurora",
+	"minVersion": "13",
+	"maxVersion": "16",
+	"extensions": {
+		"available": ["pg_stat_statements", "pgcrypto", "uuid-ossp"],
+		"installable": ["postgis", "pg_hint_plan", "pg_similarity"],
+		"unavailable": ["pg_cron", "pg_partman", "timescaledb"]
+	},
+	"notes": "AWS Aurora PostgreSQL. Some extensions are not available due to managed service restrictions. Aurora has its own connection pooling (RDS Proxy) and automatic failover."
+}

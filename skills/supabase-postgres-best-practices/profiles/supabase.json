@@ -1,0 +1,27 @@
+{
+	"name": "supabase",
+	"minVersion": "15",
+	"extensions": {
+		"available": [
+			"pg_stat_statements",
+			"pgcrypto",
+			"uuid-ossp",
+			"pgjwt",
+			"pg_graphql",
+			"pg_net",
+			"pgsodium",
+			"supabase_vault",
+			"pg_jsonschema"
+		],
+		"installable": [
+			"postgis",
+			"pg_cron",
+			"pgtap",
+			"plv8",
+			"http",
+			"pg_hashids"
+		],
+		"unavailable": []
+	},
+	"notes": "Supabase manages connection pooling via Supavisor. Direct connection limits differ from pooled connections. All standard Postgres extensions are available."
+}
