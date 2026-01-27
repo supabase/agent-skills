@@ -1,53 +1,46 @@
 ---
-title: Clear, Action-Oriented Title (e.g., "Authentication with Next.js")
-tags: auth, nextjs, setup
+title: Action-Oriented Title
+tags: relevant, keywords
 ---
 
-# [Feature/Topic Name]
+# Feature Name
 
-Brief description of what this feature does and when to use it.
+One-sentence description of what this does and when to use it.
 
-For official documentation:
-
-```bash
-curl -H "Accept: text/markdown" https://supabase.com/docs/guides/{feature}
-```
-
-## Quick Setup
+## Quick Start
 
 ```typescript
-// Installation and basic usage
+// Minimal working example with real code
+import { createClient } from "@supabase/supabase-js";
+const supabase = createClient(url, key);
+
+// Core operation
+const { data, error } = await supabase.from("table").select("*");
 ```
 
 ## Common Patterns
 
-### Pattern 1
+### Pattern Name
 
 ```typescript
-// Code example
-```
-
-### Pattern 2
-
-```typescript
-// Code example
+// Concrete example - prefer this over explanations
+const { data } = await supabase.from("users").select("id, email").eq("active", true);
 ```
 
 ## Common Mistakes
 
-1. **Mistake description**: Brief explanation and how to fix it
-2. **Another common issue**: Explanation
+**Mistake**: Brief description of what goes wrong.
 
-## Sub-Resources
+```typescript
+// Incorrect
+const data = await supabase.from("users").select(); // Missing error handling
 
-| Topic       | Resource                       |
-| ----------- | ------------------------------ |
-| Setup guide | `{feature}/setup.md`           |
-| Mistakes    | `{feature}/common-mistakes.md` |
+// Correct
+const { data, error } = await supabase.from("users").select("*");
+if (error) throw error;
+```
 
-## Documentation Resources
+## Related
 
-| Topic           | URL                                        |
-| --------------- | ------------------------------------------ |
-| Official Guide  | https://supabase.com/docs/guides/{feature} |
-| API Reference   | https://supabase.com/docs/reference        |
+- [subtopic.md](subtopic.md) - For advanced X patterns
+- [Docs](https://supabase.com/docs/guides/feature) - Official guide
