@@ -12,7 +12,7 @@ dist/
 # AI Agent directories
 .agent/
 .agents/
-.claude/
+.claude/skills/
 .codex/
 .gemini/
 .goose/
