@@ -22,7 +22,6 @@ const channel = supabase.channel('room:123:messages')
 
 ```javascript
 // Private channel requires authentication
-await supabase.realtime.setAuth()  // Must call before subscribing
 const channel = supabase.channel('room:123:messages', {
   config: { private: true },
 })

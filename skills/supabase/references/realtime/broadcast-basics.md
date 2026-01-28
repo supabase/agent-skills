@@ -45,11 +45,7 @@ channel.send({
 **Before subscribing or one-off (HTTP):**
 
 ```javascript
-const { error } = await channel.send({
-  type: 'broadcast',
-  event: 'message_created',
-  payload: { text: 'Hello!' },
-})
+await channel.httpSend('message_created', { text: 'Hello!' })
 ```
 
 ## Receive Own Messages

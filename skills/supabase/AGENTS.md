@@ -75,6 +75,7 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 **Implementation Patterns** (`patterns-`):
 - `references/realtime/patterns-cleanup.md`
+- `references/realtime/patterns-debugging.md`
 - `references/realtime/patterns-errors.md`
 
 **Postgres Changes** (`postgres-`):
@@ -89,4 +90,4 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ---
 
-*26 reference files across 11 categories*
+*27 reference files across 11 categories*

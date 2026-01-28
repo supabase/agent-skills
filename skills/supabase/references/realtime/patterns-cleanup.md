@@ -38,8 +38,6 @@ function ChatRoom({ roomId }) {
     })
     channelRef.current = channel
 
-    supabase.realtime.setAuth()
-
     channel
       .on('broadcast', { event: 'message_created' }, handleMessage)
       .subscribe()

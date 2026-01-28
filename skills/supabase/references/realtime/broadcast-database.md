@@ -41,7 +41,6 @@ create trigger messages_broadcast_trigger
 **Client subscription:**
 
 ```javascript
-await supabase.realtime.setAuth()
 const channel = supabase
   .channel('room:123', { config: { private: true } })
   .on('broadcast', { event: 'INSERT' }, (payload) => console.log('Insert:', payload))

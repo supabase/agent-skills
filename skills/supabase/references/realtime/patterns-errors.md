@@ -52,28 +52,32 @@ channel.subscribe((status, err) => {
 
 ## Automatic Reconnection
 
-Supabase handles reconnection with exponential backoff. Configure timing:
+Supabase handles reconnection automatically with exponential backoff. No manual re-subscribe is needed.
+
+## Client-Side Logging
+
+Enable client-side logging to debug connection issues:
 
 ```javascript
 const supabase = createClient(url, key, {
   realtime: {
-    params: {
-      log_level: 'info',  // 'debug' | 'info' | 'warn' | 'error'
+    logger: (kind, msg, data) => {
+      console.log(`[${kind}] ${msg}`, data)
     },
   },
 })
 ```
 
+Log message types include `push`, `receive`, `transport`, `error`, and `worker`.
+
 ## Silent Disconnections in Background
 
-WebSocket connections can disconnect when apps are backgrounded (mobile, inactive tabs).
-
-**Solution:** Monitor connection state and re-subscribe when needed:
+WebSocket connections can disconnect when apps are backgrounded (mobile, inactive tabs). Supabase reconnects automatically. Re-track presence after reconnection if needed:
 
 ```javascript
 channel.subscribe((status) => {
   if (status === 'SUBSCRIBED') {
-    // Re-track presence if needed
+    // Re-track presence after reconnection
     channel.track({ user_id: userId, online_at: new Date().toISOString() })
   }
 })
@@ -82,14 +86,9 @@ channel.subscribe((status) => {
 ## Authorization Errors
 
 Private channel authorization fails when:
-- User not authenticated (`setAuth()` not called)
+- User not authenticated
 - Missing RLS policies on `realtime.messages`
-- Token expired (refresh before expiry)
-
-```javascript
-// Refresh auth before token expires
-await supabase.realtime.setAuth('fresh-jwt-token')
-```
+- Token expired
 
 ## Related
 
