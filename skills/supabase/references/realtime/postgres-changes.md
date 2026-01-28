@@ -7,7 +7,7 @@ tags: realtime, postgres_changes, database, subscribe, publication
 
 ## Listen to Database Changes with Postgres Changes
 
-Postgres Changes streams database changes via logical replication. Note: **Broadcast is recommended for new applications** due to better scalability.
+Postgres Changes streams database changes via logical replication. Note: **Broadcast is recommended for applications that demand higher scalability**.
 
 ## When to Use Postgres Changes
 
