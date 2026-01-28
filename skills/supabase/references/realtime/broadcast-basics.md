@@ -7,7 +7,7 @@ tags: realtime, broadcast, send, receive, subscribe
 
 ## Send and Receive Broadcast Messages
 
-Broadcast enables low-latency pub/sub messaging between clients. Prefer Broadcast over Postgres Changes for production applications.
+Broadcast enables low-latency pub/sub messaging between clients. Prefer Broadcast over Postgres Changes for applications that require more concurrent connections.
 
 ## Subscribe to Broadcast Events
 
