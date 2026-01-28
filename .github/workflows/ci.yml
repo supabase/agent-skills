@@ -14,7 +14,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install
@@ -30,7 +30,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install dependencies
         working-directory: packages/skills-build
@@ -53,18 +53,18 @@ jobs:
             exit 1
           fi
 
-  test:
-    name: Test
+  sanity-test:
+    name: Sanity Test (skills add)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install
 
       - name: Run sanity tests
-        run: npm run test:sanity
+        run: npm run test
