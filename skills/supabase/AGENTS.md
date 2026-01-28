@@ -23,23 +23,43 @@ supabase/
 
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
+| 1 | Project Commands | CRITICAL | `project-` |
 | 1 | Row Level Security | CRITICAL | `rls-` |
 | 1 | Setup | CRITICAL | `setup-` |
+| 1 | Tool Selection | CRITICAL | `tool-` |
+| 2 | Database Commands | CRITICAL | `database-` |
 | 2 | Connection Pooling | CRITICAL | `conn-` |
-| 2 | Workflow | CRITICAL | `workflow-` |
+| 2 | Combined Workflows | CRITICAL | `workflow-` |
+| 3 | Migration Commands | HIGH | `migration-` |
 | 3 | Schema Design | HIGH | `schema-` |
-| 3 | Database Tools | HIGH | `db-` |
+| 4 | Functions Commands | HIGH | `functions-` |
 | 4 | Migrations | HIGH | `migrations-` |
-| 4 | Project Management | HIGH | `project-` |
+| 5 | Secrets Commands | MEDIUM | `secrets-` |
 | 5 | Performance | CRITICAL | `perf-` |
-| 5 | Branching | HIGH | `branch-` |
+| 6 | Generation Commands | HIGH | `generation-` |
 | 6 | Security | CRITICAL | `security-` |
-| 6 | Edge Functions | MEDIUM | `func-` |
-| 7 | Debugging | HIGH | `debug-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
 ## Available References
+
+**Database Commands** (`database-`):
+- `references/cli/database-commands.md`
+
+**Functions Commands** (`functions-`):
+- `references/cli/functions-commands.md`
+
+**Generation Commands** (`generation-`):
+- `references/cli/generation-commands.md`
+
+**Migration Commands** (`migration-`):
+- `references/cli/migration-commands.md`
+
+**Project Commands** (`project-`):
+- `references/cli/project-commands.md`
+
+**Secrets Commands** (`secrets-`):
+- `references/cli/secrets-commands.md`
 
 **Connection Pooling** (`conn-`):
 - `references/db/conn-pooling.md`
@@ -71,34 +91,21 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db/security-functions.md`
 - `references/db/security-service-role.md`
 
-**Branching** (`branch-`):
-- `references/branch-merge-strategy.md`
-- `references/branch-workflow.md`
-
-**Database Tools** (`db-`):
-- `references/db-execute-vs-migrate.md`
-- `references/db-schema-tools.md`
-
-**Debugging** (`debug-`):
-- `references/debug-logs-advisors.md`
-
-**Edge Functions** (`func-`):
-- `references/func-deployment.md`
-
-**Project Management** (`project-`):
-- `references/project-cost-workflow.md`
-- `references/project-management.md`
-
 **Setup** (`setup-`):
-- `references/setup-configuration.md`
-- `references/setup-feature-groups.md`
-- `references/setup-security.md`
+- `references/mcp/setup-configuration.md`
+- `references/mcp/setup-feature-groups.md`
+- `references/mcp/setup-security.md`
 
-**Workflow** (`workflow-`):
-- `references/workflow-hosted.md`
-- `references/workflow-local.md`
-- `references/workflow-migration-sync.md`
+**Tool Selection** (`tool-`):
+- `references/tooling/tool-overlap.md`
+- `references/tooling/tool-selection.md`
+
+**Combined Workflows** (`workflow-`):
+- `references/tooling/workflow-function-dev.md`
+- `references/tooling/workflow-local-dev.md`
+- `references/tooling/workflow-migration-create.md`
+- `references/tooling/workflow-type-generation.md`
 
 ---
 
-*32 reference files across 13 categories*
+*33 reference files across 15 categories*

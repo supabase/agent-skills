@@ -75,21 +75,32 @@ Reference the appropriate resource file based on the user's needs:
 | -------- | ------------------------ | -------------------------------------------- |
 | Realtime | `references/realtime.md` | Real-time subscriptions, presence, broadcast |
 
-### Client Libraries & CLI
+### Client Libraries
 
-| Area         | Resource                    | When to Use                              |
-| ------------ | --------------------------- | ---------------------------------------- |
-| supabase-js  | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
-| Supabase CLI | `references/cli.md`         | Local development, migrations, CI/CD     |
+| Area        | Resource                    | When to Use                              |
+| ----------- | --------------------------- | ---------------------------------------- |
+| supabase-js | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
 
-### MCP Integration
+### CLI Commands
 
-| Area            | Resource                            | When to Use                                         |
-| --------------- | ----------------------------------- | --------------------------------------------------- |
-| MCP Setup       | `references/mcp/setup-*.md`         | Configuring MCP connection, security, feature groups |
-| MCP Workflows   | `references/mcp/workflow-*.md`      | Local vs hosted development, migration sync         |
-| MCP Database    | `references/mcp/db-*.md`            | execute_sql vs apply_migration, schema tools        |
-| MCP Projects    | `references/mcp/project-*.md`       | Project management, cost confirmation workflow      |
-| MCP Branching   | `references/mcp/branch-*.md`        | Branch operations, merge strategies                 |
-| MCP Functions   | `references/mcp/func-*.md`          | Edge function deployment via MCP                    |
-| MCP Debugging   | `references/mcp/debug-*.md`         | Service logs, security/performance advisors         |
+| Area       | Resource                                | When to Use                            |
+| ---------- | --------------------------------------- | -------------------------------------- |
+| Project    | `references/cli/project-commands.md`    | init, start, stop, status, link, login |
+| Database   | `references/cli/database-commands.md`   | push, pull, diff, reset, dump          |
+| Migrations | `references/cli/migration-commands.md`  | new, list, fetch, repair, squash       |
+| Functions  | `references/cli/functions-commands.md`  | new, serve, deploy                     |
+| Secrets    | `references/cli/secrets-commands.md`    | set, list                              |
+| Generation | `references/cli/generation-commands.md` | gen types                              |
+
+### MCP + CLI Workflows
+
+| Area               | Resource                           | When to Use                                         |
+| ------------------ | ---------------------------------- | --------------------------------------------------- |
+| Tool Selection     | `references/tooling/tool-*.md`     | MCP vs CLI decision, capability comparison          |
+| Combined Workflows | `references/tooling/workflow-*.md` | Local dev, migrations, type gen, function workflows |
+
+### MCP Setup
+
+| Area      | Resource                    | When to Use                                          |
+| --------- | --------------------------- | ---------------------------------------------------- |
+| MCP Setup | `references/mcp/setup-*.md` | Configuring MCP connection, security, feature groups |
