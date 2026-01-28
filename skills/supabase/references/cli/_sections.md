@@ -34,3 +34,13 @@ CLI commands.
 
 **Impact:** HIGH
 **Description:** Commands for code generation from schema: gen types.
+
+## 7. Decision Guide (decision)
+
+**Impact:** HIGH
+**Description:** When to use which command or flag. Covers db pull vs diff, push vs migration up, targeting patterns, diff engines, and experimental flag requirements.
+
+## 8. Gotchas and Pitfalls (gotchas)
+
+**Impact:** HIGH
+**Description:** Common pitfalls and edge cases: db reset destroys data, stop doesn't free disk, storage requires experimental, auth schemas excluded from pull, and more.

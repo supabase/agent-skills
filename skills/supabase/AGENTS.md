@@ -38,6 +38,8 @@ supabase/
 | 5 | Performance | CRITICAL | `perf-` |
 | 6 | Generation Commands | HIGH | `generation-` |
 | 6 | Security | CRITICAL | `security-` |
+| 7 | Decision Guide | HIGH | `decision-` |
+| 8 | Gotchas and Pitfalls | HIGH | `gotchas-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -46,11 +48,17 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 **Database Commands** (`database-`):
 - `references/cli/database-commands.md`
 
+**Decision Guide** (`decision-`):
+- `references/cli/decision-guide.md`
+
 **Functions Commands** (`functions-`):
 - `references/cli/functions-commands.md`
 
 **Generation Commands** (`generation-`):
 - `references/cli/generation-commands.md`
+
+**Gotchas and Pitfalls** (`gotchas-`):
+- `references/cli/gotchas-pitfalls.md`
 
 **Migration Commands** (`migration-`):
 - `references/cli/migration-commands.md`
@@ -108,4 +116,4 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ---
 
-*33 reference files across 15 categories*
+*35 reference files across 17 categories*
