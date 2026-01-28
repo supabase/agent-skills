@@ -79,7 +79,7 @@ const channel = supabase.channel('room:123', {
 | Free | 20 |
 | Pro | 50 |
 | Team/Enterprise | 1,000 |
-
+For Pay as you go customers you can edit these limits on [Realtime Settings](https://supabase.com/dashboard/project/_/realtime/settings)
 ## Related
 
 - [setup-channels.md](setup-channels.md)
