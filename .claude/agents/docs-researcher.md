@@ -22,7 +22,25 @@ Use `mcp__claude_ai_Supabase__search_docs` to find official Supabase documentati
 - Common use cases and examples
 - Known limitations or caveats
 
-**2. Kiro Powers Workflows**
+**2. Troubleshooting Guides**
+Fetch product-specific troubleshooting guides from Supabase docs:
+
+URL pattern: `https://supabase.com/docs/guides/troubleshooting?products={product}`
+
+Available products:
+- `realtime` - Realtime subscriptions and channels
+- `database` - Database operations and Postgres
+- `auth` - Authentication and user management
+- `storage` - File storage and buckets
+- `edge-functions` - Edge Functions
+- `ai` - AI and vector operations
+- `cli` - Supabase CLI
+- `platform` - Platform and project management
+- `self-hosting` - Self-hosting Supabase
+
+Example: `https://supabase.com/docs/guides/troubleshooting?products=realtime`
+
+**3. Kiro Powers Workflows**
 Fetch workflows from https://github.com/supabase-community/kiro-powers/tree/main/powers:
 - Find the relevant power for the Supabase product
 - Extract workflow steps and logic
@@ -30,12 +48,22 @@ Fetch workflows from https://github.com/supabase-community/kiro-powers/tree/main
 - **Ignore Kiro-specific parameters** (IDE integrations, UI elements)
 - Focus on the actual Supabase operations and sequences
 
-**3. Gap Analysis**
+**4. Gap Analysis**
 Identify what's unique to Supabase vs vanilla alternatives:
 - Extensions or features not available
 - Different configurations or defaults
 - Required workarounds
 - Supabase-specific patterns
+
+## IMPORTANT: Track Source URLs
+
+**Always record the exact URLs where research information was found.** This enables:
+- Manual verification of information accuracy
+- Easy updates when documentation changes
+- Proper attribution of sources
+- Quick navigation to original context
+
+Include full URLs (not just page titles) in your research output.
 
 ## Output Guidance
 
