@@ -4,28 +4,25 @@ description: Supabase CLI command reference and usage guide. Use this skill when
 license: MIT
 metadata:
   author: supabase
-  version: "1.0.0"
+  version: "2.0.0"
   organization: Supabase
   date: January 2026
-  abstract: Complete Supabase CLI reference covering all commands across 20+ categories including local development, database management, migrations, edge functions, secrets, storage, authentication, custom domains, network configuration, and project management. Each command includes usage syntax, flags, descriptions, and examples to guide automated CLI operations and code generation.
+  abstract: Supabase CLI skill focused on workflows, decision guidance, and common pitfalls. Covers local development, database management, migrations, edge functions, secrets, storage, authentication, custom domains, network configuration, and project management.
 ---
 
 # Supabase CLI Reference
 
-Complete command reference for the Supabase CLI, which provides tools to develop your project locally and deploy to the Supabase Platform.
+Practical guide for using the Supabase CLI. Focuses on workflows, decision-making, and gotchas rather than exhaustive flag listings.
 
-## When to Apply
+## Important: Use `--help` for Flag Details
 
-Reference these commands when:
-- Setting up or managing a local Supabase development environment
-- Running database migrations or schema changes
-- Deploying edge functions or managing secrets
-- Managing Supabase projects, organizations, or branches
-- Working with storage objects or authentication (SSO)
-- Configuring custom domains, network restrictions, or SSL enforcement
-- Generating TypeScript/Go/Swift types from database schemas
-- Running database inspections or diagnostics
-- Seeding databases or managing test data
+For exact flag syntax on any command, run:
+
+```bash
+supabase <command> --help
+```
+
+The CLI's built-in help is always up to date. This skill focuses on what `--help` can't tell you: when to use which commands, common workflows, and pitfalls to avoid.
 
 ## Installation
 
@@ -47,34 +44,15 @@ Every command supports these flags:
 
 | Flag | Description |
 |------|-------------|
-| `--create-ticket` | Create a support ticket for any CLI error |
 | `--debug` | Output debug logs to stderr |
-| `--dns-resolver <native\|https>` | Lookup domain names using the specified resolver |
 | `--experimental` | Enable experimental features |
-| `-h, --help` | Help for supabase |
-| `--network-id <string>` | Use the specified docker network instead of a generated one |
-| `-o, --output <env\|pretty\|json\|toml\|yaml>` | Output format of status variables |
-| `--profile <string>` | Use a specific profile for connecting to Supabase API |
+| `-h, --help` | Help for the command |
+| `-o, --output <env\|pretty\|json\|toml\|yaml>` | Output format |
 | `--workdir <string>` | Path to a Supabase project directory |
-| `--yes` | Answer yes to all prompts |
-
-## Command Categories by Priority
-
-| Priority | Category | Use Case | Prefix |
-|----------|----------|----------|--------|
-| 1 | General | Project setup, auth, local dev | `general-` |
-| 2 | Database | Schema management, migrations | `db-` |
-| 3 | Edge Functions | Serverless function management | `functions-` |
-| 4 | Project Management | Orgs, projects, branches, config | `project-` |
-| 5 | Secrets & Storage | Environment vars, file storage | `secrets-` |
-| 6 | Authentication | SSO identity providers | `auth-` |
-| 7 | Domain & Network | Custom domains, network config | `network-` |
-| 8 | Inspect & Diagnostics | Database statistics, monitoring | `inspect-` |
-| 9 | Utilities | Type generation, testing, completion | `util-` |
 
 ## Quick Reference
 
-### Local Development Workflow
+### Local Development
 
 ```bash
 supabase init                  # Initialize a new project
@@ -83,17 +61,17 @@ supabase status                # Check running services
 supabase stop                  # Stop all containers
 ```
 
-### Database Workflow
+### Database & Migrations
 
 ```bash
-supabase db diff               # Diff local schema changes
-supabase migration new <name>  # Create a new migration
+supabase db diff -f <name>     # Generate migration from local changes
+supabase migration new <name>  # Create empty migration file
 supabase db reset              # Reset local database
 supabase db push               # Push migrations to remote
 supabase db pull               # Pull remote schema changes
 ```
 
-### Edge Functions Workflow
+### Edge Functions
 
 ```bash
 supabase functions new <name>  # Create a new function
@@ -101,7 +79,7 @@ supabase functions serve       # Serve locally for testing
 supabase functions deploy      # Deploy to remote project
 ```
 
-### Project Management Workflow
+### Project Setup
 
 ```bash
 supabase login                 # Authenticate with Supabase
@@ -109,29 +87,14 @@ supabase link --project-ref <ref>  # Link to remote project
 supabase projects list         # List all projects
 ```
 
-## How to Use
+## How to Use This Skill
 
-Read individual reference files for detailed command syntax and flags:
+Read the reference files for guidance beyond what `--help` provides:
 
-```
-references/general-commands.md
-references/db-commands.md
-references/db-migrations.md
-references/functions-commands.md
-references/project-management.md
-references/secrets-commands.md
-references/auth-sso-commands.md
-references/network-domain-commands.md
-references/inspect-commands.md
-references/util-commands.md
-references/_sections.md
-```
-
-Each reference file contains:
-- Full command syntax with all flags
-- Flag types and descriptions (required vs optional)
-- Usage examples where available
-- Subcommand listings for command groups
+- `references/workflows-common.md` — Multi-step workflows for common tasks
+- `references/decision-guide.md` — When to use which command or flag
+- `references/gotchas-pitfalls.md` — Common pitfalls and edge cases
+- `references/commands-overview.md` — Light listing of all available commands
 
 ## References
 

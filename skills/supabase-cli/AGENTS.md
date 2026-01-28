@@ -26,48 +26,27 @@ supabase-cli/
 
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
-| 1 | General Commands | CRITICAL | `general-` |
-| 2 | Database Commands | CRITICAL | `db-` |
-| 4 | Edge Functions | HIGH | `functions-` |
-| 5 | Project Management | HIGH | `project-` |
-| 6 | Secrets & Storage | HIGH | `secrets-` |
-| 7 | Authentication & SSO | MEDIUM | `auth-` |
-| 8 | Domain & Network | MEDIUM | `network-` |
-| 9 | Inspect & Diagnostics | MEDIUM | `inspect-` |
-| 10 | Utilities | LOW | `util-` |
+| 1 | Common Workflows | CRITICAL | `workflows-` |
+| 2 | Decision Guide | HIGH | `decision-` |
+| 3 | Gotchas and Pitfalls | HIGH | `gotchas-` |
+| 4 | Commands Overview | MEDIUM | `commands-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
 ## Available References
 
-**Authentication & SSO** (`auth-`):
-- `references/auth-sso-commands.md`
+**Commands Overview** (`commands-`):
+- `references/commands-overview.md`
 
-**Database Commands** (`db-`):
-- `references/db-commands.md`
-- `references/db-migrations.md`
+**Decision Guide** (`decision-`):
+- `references/decision-guide.md`
 
-**Edge Functions** (`functions-`):
-- `references/functions-commands.md`
+**Gotchas and Pitfalls** (`gotchas-`):
+- `references/gotchas-pitfalls.md`
 
-**General Commands** (`general-`):
-- `references/general-commands.md`
-
-**Inspect & Diagnostics** (`inspect-`):
-- `references/inspect-commands.md`
-
-**Domain & Network** (`network-`):
-- `references/network-domain-commands.md`
-
-**Project Management** (`project-`):
-- `references/project-management.md`
-
-**Secrets & Storage** (`secrets-`):
-- `references/secrets-commands.md`
-
-**Utilities** (`util-`):
-- `references/util-commands.md`
+**Common Workflows** (`workflows-`):
+- `references/workflows-common.md`
 
 ---
 
-*10 reference files across 9 categories*
+*4 reference files across 4 categories*

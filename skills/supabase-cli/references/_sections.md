@@ -1,39 +1,15 @@
-## 1. General Commands (general)
+## 1. Common Workflows (workflows)
 **Impact:** CRITICAL
-**Description:** Core commands for project setup, authentication, and local development lifecycle including init, login, link, start, stop, and status.
+**Description:** Multi-step workflows for common tasks including local development setup, migration lifecycle, edge functions, project setup, database dump/restore, type generation, branching, and CI/CD integration.
 
-## 2. Database Commands (db)
-**Impact:** CRITICAL
-**Description:** Database schema management commands including pull, push, reset, dump, diff, lint, and local database start.
-
-## 3. Database Migrations (db-migrations)
-**Impact:** CRITICAL
-**Description:** Migration lifecycle management including creating, listing, fetching, repairing, squashing, applying, and reverting migrations. Also includes seeding.
-
-## 4. Edge Functions (functions)
+## 2. Decision Guide (decision)
 **Impact:** HIGH
-**Description:** Serverless edge function management including creation, local serving, deployment, listing, downloading, and deletion.
+**Description:** When to use which command or flag. Covers db pull vs diff, targeting patterns, diff engines, migration strategies, domain configuration choices, and experimental flag requirements.
 
-## 5. Project Management (project)
+## 3. Gotchas and Pitfalls (gotchas)
 **Impact:** HIGH
-**Description:** Organization, project, branch, and config management commands for the Supabase platform.
+**Description:** Common pitfalls, edge cases, and things that catch people off guard when using the Supabase CLI.
 
-## 6. Secrets & Storage (secrets)
-**Impact:** HIGH
-**Description:** Environment variable/secret management and storage object operations (list, copy, move, remove).
-
-## 7. Authentication & SSO (auth)
+## 4. Commands Overview (commands)
 **Impact:** MEDIUM
-**Description:** SSO identity provider management including adding, listing, showing, updating, and removing providers.
-
-## 8. Domain & Network (network)
-**Impact:** MEDIUM
-**Description:** Custom domains, vanity subdomains, network bans, network restrictions, SSL enforcement, and Postgres config management.
-
-## 9. Inspect & Diagnostics (inspect)
-**Impact:** MEDIUM
-**Description:** Database inspection and statistics commands for monitoring bloat, blocking, locks, queries, replication, and vacuum stats.
-
-## 10. Utilities (util)
-**Impact:** LOW
-**Description:** Type generation, JWT signing key generation, testing, services info, and shell autocompletion scripts.
+**Description:** Light listing of all available CLI commands grouped by category. Use `supabase <command> --help` for exact flag syntax.
