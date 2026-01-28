@@ -75,10 +75,20 @@ Reference the appropriate resource file based on the user's needs:
 | -------- | ------------------------ | -------------------------------------------- |
 | Realtime | `references/realtime.md` | Real-time subscriptions, presence, broadcast |
 
-### Client Libraries & CLI
+### SDK (supabase-js)
 
-| Area         | Resource                    | When to Use                              |
-| ------------ | --------------------------- | ---------------------------------------- |
-| supabase-js  | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
-| Supabase CLI | `references/cli.md`         | Local development, migrations, CI/CD     |
-| MCP Server   | `references/mcp.md`         | AI agent integration, MCP tooling        |
+| Area              | Resource                        | When to Use                                   |
+| ----------------- | ------------------------------- | --------------------------------------------- |
+| Client Setup      | `references/sdk/client-*.md`    | Browser/server client, SSR, configuration     |
+| TypeScript        | `references/sdk/ts-*.md`        | Type generation, using Database types         |
+| Query Patterns    | `references/sdk/query-*.md`     | CRUD, filters, joins, RPC calls               |
+| Error Handling    | `references/sdk/error-*.md`     | Error types, retries, handling patterns       |
+| SDK Performance   | `references/sdk/perf-*.md`      | Query optimization, realtime cleanup          |
+| Framework         | `references/sdk/framework-*.md` | Next.js App Router, middleware setup          |
+
+### CLI & Tooling
+
+| Area         | Resource                | When to Use                          |
+| ------------ | ----------------------- | ------------------------------------ |
+| Supabase CLI | `references/cli.md`     | Local development, migrations, CI/CD |
+| MCP Server   | `references/mcp.md`     | AI agent integration, MCP tooling    |
