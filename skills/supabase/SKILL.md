@@ -81,4 +81,15 @@ Reference the appropriate resource file based on the user's needs:
 | ------------ | --------------------------- | ---------------------------------------- |
 | supabase-js  | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
 | Supabase CLI | `references/cli.md`         | Local development, migrations, CI/CD     |
-| MCP Server   | `references/mcp.md`         | AI agent integration, MCP tooling        |
+
+### MCP Integration
+
+| Area            | Resource                            | When to Use                                         |
+| --------------- | ----------------------------------- | --------------------------------------------------- |
+| MCP Setup       | `references/mcp/setup-*.md`         | Configuring MCP connection, security, feature groups |
+| MCP Workflows   | `references/mcp/workflow-*.md`      | Local vs hosted development, migration sync         |
+| MCP Database    | `references/mcp/db-*.md`            | execute_sql vs apply_migration, schema tools        |
+| MCP Projects    | `references/mcp/project-*.md`       | Project management, cost confirmation workflow      |
+| MCP Branching   | `references/mcp/branch-*.md`        | Branch operations, merge strategies                 |
+| MCP Functions   | `references/mcp/func-*.md`          | Edge function deployment via MCP                    |
+| MCP Debugging   | `references/mcp/debug-*.md`         | Service logs, security/performance advisors         |

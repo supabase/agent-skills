@@ -24,11 +24,18 @@ supabase/
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
 | 1 | Row Level Security | CRITICAL | `rls-` |
+| 1 | Setup | CRITICAL | `setup-` |
 | 2 | Connection Pooling | CRITICAL | `conn-` |
+| 2 | Workflow | CRITICAL | `workflow-` |
 | 3 | Schema Design | HIGH | `schema-` |
+| 3 | Database Tools | HIGH | `db-` |
 | 4 | Migrations | HIGH | `migrations-` |
+| 4 | Project Management | HIGH | `project-` |
 | 5 | Performance | CRITICAL | `perf-` |
+| 5 | Branching | HIGH | `branch-` |
 | 6 | Security | CRITICAL | `security-` |
+| 6 | Edge Functions | MEDIUM | `func-` |
+| 7 | Debugging | HIGH | `debug-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -64,6 +71,34 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db/security-functions.md`
 - `references/db/security-service-role.md`
 
+**Branching** (`branch-`):
+- `references/branch-merge-strategy.md`
+- `references/branch-workflow.md`
+
+**Database Tools** (`db-`):
+- `references/db-execute-vs-migrate.md`
+- `references/db-schema-tools.md`
+
+**Debugging** (`debug-`):
+- `references/debug-logs-advisors.md`
+
+**Edge Functions** (`func-`):
+- `references/func-deployment.md`
+
+**Project Management** (`project-`):
+- `references/project-cost-workflow.md`
+- `references/project-management.md`
+
+**Setup** (`setup-`):
+- `references/setup-configuration.md`
+- `references/setup-feature-groups.md`
+- `references/setup-security.md`
+
+**Workflow** (`workflow-`):
+- `references/workflow-hosted.md`
+- `references/workflow-local.md`
+- `references/workflow-migration-sync.md`
+
 ---
 
-*18 reference files across 6 categories*
+*32 reference files across 13 categories*
