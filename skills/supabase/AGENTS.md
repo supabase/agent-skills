@@ -38,34 +38,34 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 ## Available References
 
 **Connection Pooling** (`conn-`):
-- `references/conn-pooling.md`
+- `references/db/conn-pooling.md`
 
 **Migrations** (`migrations-`):
-- `references/migrations-diff.md`
-- `references/migrations-idempotent.md`
-- `references/migrations-testing.md`
+- `references/db/migrations-diff.md`
+- `references/db/migrations-idempotent.md`
+- `references/db/migrations-testing.md`
 
 **Performance** (`perf-`):
-- `references/perf-indexes.md`
-- `references/perf-query-optimization.md`
+- `references/db/perf-indexes.md`
+- `references/db/perf-query-optimization.md`
 
 **Row Level Security** (`rls-`):
-- `references/rls-common-mistakes.md`
-- `references/rls-mandatory.md`
-- `references/rls-performance.md`
-- `references/rls-policy-types.md`
-- `references/rls-views.md`
+- `references/db/rls-common-mistakes.md`
+- `references/db/rls-mandatory.md`
+- `references/db/rls-performance.md`
+- `references/db/rls-policy-types.md`
+- `references/db/rls-views.md`
 
 **Schema Design** (`schema-`):
-- `references/schema-auth-fk.md`
-- `references/schema-extensions.md`
-- `references/schema-jsonb.md`
-- `references/schema-realtime.md`
-- `references/schema-timestamps.md`
+- `references/db/schema-auth-fk.md`
+- `references/db/schema-extensions.md`
+- `references/db/schema-jsonb.md`
+- `references/db/schema-realtime.md`
+- `references/db/schema-timestamps.md`
 
 **Security** (`security-`):
-- `references/security-functions.md`
-- `references/security-service-role.md`
+- `references/db/security-functions.md`
+- `references/db/security-service-role.md`
 
 ---
 
