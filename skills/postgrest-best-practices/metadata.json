@@ -1,0 +1,12 @@
+{
+	"version": "1.0.0",
+	"organization": "Supabase",
+	"date": "January 2026",
+	"abstract": "Comprehensive PostgREST API best practices guide for developers using Supabase and PostgREST. Contains rules across 9 categories covering query filtering, resource embedding, column selection, mutations, RPC calls, pagination, response handling, authentication, and performance optimization. Each rule includes detailed explanations with curl commands and supabase-js examples.",
+	"references": [
+		"https://postgrest.org/en/stable/",
+		"https://supabase.com/docs/guides/api",
+		"https://supabase.com/docs/reference/javascript/select",
+		"https://supabase.com/docs/guides/database/joins-and-nesting"
+	]
+}
