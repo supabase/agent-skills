@@ -17,6 +17,7 @@ export interface SkillPaths {
 	skillDir: string;
 	referencesDir: string;
 	agentsOutput: string;
+	claudeSymlink: string;
 	skillFile: string;
 }
 
@@ -38,6 +39,7 @@ export function getSkillPaths(skillName: string): SkillPaths {
 		skillDir,
 		referencesDir: join(skillDir, "references"),
 		agentsOutput: join(skillDir, "AGENTS.md"),
+		claudeSymlink: join(skillDir, "CLAUDE.md"),
 		skillFile: join(skillDir, "SKILL.md"),
 	};
 }

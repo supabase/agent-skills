@@ -1,8 +1,11 @@
 import {
 	existsSync,
+	lstatSync,
 	readdirSync,
 	readFileSync,
 	statSync,
+	symlinkSync,
+	unlinkSync,
 	writeFileSync,
 } from "node:fs";
 import { basename, join } from "node:path";
@@ -244,6 +247,25 @@ function skillNameToTitle(skillName: string): string {
 }
 
 /**
+ * Create CLAUDE.md symlink pointing to AGENTS.md
+ */
+function createClaudeSymlink(paths: SkillPaths): void {
+	const symlinkPath = paths.claudeSymlink;
+
+	// Remove existing symlink or file if it exists
+	if (existsSync(symlinkPath)) {
+		const stat = lstatSync(symlinkPath);
+		if (stat.isSymbolicLink() || stat.isFile()) {
+			unlinkSync(symlinkPath);
+		}
+	}
+
+	// Create symlink (relative path so it works across environments)
+	symlinkSync("AGENTS.md", symlinkPath);
+	console.log(`  Created symlink: CLAUDE.md -> AGENTS.md`);
+}
+
+/**
  * Build AGENTS.md for a specific skill
  *
  * AGENTS.md is a concise navigation guide for AI agents, NOT a comprehensive
@@ -271,6 +293,7 @@ function buildSkill(paths: SkillPaths): void {
 
 	// Header
 	output.push(`# ${paths.name}\n`);
+	output.push(`> **Note:** \`CLAUDE.md\` is a symlink to this file.\n`);
 
 	// Brief description
 	output.push(`## Overview\n`);
@@ -282,6 +305,7 @@ function buildSkill(paths: SkillPaths): void {
 	output.push(`${paths.name}/`);
 	output.push(`  SKILL.md       # Main skill file - read this first`);
 	output.push(`  AGENTS.md      # This navigation guide`);
+	output.push(`  CLAUDE.md      # Symlink to AGENTS.md`);
 	if (existsSync(paths.referencesDir)) {
 		output.push(`  references/    # Detailed reference files`);
 	}
@@ -347,6 +371,9 @@ function buildSkill(paths: SkillPaths): void {
 	writeFileSync(paths.agentsOutput, output.join("\n"));
 	console.log(`  Generated: ${paths.agentsOutput}`);
 	console.log(`  Total references: ${referenceFiles.length}`);
+
+	// Create CLAUDE.md symlink
+	createClaudeSymlink(paths);
 }
 
 // Run build when executed directly
