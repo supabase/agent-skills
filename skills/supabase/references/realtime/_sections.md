@@ -23,7 +23,7 @@ queries.
 ## 4. Postgres Changes (postgres)
 
 **Impact:** MEDIUM
-**Description:** Database change listeners via logical replication. Note: Broadcast is recommended for new applications due to better scalability.
+**Description:** Database change listeners via logical replication. Note: Broadcast is recommended for use cases that require higher scalability.
 
 ## 5. Implementation Patterns (patterns)
 
