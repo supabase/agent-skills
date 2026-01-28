@@ -33,10 +33,17 @@ Read any SKILL.md files to see what was added or changed.
 
 **4. Review Conversation Context**
 From the conversation history, identify:
-- Sources consulted (Supabase docs, kiro-powers, etc.)
+- **Source URLs consulted** (Supabase docs, kiro-powers, troubleshooting guides, etc.)
 - Architectural decisions made and their rationale
 - User preferences or requirements that shaped the design
 - Any trade-offs or alternatives considered
+
+**5. Collect Source URLs**
+Look for any URLs that were used during research:
+- Documentation pages
+- Troubleshooting guides
+- GitHub repositories (kiro-powers, etc.)
+- API references
 
 ## PR Description Format
 
@@ -63,9 +70,18 @@ Key architectural and content decisions made during development:
 2. **[Decision 2]**: [What was decided and why]
 3. **[Decision 3]**: [What was decided and why]
 
+## Sources
+
+[If source URLs were provided during research, list them here. This enables manual verification of information accuracy.]
+
+- [Page Title](https://full-url-here)
+- [Another Page](https://another-url-here)
+
+_If no source URLs were tracked, omit this section._
+
 ## Additional context
 
-[Any other relevant information: sources consulted, limitations, future improvements, trade-offs considered, related issues, etc.]
+[Any other relevant information: limitations, future improvements, trade-offs considered, related issues, etc.]
 ```
 
 ## Writing Guidelines
@@ -73,7 +89,7 @@ Key architectural and content decisions made during development:
 **DO:**
 - Describe changes at the conceptual level
 - Explain the "why" behind organizational choices
-- Credit specific documentation sources in Additional context
+- **Include source URLs in the Sources section when provided**
 - Mention trade-offs or alternatives considered
 - Use concrete examples of what the changes enable
 - Include decisions that shaped the implementation
