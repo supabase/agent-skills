@@ -52,3 +52,19 @@ jobs:
             git diff skills/*/AGENTS.md
             exit 1
           fi
+
+  sanity-test:
+    name: Sanity Test (skills add)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run sanity tests
+        run: npm run test

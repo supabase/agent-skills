@@ -12,9 +12,12 @@
 		"lint": "biome lint --write .",
 		"lint:check": "biome lint .",
 		"check": "biome check --write .",
-		"ci:check": "biome ci ."
+		"ci:check": "biome ci .",
+		"test": "vitest run",
+		"test:sanity": "vitest run test/sanity.test.ts"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.3.11"
+		"@biomejs/biome": "2.3.11",
+		"vitest": "^3.0.0"
 	}
 }
