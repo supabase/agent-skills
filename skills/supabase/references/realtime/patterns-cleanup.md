@@ -84,7 +84,7 @@ channel.subscribe()
 | Team | 10,000 | 100 |
 
 Leaked channels count against quotas even when inactive.
-
+For Pay as you go customers you can edit these limits on [Realtime Settings](https://supabase.com/dashboard/project/_/realtime/settings)
 ## Related
 
 - [patterns-errors.md](patterns-errors.md)
