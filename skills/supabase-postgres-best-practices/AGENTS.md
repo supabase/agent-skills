@@ -1,7 +1,5 @@
 # supabase-postgres-best-practices
 
-> **Note:** `CLAUDE.md` is a symlink to this file.
-
 ## Overview
 
 Postgres performance optimization and best practices from Supabase. Use this skill when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations.
@@ -12,7 +10,6 @@ Postgres performance optimization and best practices from Supabase. Use this ski
 supabase-postgres-best-practices/
   SKILL.md       # Main skill file - read this first
   AGENTS.md      # This navigation guide
-  CLAUDE.md      # Symlink to AGENTS.md
   references/    # Detailed reference files
 ```
 
