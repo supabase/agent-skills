@@ -26,71 +26,52 @@ supabase/
 
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
-| 1 | Row Level Security | CRITICAL | `rls-` |
-| 1 | Setup | HIGH | `setup-` |
-| 2 | Connection Pooling | CRITICAL | `conn-` |
-| 2 | Indexing | CRITICAL | `index-` |
-| 3 | Schema Design | HIGH | `schema-` |
-| 3 | Search | CRITICAL | `search-` |
-| 4 | Migrations | HIGH | `migrations-` |
-| 4 | Embeddings | HIGH | `embed-` |
-| 5 | Performance | CRITICAL | `perf-` |
-| 5 | RAG | HIGH | `rag-` |
-| 6 | Security | CRITICAL | `security-` |
-| 6 | Performance | CRITICAL | `perf-` |
+| 1 | Getting Started | CRITICAL | `getting-` |
+| 2 | Database | CRITICAL | `db-` |
+| 3 | Authentication | CRITICAL | `auth-` |
+| 4 | Storage | HIGH | `storage-` |
+| 5 | Edge Functions | HIGH | `edge-` |
+| 6 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 7 | SDK | HIGH | `sdk-` |
+| 8 | CLI | CRITICAL | `cli-` |
+| 9 | MCP | MEDIUM | `mcp-` |
+| 10 | Tooling | MEDIUM | `tooling-` |
+| 11 | Vectors | MEDIUM | `vectors-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
 ## Available References
 
-**Connection Pooling** (`conn-`):
-- `references/db/conn-pooling.md`
+**Database** (`db-`):
+- `references/db-conn-pooling.md`
+- `references/db-migrations-diff.md`
+- `references/db-migrations-idempotent.md`
+- `references/db-migrations-testing.md`
+- `references/db-perf-indexes.md`
+- `references/db-perf-query-optimization.md`
+- `references/db-rls-common-mistakes.md`
+- `references/db-rls-mandatory.md`
+- `references/db-rls-performance.md`
+- `references/db-rls-policy-types.md`
+- `references/db-rls-views.md`
+- `references/db-schema-auth-fk.md`
+- `references/db-schema-extensions.md`
+- `references/db-schema-jsonb.md`
+- `references/db-schema-realtime.md`
+- `references/db-schema-timestamps.md`
+- `references/db-security-functions.md`
+- `references/db-security-service-role.md`
 
-**Migrations** (`migrations-`):
-- `references/db/migrations-diff.md`
-- `references/db/migrations-idempotent.md`
-- `references/db/migrations-testing.md`
-
-**Performance** (`perf-`):
-- `references/db/perf-indexes.md`
-- `references/db/perf-query-optimization.md`
-- `references/vectors/perf-tuning.md`
-
-**Row Level Security** (`rls-`):
-- `references/db/rls-common-mistakes.md`
-- `references/db/rls-mandatory.md`
-- `references/db/rls-performance.md`
-- `references/db/rls-policy-types.md`
-- `references/db/rls-views.md`
-
-**Schema Design** (`schema-`):
-- `references/db/schema-auth-fk.md`
-- `references/db/schema-extensions.md`
-- `references/db/schema-jsonb.md`
-- `references/db/schema-realtime.md`
-- `references/db/schema-timestamps.md`
-
-**Security** (`security-`):
-- `references/db/security-functions.md`
-- `references/db/security-service-role.md`
-
-**Embeddings** (`embed-`):
-- `references/vectors/embed-generation.md`
-
-**Indexing** (`index-`):
-- `references/vectors/index-hnsw.md`
-- `references/vectors/index-ivfflat.md`
-
-**RAG** (`rag-`):
-- `references/vectors/rag-patterns.md`
-
-**Search** (`search-`):
-- `references/vectors/search-hybrid.md`
-- `references/vectors/search-semantic.md`
-
-**Setup** (`setup-`):
-- `references/vectors/setup-pgvector.md`
+**Vectors** (`vectors-`):
+- `references/vectors-embed-generation.md`
+- `references/vectors-index-hnsw.md`
+- `references/vectors-index-ivfflat.md`
+- `references/vectors-perf-tuning.md`
+- `references/vectors-rag-patterns.md`
+- `references/vectors-search-hybrid.md`
+- `references/vectors-search-semantic.md`
+- `references/vectors-setup-pgvector.md`
 
 ---
 
-*26 reference files across 12 categories*
+*26 reference files across 11 categories*
