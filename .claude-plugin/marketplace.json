@@ -14,7 +14,7 @@
 			"description": "Postgres performance optimization and best practices. Use when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations.",
 			"source": "./",
 			"strict": false,
-			"skills": ["./skills/postgres-best-practices"]
+			"skills": ["./skills/supabase-postgres-best-practices"]
 		}
 	]
 }
