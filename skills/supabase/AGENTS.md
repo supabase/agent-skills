@@ -67,6 +67,9 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db/security-functions.md`
 - `references/db/security-service-role.md`
 
+**getting** (`getting-`):
+- `references/getting-started-locally.md`
+
 ---
 
-*18 reference files across 6 categories*
+*19 reference files across 6 categories*

@@ -33,10 +33,11 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Core Guides
 
-| Area             | Resource                         | When to Use                                              |
-| ---------------- | -------------------------------- | -------------------------------------------------------- |
-| Getting Started  | `references/getting-started.md`  | Setting up a project, connection strings, dependencies   |
-| Referencing Docs | `references/referencing-docs.md` | Looking up official documentation, verifying information |
+| Area              | Resource                                | When to Use                                              |
+| ----------------- | --------------------------------------- | -------------------------------------------------------- |
+| Getting Started   | `references/getting-started.md`         | Setting up a project, connection strings, dependencies   |
+| Local Development | `references/getting-started-locally.md` | Local CLI workflow with npx, Docker setup                |
+| Referencing Docs  | `references/referencing-docs.md`        | Looking up official documentation, verifying information |
 
 ### Authentication & Security
 
@@ -82,3 +83,5 @@ Reference the appropriate resource file based on the user's needs:
 | supabase-js  | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
 | Supabase CLI | `references/cli.md`         | Local development, migrations, CI/CD     |
 | MCP Server   | `references/mcp.md`         | AI agent integration, MCP tooling        |
+
+**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members. See `references/getting-started-locally.md` for the local development workflow.
