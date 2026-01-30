@@ -8,7 +8,7 @@ import {
 	unlinkSync,
 	writeFileSync,
 } from "node:fs";
-import { basename, join, relative } from "node:path";
+import { basename, join } from "node:path";
 import {
 	discoverSkills,
 	getSkillPaths,
@@ -327,10 +327,8 @@ function buildSkill(paths: SkillPaths): void {
 		for (const file of referenceFiles) {
 			const name = basename(file, ".md");
 			const prefix = name.split("-")[0];
-			// Compute relative path from references directory
-			const relativePath = relative(paths.referencesDir, file);
 			const group = grouped.get(prefix) || [];
-			group.push(relativePath);
+			group.push(name);
 			grouped.set(prefix, group);
 		}
 
@@ -339,7 +337,7 @@ function buildSkill(paths: SkillPaths): void {
 			const title = section ? section.title : prefix;
 			output.push(`**${title}** (\`${prefix}-\`):`);
 			for (const file of files.sort()) {
-				output.push(`- \`references/${file}\``);
+				output.push(`- \`references/${file}.md\``);
 			}
 			output.push("");
 		}
