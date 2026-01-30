@@ -74,6 +74,7 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/query-partial-indexes.md`
 
 **Schema Design** (`schema-`):
+- `references/schema-constraints.md`
 - `references/schema-data-types.md`
 - `references/schema-foreign-key-indexes.md`
 - `references/schema-lowercase-identifiers.md`
@@ -87,4 +88,4 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ---
 
-*30 reference files across 8 categories*
+*31 reference files across 8 categories*
