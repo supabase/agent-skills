@@ -42,6 +42,22 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ## Available References
 
+**Authentication** (`auth-`):
+- `references/auth-core-sessions.md`
+- `references/auth-core-signin.md`
+- `references/auth-core-signup.md`
+- `references/auth-hooks-custom-claims.md`
+- `references/auth-hooks-send-email.md`
+- `references/auth-mfa-phone.md`
+- `references/auth-mfa-totp.md`
+- `references/auth-oauth-pkce.md`
+- `references/auth-oauth-providers.md`
+- `references/auth-passwordless-magic-links.md`
+- `references/auth-passwordless-otp.md`
+- `references/auth-server-admin-api.md`
+- `references/auth-server-ssr.md`
+- `references/auth-sso-saml.md`
+
 **Database** (`db-`):
 - `references/db-conn-pooling.md`
 - `references/db-migrations-diff.md`
@@ -62,9 +78,6 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
-**Getting Started** (`getting-`):
-- `references/getting-started-locally.md`
-
 ---
 
-*19 reference files across 11 categories*
+*32 reference files across 11 categories*
