@@ -31,59 +31,26 @@ curl -H "Accept: text/markdown" https://supabase.com/docs/<path>
 
 Reference the appropriate resource file based on the user's needs:
 
-### Core Guides
-
-| Area             | Resource                         | When to Use                                              |
-| ---------------- | -------------------------------- | -------------------------------------------------------- |
-| Getting Started  | `references/getting-started.md`  | Setting up a project, connection strings, dependencies   |
-| Referencing Docs | `references/referencing-docs.md` | Looking up official documentation, verifying information |
-
-### Authentication & Security
-
-| Area               | Resource             | When to Use                                |
-| ------------------ | -------------------- | ------------------------------------------ |
-| Auth Overview      | `references/auth.md` | Authentication, social login, sessions     |
-| Row Level Security | `references/rls.md`  | Database security policies, access control |
-
 ### Database
 
-| Area               | Resource                        | When to Use                                    |
-| ------------------ | ------------------------------- | ---------------------------------------------- |
-| Database           | `references/database.md`        | Postgres queries, migrations, modeling         |
-| RLS Security       | `references/db/rls-*.md`        | Row Level Security policies, common mistakes   |
-| Connection Pooling | `references/db/conn-pooling.md` | Transaction vs Session mode, port 6543 vs 5432 |
-| Schema Design      | `references/db/schema-*.md`     | auth.users FKs, timestamps, JSONB, extensions  |
-| Migrations         | `references/db/migrations-*.md` | CLI workflows, idempotent patterns, db diff    |
-| Performance        | `references/db/perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
-| Security           | `references/db/security-*.md`   | Service role key, security_definer functions   |
+| Area               | Resource                         | When to Use                                    |
+| ------------------ | -------------------------------- | ---------------------------------------------- |
+| RLS Security       | `references/db-rls-*.md`         | Row Level Security policies, common mistakes   |
+| Connection Pooling | `references/db-conn-pooling.md`  | Transaction vs Session mode, port 6543 vs 5432 |
+| Schema Design      | `references/db-schema-*.md`      | auth.users FKs, timestamps, JSONB, extensions  |
+| Migrations         | `references/db-migrations-*.md`  | CLI workflows, idempotent patterns, db diff    |
+| Performance        | `references/db-perf-*.md`        | Indexes (BRIN, GIN), query optimization        |
+| Security           | `references/db-security-*.md`    | Service role key, security_definer functions   |
 
 ### Storage & Media
 
-| Area             | Resource                            | When to Use                                    |
-| ---------------- | ----------------------------------- | ---------------------------------------------- |
-| Access Control   | `references/storage/access-*.md`    | Bucket visibility, Storage RLS policies        |
-| Uploads          | `references/storage/upload-*.md`    | Standard uploads, resumable/large file uploads |
-| Downloads        | `references/storage/download-*.md`  | Public URLs, signed URLs, download methods     |
-| Transformations  | `references/storage/transform-*.md` | Image resize, crop, format, Next.js loader     |
-| CDN & Caching    | `references/storage/cdn-*.md`       | Cache control, stale content, Smart CDN        |
-| File Operations  | `references/storage/ops-*.md`       | Move, copy, delete, list files                 |
+| Area             | Resource                           | When to Use                                    |
+| ---------------- | ---------------------------------- | ---------------------------------------------- |
+| Access Control   | `references/storage-access-*.md`   | Bucket visibility, Storage RLS policies        |
+| Uploads          | `references/storage-upload-*.md`   | Standard uploads, resumable/large file uploads |
+| Downloads        | `references/storage-download-*.md` | Public URLs, signed URLs, download methods     |
+| Transformations  | `references/storage-transform-*.md`| Image resize, crop, format, Next.js loader     |
+| CDN & Caching    | `references/storage-cdn-*.md`      | Cache control, stale content, Smart CDN        |
+| File Operations  | `references/storage-ops-*.md`      | Move, copy, delete, list files                 |
 
-### Edge Functions
-
-| Area           | Resource                       | When to Use                                  |
-| -------------- | ------------------------------ | -------------------------------------------- |
-| Edge Functions | `references/edge-functions.md` | Serverless functions, Deno runtime, webhooks |
-
-### Realtime
-
-| Area     | Resource                 | When to Use                                  |
-| -------- | ------------------------ | -------------------------------------------- |
-| Realtime | `references/realtime.md` | Real-time subscriptions, presence, broadcast |
-
-### Client Libraries & CLI
-
-| Area         | Resource                    | When to Use                              |
-| ------------ | --------------------------- | ---------------------------------------- |
-| supabase-js  | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
-| Supabase CLI | `references/cli.md`         | Local development, migrations, CI/CD     |
-| MCP Server   | `references/mcp.md`         | AI agent integration, MCP tooling        |
+**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
