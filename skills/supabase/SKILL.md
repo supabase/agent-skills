@@ -31,13 +31,6 @@ curl -H "Accept: text/markdown" https://supabase.com/docs/<path>
 
 Reference the appropriate resource file based on the user's needs:
 
-### Core Guides
-
-| Area              | Resource                                | When to Use                                              |
-| ----------------- | --------------------------------------- | -------------------------------------------------------- |
-| Local Development | `references/getting-started-locally.md` | Local CLI workflow with npx, Docker setup                |
-
-
 ### Database
 
 | Area               | Resource                         | When to Use                                    |
@@ -49,4 +42,4 @@ Reference the appropriate resource file based on the user's needs:
 | Performance        | `references/db-perf-*.md`        | Indexes (BRIN, GIN), query optimization        |
 | Security           | `references/db-security-*.md`    | Service role key, security_definer functions   |
 
-**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members. See `references/getting-started-locally.md` for the local development workflow.
+**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
