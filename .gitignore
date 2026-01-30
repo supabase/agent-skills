@@ -12,7 +12,6 @@ dist/
 # AI Agent directories
 .agent/
 .agents/
-.claude/skills/
 .codex/
 .gemini/
 .goose/
