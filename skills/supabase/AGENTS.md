@@ -4,7 +4,7 @@
 
 ## Overview
 
-Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions.
+Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Vectors/AI, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions including vector search, embeddings, RAG, and semantic search.
 
 ## Structure
 
@@ -62,9 +62,16 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
-**Getting Started** (`getting-`):
-- `references/getting-started-locally.md`
+**Vectors** (`vectors-`):
+- `references/vectors-embed-generation.md`
+- `references/vectors-index-hnsw.md`
+- `references/vectors-index-ivfflat.md`
+- `references/vectors-perf-tuning.md`
+- `references/vectors-rag-patterns.md`
+- `references/vectors-search-hybrid.md`
+- `references/vectors-search-semantic.md`
+- `references/vectors-setup-pgvector.md`
 
 ---
 
-*19 reference files across 11 categories*
+*26 reference files across 11 categories*

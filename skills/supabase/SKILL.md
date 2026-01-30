@@ -1,6 +1,6 @@
 ---
 name: supabase
-description: Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions.
+description: Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Vectors/AI, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions including vector search, embeddings, RAG, and semantic search.
 license: MIT
 metadata:
   author: supabase
@@ -31,13 +31,6 @@ curl -H "Accept: text/markdown" https://supabase.com/docs/<path>
 
 Reference the appropriate resource file based on the user's needs:
 
-### Core Guides
-
-| Area              | Resource                                | When to Use                                              |
-| ----------------- | --------------------------------------- | -------------------------------------------------------- |
-| Local Development | `references/getting-started-locally.md` | Local CLI workflow with npx, Docker setup                |
-
-
 ### Database
 
 | Area               | Resource                         | When to Use                                    |
@@ -49,4 +42,15 @@ Reference the appropriate resource file based on the user's needs:
 | Performance        | `references/db-perf-*.md`        | Indexes (BRIN, GIN), query optimization        |
 | Security           | `references/db-security-*.md`    | Service role key, security_definer functions   |
 
-**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members. See `references/getting-started-locally.md` for the local development workflow.
+### Vectors & AI
+
+| Area               | Resource                         | When to Use                                     |
+| ------------------ | -------------------------------- | ----------------------------------------------- |
+| Vector Setup       | `references/vectors-setup-*.md`  | pgvector extension, vector columns, dimensions  |
+| Vector Indexing    | `references/vectors-index-*.md`  | HNSW, IVFFlat, index parameters, concurrent     |
+| Vector Search      | `references/vectors-search-*.md` | Semantic search, hybrid search, match_documents |
+| Embeddings         | `references/vectors-embed-*.md`  | gte-small, OpenAI, triggers, Edge Functions     |
+| RAG                | `references/vectors-rag-*.md`    | Document ingestion, chunking, query pipelines   |
+| Vector Performance | `references/vectors-perf-*.md`   | Pre-warming, compute sizing, batch operations   |
+
+**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
