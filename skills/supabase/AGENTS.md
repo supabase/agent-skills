@@ -62,9 +62,23 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
-**Getting Started** (`getting-`):
-- `references/getting-started-locally.md`
+**Edge Functions** (`edge-`):
+- `references/edge-adv-regional.md`
+- `references/edge-adv-streaming.md`
+- `references/edge-adv-websockets.md`
+- `references/edge-auth-jwt-verification.md`
+- `references/edge-auth-rls-integration.md`
+- `references/edge-db-direct-postgres.md`
+- `references/edge-db-supabase-client.md`
+- `references/edge-dbg-limits.md`
+- `references/edge-dbg-testing.md`
+- `references/edge-fun-project-structure.md`
+- `references/edge-fun-quickstart.md`
+- `references/edge-pat-background-tasks.md`
+- `references/edge-pat-cors.md`
+- `references/edge-pat-error-handling.md`
+- `references/edge-pat-routing.md`
 
 ---
 
-*19 reference files across 11 categories*
+*33 reference files across 11 categories*
