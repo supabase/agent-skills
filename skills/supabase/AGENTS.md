@@ -62,9 +62,15 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
-**Getting Started** (`getting-`):
-- `references/getting-started-locally.md`
+**Storage** (`storage-`):
+- `references/storage-access-control.md`
+- `references/storage-cdn-caching.md`
+- `references/storage-download-urls.md`
+- `references/storage-ops-file-management.md`
+- `references/storage-transform-images.md`
+- `references/storage-upload-resumable.md`
+- `references/storage-upload-standard.md`
 
 ---
 
-*19 reference files across 11 categories*
+*25 reference files across 11 categories*

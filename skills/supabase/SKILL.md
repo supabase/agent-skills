@@ -31,13 +31,6 @@ curl -H "Accept: text/markdown" https://supabase.com/docs/<path>
 
 Reference the appropriate resource file based on the user's needs:
 
-### Core Guides
-
-| Area              | Resource                                | When to Use                                              |
-| ----------------- | --------------------------------------- | -------------------------------------------------------- |
-| Local Development | `references/getting-started-locally.md` | Local CLI workflow with npx, Docker setup                |
-
-
 ### Database
 
 | Area               | Resource                         | When to Use                                    |
@@ -49,4 +42,15 @@ Reference the appropriate resource file based on the user's needs:
 | Performance        | `references/db-perf-*.md`        | Indexes (BRIN, GIN), query optimization        |
 | Security           | `references/db-security-*.md`    | Service role key, security_definer functions   |
 
-**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members. See `references/getting-started-locally.md` for the local development workflow.
+### Storage & Media
+
+| Area             | Resource                           | When to Use                                    |
+| ---------------- | ---------------------------------- | ---------------------------------------------- |
+| Access Control   | `references/storage-access-*.md`   | Bucket visibility, Storage RLS policies        |
+| Uploads          | `references/storage-upload-*.md`   | Standard uploads, resumable/large file uploads |
+| Downloads        | `references/storage-download-*.md` | Public URLs, signed URLs, download methods     |
+| Transformations  | `references/storage-transform-*.md`| Image resize, crop, format, Next.js loader     |
+| CDN & Caching    | `references/storage-cdn-*.md`      | Cache control, stale content, Smart CDN        |
+| File Operations  | `references/storage-ops-*.md`      | Move, copy, delete, list files                 |
+
+**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
