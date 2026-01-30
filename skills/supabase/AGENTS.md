@@ -26,80 +26,59 @@ supabase/
 
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
-| 1 | Row Level Security | CRITICAL | `rls-` |
-| 1 | Fundamentals | CRITICAL | `fun-` |
-| 2 | Connection Pooling | CRITICAL | `conn-` |
-| 2 | Authentication | CRITICAL | `auth-` |
-| 3 | Schema Design | HIGH | `schema-` |
-| 3 | Database | HIGH | `db-` |
-| 4 | Migrations | HIGH | `migrations-` |
-| 4 | Patterns | MEDIUM-HIGH | `pat-` |
-| 5 | Performance | CRITICAL | `perf-` |
-| 5 | Advanced | MEDIUM | `adv-` |
-| 6 | Security | CRITICAL | `security-` |
-| 6 | Debugging | MEDIUM | `dbg-` |
+| 1 | Getting Started | CRITICAL | `getting-` |
+| 2 | Database | CRITICAL | `db-` |
+| 3 | Authentication | CRITICAL | `auth-` |
+| 4 | Storage | HIGH | `storage-` |
+| 5 | Edge Functions | HIGH | `edge-` |
+| 6 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 7 | SDK | HIGH | `sdk-` |
+| 8 | CLI | CRITICAL | `cli-` |
+| 9 | MCP | MEDIUM | `mcp-` |
+| 10 | Tooling | MEDIUM | `tooling-` |
+| 11 | Vectors | MEDIUM | `vectors-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
 ## Available References
 
-**Connection Pooling** (`conn-`):
-- `references/db/conn-pooling.md`
-
-**Migrations** (`migrations-`):
-- `references/db/migrations-diff.md`
-- `references/db/migrations-idempotent.md`
-- `references/db/migrations-testing.md`
-
-**Performance** (`perf-`):
-- `references/db/perf-indexes.md`
-- `references/db/perf-query-optimization.md`
-
-**Row Level Security** (`rls-`):
-- `references/db/rls-common-mistakes.md`
-- `references/db/rls-mandatory.md`
-- `references/db/rls-performance.md`
-- `references/db/rls-policy-types.md`
-- `references/db/rls-views.md`
-
-**Schema Design** (`schema-`):
-- `references/db/schema-auth-fk.md`
-- `references/db/schema-extensions.md`
-- `references/db/schema-jsonb.md`
-- `references/db/schema-realtime.md`
-- `references/db/schema-timestamps.md`
-
-**Security** (`security-`):
-- `references/db/security-functions.md`
-- `references/db/security-service-role.md`
-
-**Advanced** (`adv-`):
-- `references/edge-functions/adv-regional.md`
-- `references/edge-functions/adv-streaming.md`
-- `references/edge-functions/adv-websockets.md`
-
-**Authentication** (`auth-`):
-- `references/edge-functions/auth-jwt-verification.md`
-- `references/edge-functions/auth-rls-integration.md`
-
 **Database** (`db-`):
-- `references/edge-functions/db-direct-postgres.md`
-- `references/edge-functions/db-supabase-client.md`
+- `references/db-conn-pooling.md`
+- `references/db-migrations-diff.md`
+- `references/db-migrations-idempotent.md`
+- `references/db-migrations-testing.md`
+- `references/db-perf-indexes.md`
+- `references/db-perf-query-optimization.md`
+- `references/db-rls-common-mistakes.md`
+- `references/db-rls-mandatory.md`
+- `references/db-rls-performance.md`
+- `references/db-rls-policy-types.md`
+- `references/db-rls-views.md`
+- `references/db-schema-auth-fk.md`
+- `references/db-schema-extensions.md`
+- `references/db-schema-jsonb.md`
+- `references/db-schema-realtime.md`
+- `references/db-schema-timestamps.md`
+- `references/db-security-functions.md`
+- `references/db-security-service-role.md`
 
-**Debugging** (`dbg-`):
-- `references/edge-functions/dbg-limits.md`
-- `references/edge-functions/dbg-testing.md`
-
-**Fundamentals** (`fun-`):
-- `references/edge-functions/fun-project-structure.md`
-- `references/edge-functions/fun-quickstart.md`
-
-**Patterns** (`pat-`):
-- `references/edge-functions/pat-background-tasks.md`
-- `references/edge-functions/pat-cors.md`
-- `references/edge-functions/pat-error-handling.md`
-- `references/edge-functions/pat-routing.md`
+**Edge Functions** (`edge-`):
+- `references/edge-adv-regional.md`
+- `references/edge-adv-streaming.md`
+- `references/edge-adv-websockets.md`
+- `references/edge-auth-jwt-verification.md`
+- `references/edge-auth-rls-integration.md`
+- `references/edge-db-direct-postgres.md`
+- `references/edge-db-supabase-client.md`
+- `references/edge-dbg-limits.md`
+- `references/edge-dbg-testing.md`
+- `references/edge-fun-project-structure.md`
+- `references/edge-fun-quickstart.md`
+- `references/edge-pat-background-tasks.md`
+- `references/edge-pat-cors.md`
+- `references/edge-pat-error-handling.md`
+- `references/edge-pat-routing.md`
 
 ---
 
-*33 reference files across 12 categories*
+*33 reference files across 11 categories*

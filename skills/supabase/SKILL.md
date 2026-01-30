@@ -31,68 +31,35 @@ curl -H "Accept: text/markdown" https://supabase.com/docs/<path>
 
 Reference the appropriate resource file based on the user's needs:
 
-### Core Guides
-
-| Area             | Resource                         | When to Use                                              |
-| ---------------- | -------------------------------- | -------------------------------------------------------- |
-| Getting Started  | `references/getting-started.md`  | Setting up a project, connection strings, dependencies   |
-| Referencing Docs | `references/referencing-docs.md` | Looking up official documentation, verifying information |
-
-### Authentication & Security
-
-| Area               | Resource             | When to Use                                |
-| ------------------ | -------------------- | ------------------------------------------ |
-| Auth Overview      | `references/auth.md` | Authentication, social login, sessions     |
-| Row Level Security | `references/rls.md`  | Database security policies, access control |
-
 ### Database
 
-| Area               | Resource                        | When to Use                                    |
-| ------------------ | ------------------------------- | ---------------------------------------------- |
-| Database           | `references/database.md`        | Postgres queries, migrations, modeling         |
-| RLS Security       | `references/db/rls-*.md`        | Row Level Security policies, common mistakes   |
-| Connection Pooling | `references/db/conn-pooling.md` | Transaction vs Session mode, port 6543 vs 5432 |
-| Schema Design      | `references/db/schema-*.md`     | auth.users FKs, timestamps, JSONB, extensions  |
-| Migrations         | `references/db/migrations-*.md` | CLI workflows, idempotent patterns, db diff    |
-| Performance        | `references/db/perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
-| Security           | `references/db/security-*.md`   | Service role key, security_definer functions   |
-
-### Storage & Media
-
-| Area    | Resource                | When to Use                  |
-| ------- | ----------------------- | ---------------------------- |
-| Storage | `references/storage.md` | File uploads, buckets, media |
+| Area               | Resource                         | When to Use                                    |
+| ------------------ | -------------------------------- | ---------------------------------------------- |
+| RLS Security       | `references/db-rls-*.md`         | Row Level Security policies, common mistakes   |
+| Connection Pooling | `references/db-conn-pooling.md`  | Transaction vs Session mode, port 6543 vs 5432 |
+| Schema Design      | `references/db-schema-*.md`      | auth.users FKs, timestamps, JSONB, extensions  |
+| Migrations         | `references/db-migrations-*.md`  | CLI workflows, idempotent patterns, db diff    |
+| Performance        | `references/db-perf-*.md`        | Indexes (BRIN, GIN), query optimization        |
+| Security           | `references/db-security-*.md`    | Service role key, security_definer functions   |
 
 ### Edge Functions
 
-| Area                 | Resource                                        | When to Use                                      |
-| -------------------- | ----------------------------------------------- | ------------------------------------------------ |
-| Quick Start          | `references/edge-functions/fun-quickstart.md`   | Creating and deploying first function            |
-| Project Structure    | `references/edge-functions/fun-project-structure.md` | Directory layout, shared code, fat functions |
-| JWT Authentication   | `references/edge-functions/auth-jwt-verification.md` | JWT verification, jose library, middleware  |
-| RLS Integration      | `references/edge-functions/auth-rls-integration.md` | Passing auth context, user-scoped queries    |
-| Database (supabase-js) | `references/edge-functions/db-supabase-client.md` | Queries, inserts, RPC calls                  |
-| Database (Direct)    | `references/edge-functions/db-direct-postgres.md` | Postgres pools, Drizzle ORM                  |
-| CORS                 | `references/edge-functions/pat-cors.md`         | Browser requests, preflight handling             |
-| Routing              | `references/edge-functions/pat-routing.md`      | Multi-route functions, Hono framework            |
-| Error Handling       | `references/edge-functions/pat-error-handling.md` | Error responses, validation                    |
-| Background Tasks     | `references/edge-functions/pat-background-tasks.md` | waitUntil, async processing                  |
-| Streaming            | `references/edge-functions/adv-streaming.md`    | SSE, streaming responses                         |
-| WebSockets           | `references/edge-functions/adv-websockets.md`   | Bidirectional communication                      |
-| Regional Invocation  | `references/edge-functions/adv-regional.md`     | Region selection, latency optimization           |
-| Testing              | `references/edge-functions/dbg-testing.md`      | Deno tests, local testing                        |
-| Limits & Debugging   | `references/edge-functions/dbg-limits.md`       | Troubleshooting, runtime limits                  |
+| Area                 | Resource                              | When to Use                                      |
+| -------------------- | ------------------------------------- | ------------------------------------------------ |
+| Quick Start          | `references/edge-fun-quickstart.md`   | Creating and deploying first function            |
+| Project Structure    | `references/edge-fun-project-structure.md` | Directory layout, shared code, fat functions |
+| JWT Authentication   | `references/edge-auth-jwt-verification.md` | JWT verification, jose library, middleware  |
+| RLS Integration      | `references/edge-auth-rls-integration.md` | Passing auth context, user-scoped queries    |
+| Database (supabase-js) | `references/edge-db-supabase-client.md` | Queries, inserts, RPC calls                  |
+| Database (Direct)    | `references/edge-db-direct-postgres.md` | Postgres pools, Drizzle ORM                  |
+| CORS                 | `references/edge-pat-cors.md`         | Browser requests, preflight handling             |
+| Routing              | `references/edge-pat-routing.md`      | Multi-route functions, Hono framework            |
+| Error Handling       | `references/edge-pat-error-handling.md` | Error responses, validation                    |
+| Background Tasks     | `references/edge-pat-background-tasks.md` | waitUntil, async processing                  |
+| Streaming            | `references/edge-adv-streaming.md`    | SSE, streaming responses                         |
+| WebSockets           | `references/edge-adv-websockets.md`   | Bidirectional communication                      |
+| Regional Invocation  | `references/edge-adv-regional.md`     | Region selection, latency optimization           |
+| Testing              | `references/edge-dbg-testing.md`      | Deno tests, local testing                        |
+| Limits & Debugging   | `references/edge-dbg-limits.md`       | Troubleshooting, runtime limits                  |
 
-### Realtime
-
-| Area     | Resource                 | When to Use                                  |
-| -------- | ------------------------ | -------------------------------------------- |
-| Realtime | `references/realtime.md` | Real-time subscriptions, presence, broadcast |
-
-### Client Libraries & CLI
-
-| Area         | Resource                    | When to Use                              |
-| ------------ | --------------------------- | ---------------------------------------- |
-| supabase-js  | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
-| Supabase CLI | `references/cli.md`         | Local development, migrations, CI/CD     |
-| MCP Server   | `references/mcp.md`         | AI agent integration, MCP tooling        |
+**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
