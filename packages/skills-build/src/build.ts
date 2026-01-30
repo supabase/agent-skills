@@ -29,9 +29,9 @@ function generateSectionMap(sections: Section[]): Record<string, number> {
 }
 
 /**
- * Recursively get all markdown files from a directory
+ * Get all markdown files from a directory (flat, no subdirectories)
  */
-function getMarkdownFilesRecursive(dir: string): string[] {
+function getMarkdownFiles(dir: string): string[] {
 	const files: string[] = [];
 
 	if (!existsSync(dir)) {
@@ -49,15 +49,20 @@ function getMarkdownFilesRecursive(dir: string): string[] {
 		const fullPath = join(dir, entry);
 		const stat = statSync(fullPath);
 
-		if (stat.isDirectory()) {
-			// Recursively scan subdirectories
-			files.push(...getMarkdownFilesRecursive(fullPath));
-		} else if (entry.endsWith(".md")) {
+		// Only include files, skip directories
+		if (stat.isFile() && entry.endsWith(".md")) {
 			files.push(fullPath);
 		}
 	}
 
 	return files;
+}
+
+/**
+ * @deprecated Use getMarkdownFiles instead - nested directories are not supported
+ */
+function getMarkdownFilesRecursive(dir: string): string[] {
+	return getMarkdownFiles(dir);
 }
 
 /**
@@ -171,36 +176,20 @@ function parseSectionsFromFile(filePath: string): Section[] {
 }
 
 /**
- * Parse all _sections.md files from references directory and subdirectories
+ * Parse _sections.md from references directory root only
+ * Note: Nested directories are not supported - all reference files should be in references/ root
  */
 function parseAllSections(referencesDir: string): Section[] {
-	const allSections: Section[] = [];
-
-	// Parse root _sections.md
-	const rootSectionsFile = join(referencesDir, "_sections.md");
-	if (existsSync(rootSectionsFile)) {
-		allSections.push(...parseSectionsFromFile(rootSectionsFile));
+	const sectionsFile = join(referencesDir, "_sections.md");
+	if (existsSync(sectionsFile)) {
+		return parseSectionsFromFile(sectionsFile);
 	}
-
-	// Scan subdirectories for _sections.md files
-	if (existsSync(referencesDir)) {
-		const entries = readdirSync(referencesDir);
-		for (const entry of entries) {
-			const fullPath = join(referencesDir, entry);
-			if (statSync(fullPath).isDirectory()) {
-				const subSectionsFile = join(fullPath, "_sections.md");
-				if (existsSync(subSectionsFile)) {
-					allSections.push(...parseSectionsFromFile(subSectionsFile));
-				}
-			}
-		}
-	}
-
-	return allSections;
+	return [];
 }
 
 /**
- * Get all reference files (excluding _sections.md)
+ * Get all reference files from references/ root (excluding _sections.md)
+ * Note: Nested directories are not supported - all reference files should be in references/ root
  */
 function getReferenceFiles(referencesDir: string): string[] {
 	const files: string[] = [];
@@ -220,15 +209,8 @@ function getReferenceFiles(referencesDir: string): string[] {
 		const fullPath = join(referencesDir, entry);
 		const stat = statSync(fullPath);
 
-		if (stat.isDirectory()) {
-			// Recursively scan subdirectories
-			const subEntries = readdirSync(fullPath);
-			for (const subEntry of subEntries) {
-				if (!subEntry.startsWith("_") && subEntry.endsWith(".md")) {
-					files.push(join(fullPath, subEntry));
-				}
-			}
-		} else if (entry.endsWith(".md")) {
+		// Only include files at root level, skip directories
+		if (stat.isFile() && entry.endsWith(".md")) {
 			files.push(fullPath);
 		}
 	}
@@ -416,7 +398,8 @@ if (isMainModule) {
 export {
 	buildSkill,
 	generateSectionMap,
-	getMarkdownFilesRecursive,
+	getMarkdownFiles,
+	getMarkdownFilesRecursive, // deprecated, use getMarkdownFiles
 	getReferenceFiles,
 	parseAllSections,
 	parseSections,
