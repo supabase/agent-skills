@@ -26,97 +26,65 @@ supabase/
 
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
-| 1 | Project Commands | CRITICAL | `project-` |
-| 1 | Row Level Security | CRITICAL | `rls-` |
-| 1 | Setup | CRITICAL | `setup-` |
-| 1 | Tool Selection | CRITICAL | `tool-` |
-| 2 | Database Commands | CRITICAL | `database-` |
-| 2 | Connection Pooling | CRITICAL | `conn-` |
-| 2 | Combined Workflows | CRITICAL | `workflow-` |
-| 3 | Migration Commands | HIGH | `migration-` |
-| 3 | Schema Design | HIGH | `schema-` |
-| 4 | Functions Commands | HIGH | `functions-` |
-| 4 | Migrations | HIGH | `migrations-` |
-| 5 | Secrets Commands | MEDIUM | `secrets-` |
-| 5 | Performance | CRITICAL | `perf-` |
-| 6 | Generation Commands | HIGH | `generation-` |
-| 6 | Security | CRITICAL | `security-` |
-| 7 | Decision Guide | HIGH | `decision-` |
-| 8 | Gotchas and Pitfalls | HIGH | `gotchas-` |
+| 1 | Getting Started | CRITICAL | `getting-` |
+| 2 | Database | CRITICAL | `db-` |
+| 3 | Authentication | CRITICAL | `auth-` |
+| 4 | Storage | HIGH | `storage-` |
+| 5 | Edge Functions | HIGH | `edge-` |
+| 6 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 7 | SDK | HIGH | `sdk-` |
+| 8 | CLI | CRITICAL | `cli-` |
+| 9 | MCP | MEDIUM | `mcp-` |
+| 10 | Tooling | MEDIUM | `tooling-` |
+| 11 | Vectors | MEDIUM | `vectors-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
 ## Available References
 
-**Database Commands** (`database-`):
-- `references/cli/database-commands.md`
+**CLI** (`cli-`):
+- `references/cli-database-commands.md`
+- `references/cli-decision-guide.md`
+- `references/cli-functions-commands.md`
+- `references/cli-generation-commands.md`
+- `references/cli-gotchas-pitfalls.md`
+- `references/cli-migration-commands.md`
+- `references/cli-project-commands.md`
+- `references/cli-secrets-commands.md`
 
-**Decision Guide** (`decision-`):
-- `references/cli/decision-guide.md`
+**Database** (`db-`):
+- `references/db-conn-pooling.md`
+- `references/db-migrations-diff.md`
+- `references/db-migrations-idempotent.md`
+- `references/db-migrations-testing.md`
+- `references/db-perf-indexes.md`
+- `references/db-perf-query-optimization.md`
+- `references/db-rls-common-mistakes.md`
+- `references/db-rls-mandatory.md`
+- `references/db-rls-performance.md`
+- `references/db-rls-policy-types.md`
+- `references/db-rls-views.md`
+- `references/db-schema-auth-fk.md`
+- `references/db-schema-extensions.md`
+- `references/db-schema-jsonb.md`
+- `references/db-schema-realtime.md`
+- `references/db-schema-timestamps.md`
+- `references/db-security-functions.md`
+- `references/db-security-service-role.md`
 
-**Functions Commands** (`functions-`):
-- `references/cli/functions-commands.md`
+**MCP** (`mcp-`):
+- `references/mcp-setup-configuration.md`
+- `references/mcp-setup-feature-groups.md`
+- `references/mcp-setup-security.md`
 
-**Generation Commands** (`generation-`):
-- `references/cli/generation-commands.md`
-
-**Gotchas and Pitfalls** (`gotchas-`):
-- `references/cli/gotchas-pitfalls.md`
-
-**Migration Commands** (`migration-`):
-- `references/cli/migration-commands.md`
-
-**Project Commands** (`project-`):
-- `references/cli/project-commands.md`
-
-**Secrets Commands** (`secrets-`):
-- `references/cli/secrets-commands.md`
-
-**Connection Pooling** (`conn-`):
-- `references/db/conn-pooling.md`
-
-**Migrations** (`migrations-`):
-- `references/db/migrations-diff.md`
-- `references/db/migrations-idempotent.md`
-- `references/db/migrations-testing.md`
-
-**Performance** (`perf-`):
-- `references/db/perf-indexes.md`
-- `references/db/perf-query-optimization.md`
-
-**Row Level Security** (`rls-`):
-- `references/db/rls-common-mistakes.md`
-- `references/db/rls-mandatory.md`
-- `references/db/rls-performance.md`
-- `references/db/rls-policy-types.md`
-- `references/db/rls-views.md`
-
-**Schema Design** (`schema-`):
-- `references/db/schema-auth-fk.md`
-- `references/db/schema-extensions.md`
-- `references/db/schema-jsonb.md`
-- `references/db/schema-realtime.md`
-- `references/db/schema-timestamps.md`
-
-**Security** (`security-`):
-- `references/db/security-functions.md`
-- `references/db/security-service-role.md`
-
-**Setup** (`setup-`):
-- `references/mcp/setup-configuration.md`
-- `references/mcp/setup-feature-groups.md`
-- `references/mcp/setup-security.md`
-
-**Tool Selection** (`tool-`):
-- `references/tooling/tool-overlap.md`
-- `references/tooling/tool-selection.md`
-
-**Combined Workflows** (`workflow-`):
-- `references/tooling/workflow-function-dev.md`
-- `references/tooling/workflow-local-dev.md`
-- `references/tooling/workflow-migration-create.md`
-- `references/tooling/workflow-type-generation.md`
+**Tooling** (`tooling-`):
+- `references/tooling-tool-overlap.md`
+- `references/tooling-tool-selection.md`
+- `references/tooling-workflow-function-dev.md`
+- `references/tooling-workflow-local-dev.md`
+- `references/tooling-workflow-migration-create.md`
+- `references/tooling-workflow-type-generation.md`
 
 ---
 
-*35 reference files across 17 categories*
+*35 reference files across 11 categories*

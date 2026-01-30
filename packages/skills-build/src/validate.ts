@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { basename } from "node:path";
 import {
 	generateSectionMap,
-	getMarkdownFilesRecursive,
+	getMarkdownFiles,
 	parseAllSections,
 	parseSections,
 } from "./build.js";
@@ -158,8 +158,8 @@ function validateSkill(paths: SkillPaths): boolean {
 	const sections = parseAllSections(paths.referencesDir);
 	const sectionMap = generateSectionMap(sections);
 
-	// Get all markdown files recursively (excluding _ prefixed files)
-	const files = getMarkdownFilesRecursive(paths.referencesDir);
+	// Get all markdown files from references/ root (excluding _ prefixed files)
+	const files = getMarkdownFiles(paths.referencesDir);
 
 	if (files.length === 0) {
 		console.log(`  No rule files found.`);

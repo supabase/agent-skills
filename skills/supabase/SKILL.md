@@ -31,78 +31,41 @@ curl -H "Accept: text/markdown" https://supabase.com/docs/<path>
 
 Reference the appropriate resource file based on the user's needs:
 
-### Core Guides
-
-| Area             | Resource                         | When to Use                                              |
-| ---------------- | -------------------------------- | -------------------------------------------------------- |
-| Getting Started  | `references/getting-started.md`  | Setting up a project, connection strings, dependencies   |
-| Referencing Docs | `references/referencing-docs.md` | Looking up official documentation, verifying information |
-
-### Authentication & Security
-
-| Area               | Resource             | When to Use                                |
-| ------------------ | -------------------- | ------------------------------------------ |
-| Auth Overview      | `references/auth.md` | Authentication, social login, sessions     |
-| Row Level Security | `references/rls.md`  | Database security policies, access control |
-
 ### Database
 
-| Area               | Resource                        | When to Use                                    |
-| ------------------ | ------------------------------- | ---------------------------------------------- |
-| Database           | `references/database.md`        | Postgres queries, migrations, modeling         |
-| RLS Security       | `references/db/rls-*.md`        | Row Level Security policies, common mistakes   |
-| Connection Pooling | `references/db/conn-pooling.md` | Transaction vs Session mode, port 6543 vs 5432 |
-| Schema Design      | `references/db/schema-*.md`     | auth.users FKs, timestamps, JSONB, extensions  |
-| Migrations         | `references/db/migrations-*.md` | CLI workflows, idempotent patterns, db diff    |
-| Performance        | `references/db/perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
-| Security           | `references/db/security-*.md`   | Service role key, security_definer functions   |
-
-### Storage & Media
-
-| Area    | Resource                | When to Use                  |
-| ------- | ----------------------- | ---------------------------- |
-| Storage | `references/storage.md` | File uploads, buckets, media |
-
-### Edge Functions
-
-| Area           | Resource                       | When to Use                                  |
-| -------------- | ------------------------------ | -------------------------------------------- |
-| Edge Functions | `references/edge-functions.md` | Serverless functions, Deno runtime, webhooks |
-
-### Realtime
-
-| Area     | Resource                 | When to Use                                  |
-| -------- | ------------------------ | -------------------------------------------- |
-| Realtime | `references/realtime.md` | Real-time subscriptions, presence, broadcast |
-
-### Client Libraries
-
-| Area        | Resource                    | When to Use                              |
-| ----------- | --------------------------- | ---------------------------------------- |
-| supabase-js | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
+| Area               | Resource                         | When to Use                                    |
+| ------------------ | -------------------------------- | ---------------------------------------------- |
+| RLS Security       | `references/db-rls-*.md`         | Row Level Security policies, common mistakes   |
+| Connection Pooling | `references/db-conn-pooling.md`  | Transaction vs Session mode, port 6543 vs 5432 |
+| Schema Design      | `references/db-schema-*.md`      | auth.users FKs, timestamps, JSONB, extensions  |
+| Migrations         | `references/db-migrations-*.md`  | CLI workflows, idempotent patterns, db diff    |
+| Performance        | `references/db-perf-*.md`        | Indexes (BRIN, GIN), query optimization        |
+| Security           | `references/db-security-*.md`    | Service role key, security_definer functions   |
 
 ### CLI Commands
 
-| Area       | Resource                                | When to Use                                    |
-| ---------- | --------------------------------------- | ---------------------------------------------- |
-| Project    | `references/cli/project-commands.md`    | init, start, stop, status, link, login         |
-| Database   | `references/cli/database-commands.md`   | push, pull, diff, reset, dump                  |
-| Migrations | `references/cli/migration-commands.md`  | new, list, fetch, repair, squash               |
-| Functions  | `references/cli/functions-commands.md`  | new, serve, deploy                             |
-| Secrets    | `references/cli/secrets-commands.md`    | set, list                                      |
-| Generation | `references/cli/generation-commands.md` | gen types                                      |
-| Decisions  | `references/cli/decision-guide.md`      | pull vs diff, push vs up, targeting, --experimental |
-| Gotchas    | `references/cli/gotchas-pitfalls.md`    | Common mistakes, edge cases, troubleshooting   |
+| Area       | Resource                             | When to Use                                      |
+| ---------- | ------------------------------------ | ------------------------------------------------ |
+| Project    | `references/cli-project-commands.md`    | init, start, stop, status, link, login        |
+| Database   | `references/cli-database-commands.md`   | push, pull, diff, reset, dump                 |
+| Migrations | `references/cli-migration-commands.md`  | new, list, fetch, repair, squash              |
+| Functions  | `references/cli-functions-commands.md`  | new, serve, deploy                            |
+| Secrets    | `references/cli-secrets-commands.md`    | set, list                                     |
+| Generation | `references/cli-generation-commands.md` | gen types                                     |
+| Decisions  | `references/cli-decision-guide.md`      | pull vs diff, push vs up, targeting           |
+| Gotchas    | `references/cli-gotchas-pitfalls.md`    | Common mistakes, edge cases, troubleshooting  |
 
 ### MCP + CLI Workflows
 
 | Area               | Resource                           | When to Use                                         |
 | ------------------ | ---------------------------------- | --------------------------------------------------- |
-| Tool Selection     | `references/tooling/tool-*.md`     | MCP vs CLI decision, capability comparison          |
-| Combined Workflows | `references/tooling/workflow-*.md` | Local dev, migrations, type gen, function workflows |
+| Tool Selection     | `references/tooling-tool-*.md`     | MCP vs CLI decision, capability comparison          |
+| Combined Workflows | `references/tooling-workflow-*.md` | Local dev, migrations, type gen, function workflows |
 
 ### MCP Setup
 
 | Area      | Resource                    | When to Use                                          |
 | --------- | --------------------------- | ---------------------------------------------------- |
-| MCP Setup | `references/mcp/setup-*.md` | Configuring MCP connection, security, feature groups |
+| MCP Setup | `references/mcp-setup-*.md` | Configuring MCP connection, security, feature groups |
+
+**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
