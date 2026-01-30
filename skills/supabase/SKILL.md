@@ -31,64 +31,26 @@ curl -H "Accept: text/markdown" https://supabase.com/docs/<path>
 
 Reference the appropriate resource file based on the user's needs:
 
-### Core Guides
-
-| Area             | Resource                         | When to Use                                              |
-| ---------------- | -------------------------------- | -------------------------------------------------------- |
-| Getting Started  | `references/getting-started.md`  | Setting up a project, connection strings, dependencies   |
-| Referencing Docs | `references/referencing-docs.md` | Looking up official documentation, verifying information |
-
-### Authentication & Security
-
-| Area               | Resource             | When to Use                                |
-| ------------------ | -------------------- | ------------------------------------------ |
-| Auth Overview      | `references/auth.md` | Authentication, social login, sessions     |
-| Row Level Security | `references/rls.md`  | Database security policies, access control |
-
 ### Database
 
-| Area               | Resource                        | When to Use                                    |
-| ------------------ | ------------------------------- | ---------------------------------------------- |
-| Database           | `references/database.md`        | Postgres queries, migrations, modeling         |
-| RLS Security       | `references/db/rls-*.md`        | Row Level Security policies, common mistakes   |
-| Connection Pooling | `references/db/conn-pooling.md` | Transaction vs Session mode, port 6543 vs 5432 |
-| Schema Design      | `references/db/schema-*.md`     | auth.users FKs, timestamps, JSONB, extensions  |
-| Migrations         | `references/db/migrations-*.md` | CLI workflows, idempotent patterns, db diff    |
-| Performance        | `references/db/perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
-| Security           | `references/db/security-*.md`   | Service role key, security_definer functions   |
-
-### Storage & Media
-
-| Area    | Resource                | When to Use                  |
-| ------- | ----------------------- | ---------------------------- |
-| Storage | `references/storage.md` | File uploads, buckets, media |
-
-### Edge Functions
-
-| Area           | Resource                       | When to Use                                  |
-| -------------- | ------------------------------ | -------------------------------------------- |
-| Edge Functions | `references/edge-functions.md` | Serverless functions, Deno runtime, webhooks |
-
-### Realtime
-
-| Area     | Resource                 | When to Use                                  |
-| -------- | ------------------------ | -------------------------------------------- |
-| Realtime | `references/realtime.md` | Real-time subscriptions, presence, broadcast |
+| Area               | Resource                         | When to Use                                    |
+| ------------------ | -------------------------------- | ---------------------------------------------- |
+| RLS Security       | `references/db-rls-*.md`         | Row Level Security policies, common mistakes   |
+| Connection Pooling | `references/db-conn-pooling.md`  | Transaction vs Session mode, port 6543 vs 5432 |
+| Schema Design      | `references/db-schema-*.md`      | auth.users FKs, timestamps, JSONB, extensions  |
+| Migrations         | `references/db-migrations-*.md`  | CLI workflows, idempotent patterns, db diff    |
+| Performance        | `references/db-perf-*.md`        | Indexes (BRIN, GIN), query optimization        |
+| Security           | `references/db-security-*.md`    | Service role key, security_definer functions   |
 
 ### SDK (supabase-js)
 
-| Area              | Resource                        | When to Use                                   |
-| ----------------- | ------------------------------- | --------------------------------------------- |
-| Client Setup      | `references/sdk/client-*.md`    | Browser/server client, SSR, configuration     |
-| TypeScript        | `references/sdk/ts-*.md`        | Type generation, using Database types         |
-| Query Patterns    | `references/sdk/query-*.md`     | CRUD, filters, joins, RPC calls               |
-| Error Handling    | `references/sdk/error-*.md`     | Error types, retries, handling patterns       |
-| SDK Performance   | `references/sdk/perf-*.md`      | Query optimization, realtime cleanup          |
-| Framework         | `references/sdk/framework-*.md` | Next.js App Router, middleware setup          |
+| Area              | Resource                       | When to Use                                   |
+| ----------------- | ------------------------------ | --------------------------------------------- |
+| Client Setup      | `references/sdk-client-*.md`   | Browser/server client, SSR, configuration     |
+| TypeScript        | `references/sdk-ts-*.md`       | Type generation, using Database types         |
+| Query Patterns    | `references/sdk-query-*.md`    | CRUD, filters, joins, RPC calls               |
+| Error Handling    | `references/sdk-error-*.md`    | Error types, retries, handling patterns       |
+| SDK Performance   | `references/sdk-perf-*.md`     | Query optimization, realtime cleanup          |
+| Framework         | `references/sdk-framework-*.md`| Next.js App Router, middleware setup          |
 
-### CLI & Tooling
-
-| Area         | Resource                | When to Use                          |
-| ------------ | ----------------------- | ------------------------------------ |
-| Supabase CLI | `references/cli.md`     | Local development, migrations, CI/CD |
-| MCP Server   | `references/mcp.md`     | AI agent integration, MCP tooling    |
+**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
