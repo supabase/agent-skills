@@ -42,6 +42,16 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ## Available References
 
+**CLI** (`cli-`):
+- `references/cli-database-commands.md`
+- `references/cli-decision-guide.md`
+- `references/cli-functions-commands.md`
+- `references/cli-generation-commands.md`
+- `references/cli-gotchas-pitfalls.md`
+- `references/cli-migration-commands.md`
+- `references/cli-project-commands.md`
+- `references/cli-secrets-commands.md`
+
 **Database** (`db-`):
 - `references/db-conn-pooling.md`
 - `references/db-migrations-diff.md`
@@ -62,9 +72,19 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
-**Getting Started** (`getting-`):
-- `references/getting-started-locally.md`
+**MCP** (`mcp-`):
+- `references/mcp-setup-configuration.md`
+- `references/mcp-setup-feature-groups.md`
+- `references/mcp-setup-security.md`
+
+**Tooling** (`tooling-`):
+- `references/tooling-tool-overlap.md`
+- `references/tooling-tool-selection.md`
+- `references/tooling-workflow-function-dev.md`
+- `references/tooling-workflow-local-dev.md`
+- `references/tooling-workflow-migration-create.md`
+- `references/tooling-workflow-type-generation.md`
 
 ---
 
-*19 reference files across 11 categories*
+*35 reference files across 11 categories*
