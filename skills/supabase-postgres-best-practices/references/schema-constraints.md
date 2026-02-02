@@ -20,7 +20,7 @@ add constraint if not exists profiles_birthchart_id_unique unique (birthchart_id
 **Correct (idempotent constraint creation):**
 
 ```sql
--- Option 1: Use DO block to check before adding
+-- Use DO block to check before adding
 do $$
 begin
   if not exists (
@@ -32,27 +32,6 @@ begin
     add constraint profiles_birthchart_id_unique unique (birthchart_id);
   end if;
 end $$;
-```
-
-**Correct (simple, but fails if constraint exists):**
-
-```sql
--- Option 2: Just add the constraint without IF NOT EXISTS
--- Good for one-time migrations that run once
-alter table public.profiles
-add constraint profiles_birthchart_id_unique unique (birthchart_id);
-```
-
-**Correct (inline constraint during CREATE TABLE):**
-
-```sql
--- Option 3: Add constraints during table creation
-create table if not exists public.profiles (
-  id bigint generated always as identity primary key,
-  birthchart_id bigint unique,  -- inline constraint
-  -- or use named constraint
-  constraint profiles_birthchart_id_unique unique (birthchart_id)
-);
 ```
 
 For all constraint types:
