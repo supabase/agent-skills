@@ -85,8 +85,8 @@ const userId = session?.user.id
 **Correct:**
 
 ```typescript
-// Server-side code - always use getUser() which validates the JWT
-const { data: { user }, error } = await supabase.auth.getUser()
+// Server-side code - always use getClaims() which validates the JWT
+const { data: { user }, error } = await supabase.auth.getClaims()
 if (error || !user) {
   return unauthorizedResponse()
 }
