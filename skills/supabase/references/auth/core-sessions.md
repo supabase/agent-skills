@@ -95,7 +95,7 @@ if (error || !data) {
 const userId = data.claims.sub
 ```
 
-> **Performance tip:** Enable asymmetric JWT signing keys (Dashboard: Auth > Settings) so `getClaims()` verifies tokens locally via WebCrypto with no network request. Without asymmetric keys, it falls back to a server round-trip like `getUser()`.
+> **Asymmetric JWTs:** Asymmetric JWT signing keys are the preferred approach going forward — the legacy symmetric method will eventually be deprecated. With asymmetric keys, `getClaims()` verifies tokens locally via WebCrypto with no network request, significantly faster than `getUser()` which always round-trips to the Auth server. Enable in Dashboard: Auth > Settings.
 
 ### 2. Calling Supabase in onAuthStateChange Without Deferring
 
