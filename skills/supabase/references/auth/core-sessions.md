@@ -23,36 +23,38 @@ interface Session {
 
 ## Listen to Auth State Changes
 
-**Always use `onAuthStateChange`** - it's the single source of truth for auth state:
+`onAuthStateChange` is the single source of truth for auth state. In React, wrap it with `useSyncExternalStore` for safe, tear-free subscriptions:
 
 ```typescript
-useEffect(() => {
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    (event, session) => {
-      console.log('Auth event:', event)
+import { useSyncExternalStore } from 'react'
 
-      if (event === 'SIGNED_IN') {
-        setUser(session?.user ?? null)
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null)
-      } else if (event === 'TOKEN_REFRESHED') {
-        // Token was automatically refreshed
-        console.log('New access token received')
-      } else if (event === 'USER_UPDATED') {
-        setUser(session?.user ?? null)
-      }
+let currentSession: Session | null = null
+
+function subscribe(callback: () => void) {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    (_event, session) => {
+      currentSession = session
+      callback()
     }
   )
-
   return () => subscription.unsubscribe()
-}, [])
+}
+
+function getSnapshot() {
+  return currentSession
+}
+
+// In your component
+function useSession() {
+  return useSyncExternalStore(subscribe, getSnapshot)
+}
 ```
 
 ### Auth Events
 
 | Event | When Fired |
 |-------|------------|
-| `INITIAL_SESSION` | On page load if session exists |
+| `INITIAL_SESSION` | On page load (before React hydration — React apps rarely see this) |
 | `SIGNED_IN` | User signed in successfully |
 | `SIGNED_OUT` | User signed out |
 | `TOKEN_REFRESHED` | Access token was refreshed |
@@ -86,40 +88,16 @@ const userId = session?.user.id
 
 ```typescript
 // Server-side code - always use getClaims() which validates the JWT
-const { data: { user }, error } = await supabase.auth.getClaims()
-if (error || !user) {
+const { data, error } = await supabase.auth.getClaims()
+if (error || !data) {
   return unauthorizedResponse()
 }
-const userId = user.id
+const userId = data.claims.sub
 ```
 
-### 2. Not Handling INITIAL_SESSION
+> **Performance tip:** Enable asymmetric JWT signing keys (Dashboard: Auth > Settings) so `getClaims()` verifies tokens locally via WebCrypto with no network request. Without asymmetric keys, it falls back to a server round-trip like `getUser()`.
 
-**Incorrect:**
-
-```typescript
-// Only listens for SIGNED_IN, misses existing session on page load
-supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_IN') {
-    setUser(session?.user)
-  }
-})
-```
-
-**Correct:**
-
-```typescript
-supabase.auth.onAuthStateChange((event, session) => {
-  // INITIAL_SESSION fires on page load with existing session
-  if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
-    setUser(session?.user ?? null)
-  } else if (event === 'SIGNED_OUT') {
-    setUser(null)
-  }
-})
-```
-
-### 3. Calling Supabase in onAuthStateChange Without Deferring
+### 2. Calling Supabase in onAuthStateChange Without Deferring
 
 **Incorrect:**
 
@@ -141,7 +119,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 })
 ```
 
-### 4. Not Unsubscribing from Auth Listener
+### 3. Not Unsubscribing from Auth Listener
 
 **Incorrect:**
 
@@ -166,19 +144,6 @@ useEffect(() => {
 
   return () => subscription.unsubscribe()
 }, [])
-```
-
-## Manual Session Management
-
-```typescript
-// Refresh session manually (rarely needed - client handles this)
-const { data, error } = await supabase.auth.refreshSession()
-
-// Set session from tokens (e.g., from OAuth callback)
-const { data, error } = await supabase.auth.setSession({
-  access_token: 'jwt-token',
-  refresh_token: 'refresh-token',
-})
 ```
 
 ## JWT Claims
