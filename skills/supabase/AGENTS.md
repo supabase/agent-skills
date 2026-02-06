@@ -62,6 +62,17 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
+**Realtime** (`realtime-`):
+- `references/realtime-broadcast-basics.md`
+- `references/realtime-broadcast-database.md`
+- `references/realtime-patterns-cleanup.md`
+- `references/realtime-patterns-debugging.md`
+- `references/realtime-patterns-errors.md`
+- `references/realtime-postgres-changes.md`
+- `references/realtime-presence-tracking.md`
+- `references/realtime-setup-auth.md`
+- `references/realtime-setup-channels.md`
+
 ---
 
-*18 reference files across 11 categories*
+*27 reference files across 11 categories*

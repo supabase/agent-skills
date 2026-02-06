@@ -4,7 +4,7 @@ description: Guides and best practices for working with Supabase. Covers getting
 license: MIT
 metadata:
   author: supabase
-  version: "1.0.0"
+  version: '1.0.0'
   organization: Supabase
   date: January 2026
   abstract: Comprehensive Supabase development guide for building applications with Supabase services. Contains guides covering Auth, Database, Storage, Edge Functions, Realtime, client libraries, CLI, and tooling. Each reference includes setup instructions, code examples, common mistakes, and integration patterns.
@@ -33,13 +33,23 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Database
 
-| Area               | Resource                         | When to Use                                    |
-| ------------------ | -------------------------------- | ---------------------------------------------- |
-| RLS Security       | `references/db-rls-*.md`         | Row Level Security policies, common mistakes   |
-| Connection Pooling | `references/db-conn-pooling.md`  | Transaction vs Session mode, port 6543 vs 5432 |
-| Schema Design      | `references/db-schema-*.md`      | auth.users FKs, timestamps, JSONB, extensions  |
-| Migrations         | `references/db-migrations-*.md`  | CLI workflows, idempotent patterns, db diff    |
-| Performance        | `references/db-perf-*.md`        | Indexes (BRIN, GIN), query optimization        |
-| Security           | `references/db-security-*.md`    | Service role key, security_definer functions   |
+| Area               | Resource                        | When to Use                                    |
+| ------------------ | ------------------------------- | ---------------------------------------------- |
+| RLS Security       | `references/db-rls-*.md`        | Row Level Security policies, common mistakes   |
+| Connection Pooling | `references/db-conn-pooling.md` | Transaction vs Session mode, port 6543 vs 5432 |
+| Schema Design      | `references/db-schema-*.md`     | auth.users FKs, timestamps, JSONB, extensions  |
+| Migrations         | `references/db-migrations-*.md` | CLI workflows, idempotent patterns, db diff    |
+| Performance        | `references/db-perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
+| Security           | `references/db-security-*.md`   | Service role key, security_definer functions   |
+
+### Realtime
+
+| Area             | Resource                             | When to Use                                     |
+| ---------------- | ------------------------------------ | ----------------------------------------------- |
+| Channel Setup    | `references/realtime-setup-*.md`     | Creating channels, naming conventions, auth     |
+| Broadcast        | `references/realtime-broadcast-*.md` | Client messaging, database-triggered broadcasts |
+| Presence         | `references/realtime-presence-*.md`  | User online status, shared state tracking       |
+| Postgres Changes | `references/realtime-postgres-*.md`  | Database change listeners (prefer Broadcast)    |
+| Patterns         | `references/realtime-patterns-*.md`  | Cleanup, error handling, React integration      |
 
 **CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
