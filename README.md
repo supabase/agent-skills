@@ -81,7 +81,3 @@ Each skill follows the [Agent Skills Open Standard](https://agentskills.io/):
 - `SKILL.md` - Required skill manifest with frontmatter (name, description, metadata)
 - `AGENTS.md` - Compiled references document (generated)
 - `references/` - Individual reference files
-
-## License
-
-MIT
