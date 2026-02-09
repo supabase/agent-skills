@@ -2,7 +2,7 @@
 title: Choose the Right Index Type for Your Data
 impact: HIGH
 impactDescription: 10-100x improvement with correct index type
-tags: indexes, btree, gin, brin, hash, index-types
+tags: indexes, btree, gin, gist, brin, hash, index-types
 ---
 
 ## Choose the Right Index Type for Your Data
@@ -34,6 +34,9 @@ create index users_created_idx on users (created_at);
 
 -- GIN: arrays, JSONB, full-text search
 create index posts_tags_idx on posts using gin (tags);
+
+-- GiST: geometric data, range types, nearest-neighbor (KNN) queries
+create index locations_idx on places using gist (location);
 
 -- BRIN: large time-series tables (10-100x smaller)
 create index events_time_idx on events using brin (created_at);
