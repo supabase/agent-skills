@@ -1,13 +1,13 @@
 ---
-title: Use supabase db diff for Dashboard Changes
+title: Use npx supabase db diff for Dashboard Changes
 impact: HIGH
 impactDescription: Captures manual changes into version-controlled migrations
 tags: migrations, supabase-cli, db-diff, dashboard
 ---
 
-## Use supabase db diff for Dashboard Changes
+## Use npx supabase db diff for Dashboard Changes
 
-When making schema changes via Dashboard, use `supabase db diff` to generate
+When making schema changes via Dashboard, use `npx supabase db diff` to generate
 migration files for version control.
 
 **Incorrect:**
@@ -22,10 +22,10 @@ migration files for version control.
 
 ```bash
 # After making Dashboard changes, generate migration
-supabase db diff -f add_profiles_table
+npx supabase db diff -f add_profiles_table
 
 # Review and test
-supabase db reset
+npx supabase db reset
 
 # Commit to version control
 git add supabase/migrations/
@@ -38,14 +38,14 @@ git commit -m "Add profiles table migration"
 2. Generate migration from diff:
 
 ```bash
-supabase db diff -f add_profiles_table
+npx supabase db diff -f add_profiles_table
 ```
 
 3. Review generated migration in `supabase/migrations/`
 4. Test locally:
 
 ```bash
-supabase db reset
+npx supabase db reset
 ```
 
 5. Commit migration to version control
@@ -54,21 +54,21 @@ supabase db reset
 
 ```bash
 # Start local Supabase
-supabase start
+npx supabase start
 
 # Make changes via Dashboard or SQL
 # Generate diff
-supabase db diff -f my_changes
+npx supabase db diff -f my_changes
 ```
 
 ## Diff Against Remote Database
 
 ```bash
 # Link to remote project
-supabase link --project-ref your-project-ref
+npx supabase link --project-ref your-project-ref
 
 # Pull remote schema and generate diff
-supabase db diff --linked -f sync_remote_changes
+npx supabase db diff --linked -f sync_remote_changes
 ```
 
 ## What diff Captures

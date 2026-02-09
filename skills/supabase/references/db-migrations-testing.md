@@ -8,36 +8,36 @@ tags: migrations, testing, supabase-cli, local-development
 ## Test Migrations with supabase db reset
 
 Always test migrations locally before deploying to production. Use
-`supabase db reset` to verify migrations run cleanly from scratch.
+`npx supabase db reset` to verify migrations run cleanly from scratch.
 
 **Incorrect:**
 
 ```bash
 # Deploying directly without testing
-supabase db push  # Migration fails in production!
+npx supabase db push  # Migration fails in production!
 ```
 
 **Correct:**
 
 ```bash
 # Test migrations locally first
-supabase db reset  # Runs all migrations from scratch
+npx supabase db reset  # Runs all migrations from scratch
 
 # Verify success, then deploy
-supabase db push
+npx supabase db push
 ```
 
 ## Testing Workflow
 
 ```bash
 # Start local Supabase
-supabase start
+npx supabase start
 
 # Reset database and run all migrations
-supabase db reset
+npx supabase db reset
 
 # Verify tables and data
-supabase inspect db table-sizes
+npx supabase inspect db table-sizes
 ```
 
 ## What db reset Does
@@ -70,10 +70,10 @@ on conflict (id) do nothing;
 
 ```bash
 # Apply all pending migrations
-supabase migration up
+npx supabase migration up
 
 # Check migration status
-supabase migration list
+npx supabase migration list
 ```
 
 ## Repair Failed Migration
@@ -83,20 +83,20 @@ If a migration partially fails:
 ```bash
 # Fix the migration file
 # Then repair the migration history
-supabase migration repair --status applied 20240315120000
+npx supabase migration repair --status applied 20240315120000
 ```
 
 ## Inspect Database State
 
 ```bash
 # View tables
-supabase inspect db table-sizes
+npx supabase inspect db table-sizes
 
 # View indexes
-supabase inspect db index-usage
+npx supabase inspect db index-usage
 
 # View cache hit rate
-supabase inspect db cache-hit
+npx supabase inspect db cache-hit
 ```
 
 ## CI/CD Integration
@@ -105,9 +105,9 @@ supabase inspect db cache-hit
 # GitHub Actions example
 - name: Test migrations
   run: |
-    supabase start
-    supabase db reset
-    supabase test db  # Run pgTAP tests
+    npx supabase start
+    npx supabase db reset
+    npx supabase test db  # Run pgTAP tests
 ```
 
 ## Related

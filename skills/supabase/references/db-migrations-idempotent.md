@@ -81,7 +81,7 @@ Migrations in `supabase/migrations/` are named with timestamps:
 Create new migration:
 
 ```bash
-supabase migration new create_users
+npx supabase migration new create_users
 ```
 
 ## Related
