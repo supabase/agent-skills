@@ -69,7 +69,7 @@ on conflict (id) do nothing;
 ## Test Specific Migration
 
 ```bash
-# Apply single pending migration
+# Apply all pending migrations
 supabase migration up
 
 # Check migration status

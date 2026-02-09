@@ -36,8 +36,8 @@ create index idx_name_trgm on users
 -- Vector similarity search (AI embeddings)
 create extension if not exists vector with schema extensions;
 
--- Scheduled jobs
-create extension if not exists pg_cron with schema extensions;
+-- Scheduled jobs (pg_cron requires pg_catalog, not extensions)
+create extension if not exists pg_cron with schema pg_catalog;
 
 -- HTTP requests from database
 create extension if not exists pg_net with schema extensions;

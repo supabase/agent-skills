@@ -58,14 +58,16 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...       # NEVER prefix with NEXT_PUBLIC_
 
 ## Identifying Keys
 
-- **Anon key**: `role` claim is `anon`
-- **Service role key**: `role` claim is `service_role`
+- **Anon key**: `role` claim is `anon` (legacy)
+- **Service role key**: `role` claim is `service_role` (legacy)
+- **Publishable key**: Safe to expose in client-side code (newer recommended approach)
+- **Secret key**: Server-only, replaces service role key (newer recommended approach)
 
-Decode JWT at [jwt.io](https://jwt.io) to verify.
+Decode JWT at [jwt.io](https://jwt.io) to verify legacy keys.
 
 ## If Service Key is Exposed
 
-1. Immediately rotate keys in Dashboard > Settings > API
+1. Immediately rotate keys in Dashboard > Settings > API Keys
 2. Review database for unauthorized changes
 3. Check logs for suspicious activity
 4. Update all backend services with new key
