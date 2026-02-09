@@ -56,14 +56,18 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...  # Safe to expose
 SUPABASE_SERVICE_ROLE_KEY=eyJ...       # NEVER prefix with NEXT_PUBLIC_
 ```
 
-## Identifying Keys
+## API Key Types
 
-- **Anon key**: `role` claim is `anon` (legacy)
-- **Service role key**: `role` claim is `service_role` (legacy)
-- **Publishable key**: Safe to expose in client-side code (newer recommended approach)
-- **Secret key**: Server-only, replaces service role key (newer recommended approach)
+Supabase provides 4 key types:
 
-Decode JWT at [jwt.io](https://jwt.io) to verify legacy keys.
+| Type | Format | Privileges |
+|------|--------|-----------|
+| Publishable key | `sb_publishable_...` | Low — safe to expose in browsers/apps |
+| Secret key | `sb_secret_...` | Elevated — bypasses RLS, backend only |
+| `anon` (legacy) | JWT | Same as publishable |
+| `service_role` (legacy) | JWT | Same as secret key |
+
+The publishable and secret keys are replacing the legacy JWT-based keys. Decode legacy JWTs at [jwt.io](https://jwt.io) to verify: `role` claim is `anon` or `service_role`.
 
 ## If Service Key is Exposed
 
