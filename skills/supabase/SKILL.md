@@ -14,6 +14,10 @@ metadata:
 
 Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and works with any language, framework, or ORM.
 
+## Tool Priority
+
+Prefer CLI commands (`npx supabase ...`) over MCP tools unless a reference file explicitly recommends MCP for a specific operation. MCP is configured for database and debugging features only, providing `execute_sql`, `get_logs`, and `get_advisors` (plus `list_tables`, `list_extensions`, `list_migrations`, `apply_migration`).
+
 ## Supabase Documentation
 
 Always reference the Supabase documentation before making Supabase-related claims. The documentation is the source of truth for all Supabase-related information.
@@ -40,16 +44,10 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Authentication & Security
 
-| Area               | Resource                            | When to Use                                              |
-| ------------------ | ----------------------------------- | -------------------------------------------------------- |
-| Auth Core          | `references/auth/core-*.md`         | Sign-up, sign-in, sessions, password reset               |
-| OAuth/Social       | `references/auth/oauth-*.md`        | Google, GitHub, Apple login, PKCE flow                   |
-| Enterprise SSO     | `references/auth/sso-*.md`          | SAML 2.0, enterprise identity providers                  |
-| MFA                | `references/auth/mfa-*.md`          | TOTP authenticator apps, phone MFA, AAL levels           |
-| Passwordless       | `references/auth/passwordless-*.md` | Magic links, email OTP, phone OTP                        |
-| Auth Hooks         | `references/auth/hooks-*.md`        | Custom JWT claims, custom email templates                |
-| Server-Side Auth   | `references/auth/server-*.md`       | Admin API, SSR with Next.js/SvelteKit, service role auth |
-| Row Level Security | `references/db/rls-*.md`            | Database security policies, access control               |
+| Area               | Resource             | When to Use                                |
+| ------------------ | -------------------- | ------------------------------------------ |
+| Auth Overview      | `references/auth.md` | Authentication, social login, sessions     |
+| Row Level Security | `references/rls.md`  | Database security policies, access control |
 
 ### Database
 
@@ -81,10 +79,34 @@ Reference the appropriate resource file based on the user's needs:
 | -------- | ------------------------ | -------------------------------------------- |
 | Realtime | `references/realtime.md` | Real-time subscriptions, presence, broadcast |
 
-### Client Libraries & CLI
+### Client Libraries
 
-| Area         | Resource                    | When to Use                              |
-| ------------ | --------------------------- | ---------------------------------------- |
-| supabase-js  | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
-| Supabase CLI | `references/cli.md`         | Local development, migrations, CI/CD     |
-| MCP Server   | `references/mcp.md`         | AI agent integration, MCP tooling        |
+| Area        | Resource                    | When to Use                              |
+| ----------- | --------------------------- | ---------------------------------------- |
+| supabase-js | `references/supabase-js.md` | JavaScript/TypeScript SDK, client config |
+
+### CLI Commands
+
+| Area       | Resource                                | When to Use                                    |
+| ---------- | --------------------------------------- | ---------------------------------------------- |
+| Project    | `references/cli/project-commands.md`    | init, start, stop, status, link, login         |
+| Database   | `references/cli/database-commands.md`   | push, pull, diff, reset, dump                  |
+| Migrations | `references/cli/migration-commands.md`  | new, list, fetch, repair, squash               |
+| Functions  | `references/cli/functions-commands.md`  | new, serve, deploy                             |
+| Secrets    | `references/cli/secrets-commands.md`    | set, list                                      |
+| Generation | `references/cli/generation-commands.md` | gen types                                      |
+| Decisions  | `references/cli/decision-guide.md`      | pull vs diff, push vs up, targeting, --experimental |
+| Gotchas    | `references/cli/gotchas-pitfalls.md`    | Common mistakes, edge cases, troubleshooting   |
+
+### MCP + CLI Workflows
+
+| Area               | Resource                           | When to Use                                         |
+| ------------------ | ---------------------------------- | --------------------------------------------------- |
+| Tool Selection     | `references/tooling/tool-*.md`     | MCP vs CLI decision, capability comparison          |
+| Combined Workflows | `references/tooling/workflow-*.md` | Local dev, migrations, type gen, function workflows |
+
+### MCP Setup
+
+| Area      | Resource                    | When to Use                                          |
+| --------- | --------------------------- | ---------------------------------------------------- |
+| MCP Setup | `references/mcp/setup-*.md` | Configuring MCP connection, security, feature groups |

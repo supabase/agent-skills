@@ -27,28 +27,24 @@ supabase/
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
 | 1 | Database | CRITICAL | `db-` |
-| 2 | Authentication | CRITICAL | `auth-` |
-| 3 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 2 | CLI | CRITICAL | `cli-` |
+| 3 | MCP | CRITICAL | `mcp-` |
+| 4 | Tooling | CRITICAL | `tooling-` |
+| 5 | Realtime | MEDIUM-HIGH | `realtime-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
 ## Available References
 
-**Authentication** (`auth-`):
-- `references/auth-core-sessions.md`
-- `references/auth-core-signin.md`
-- `references/auth-core-signup.md`
-- `references/auth-hooks-custom-claims.md`
-- `references/auth-hooks-send-email.md`
-- `references/auth-mfa-phone.md`
-- `references/auth-mfa-totp.md`
-- `references/auth-oauth-pkce.md`
-- `references/auth-oauth-providers.md`
-- `references/auth-passwordless-magic-links.md`
-- `references/auth-passwordless-otp.md`
-- `references/auth-server-admin-api.md`
-- `references/auth-server-ssr.md`
-- `references/auth-sso-saml.md`
+**CLI** (`cli-`):
+- `references/cli-database-commands.md`
+- `references/cli-decision-guide.md`
+- `references/cli-functions-commands.md`
+- `references/cli-generation-commands.md`
+- `references/cli-gotchas-pitfalls.md`
+- `references/cli-migration-commands.md`
+- `references/cli-project-commands.md`
+- `references/cli-secrets-commands.md`
 
 **Database** (`db-`):
 - `references/db-conn-pooling.md`
@@ -70,6 +66,11 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
+**MCP** (`mcp-`):
+- `references/mcp-setup-configuration.md`
+- `references/mcp-setup-feature-groups.md`
+- `references/mcp-setup-security.md`
+
 **Realtime** (`realtime-`):
 - `references/realtime-broadcast-basics.md`
 - `references/realtime-broadcast-database.md`
@@ -81,6 +82,14 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/realtime-setup-auth.md`
 - `references/realtime-setup-channels.md`
 
+**Tooling** (`tooling-`):
+- `references/tooling-tool-overlap.md`
+- `references/tooling-tool-selection.md`
+- `references/tooling-workflow-function-dev.md`
+- `references/tooling-workflow-local-dev.md`
+- `references/tooling-workflow-migration-create.md`
+- `references/tooling-workflow-type-generation.md`
+
 ---
 
-*41 reference files across 3 categories*
+*44 reference files across 5 categories*
