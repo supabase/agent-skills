@@ -149,11 +149,11 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 ## Sign Out
 
 ```typescript
-// Sign out all sessions on all devices (default scope: 'global')
+// Sign out all sessions — this is the default (scope: 'global')
 const { error } = await supabase.auth.signOut()
 
-// Explicitly pass scope: 'global' (same as default)
-const { error } = await supabase.auth.signOut({ scope: 'global' })
+// Sign out current session only (keep other devices active)
+const { error } = await supabase.auth.signOut({ scope: 'local' })
 
 // Sign out other sessions only (keep current)
 const { error } = await supabase.auth.signOut({ scope: 'others' })
