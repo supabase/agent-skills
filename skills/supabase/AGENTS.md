@@ -30,11 +30,32 @@ supabase/
 | 2 | CLI | CRITICAL | `cli-` |
 | 3 | MCP | CRITICAL | `mcp-` |
 | 4 | Tooling | CRITICAL | `tooling-` |
-| 5 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 5 | Authentication | CRITICAL | `auth-` |
+| 6 | Edge Functions | HIGH | `edge-` |
+| 7 | SDK | HIGH | `sdk-` |
+| 8 | Storage | HIGH | `storage-` |
+| 9 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 10 | Vectors | MEDIUM | `vectors-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
 ## Available References
+
+**Authentication** (`auth-`):
+- `references/auth-core-sessions.md`
+- `references/auth-core-signin.md`
+- `references/auth-core-signup.md`
+- `references/auth-hooks-custom-claims.md`
+- `references/auth-hooks-send-email.md`
+- `references/auth-mfa-phone.md`
+- `references/auth-mfa-totp.md`
+- `references/auth-oauth-pkce.md`
+- `references/auth-oauth-providers.md`
+- `references/auth-passwordless-magic-links.md`
+- `references/auth-passwordless-otp.md`
+- `references/auth-server-admin-api.md`
+- `references/auth-server-ssr.md`
+- `references/auth-sso-saml.md`
 
 **CLI** (`cli-`):
 - `references/cli-database-commands.md`
@@ -66,6 +87,23 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
+**Edge Functions** (`edge-`):
+- `references/edge-adv-regional.md`
+- `references/edge-adv-streaming.md`
+- `references/edge-adv-websockets.md`
+- `references/edge-auth-jwt-verification.md`
+- `references/edge-auth-rls-integration.md`
+- `references/edge-db-direct-postgres.md`
+- `references/edge-db-supabase-client.md`
+- `references/edge-dbg-limits.md`
+- `references/edge-dbg-testing.md`
+- `references/edge-fun-project-structure.md`
+- `references/edge-fun-quickstart.md`
+- `references/edge-pat-background-tasks.md`
+- `references/edge-pat-cors.md`
+- `references/edge-pat-error-handling.md`
+- `references/edge-pat-routing.md`
+
 **MCP** (`mcp-`):
 - `references/mcp-setup-configuration.md`
 - `references/mcp-setup-feature-groups.md`
@@ -82,6 +120,30 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/realtime-setup-auth.md`
 - `references/realtime-setup-channels.md`
 
+**SDK** (`sdk-`):
+- `references/sdk-client-browser.md`
+- `references/sdk-client-config.md`
+- `references/sdk-client-server.md`
+- `references/sdk-error-handling.md`
+- `references/sdk-framework-nextjs.md`
+- `references/sdk-perf-queries.md`
+- `references/sdk-perf-realtime.md`
+- `references/sdk-query-crud.md`
+- `references/sdk-query-filters.md`
+- `references/sdk-query-joins.md`
+- `references/sdk-query-rpc.md`
+- `references/sdk-ts-generation.md`
+- `references/sdk-ts-usage.md`
+
+**Storage** (`storage-`):
+- `references/storage-access-control.md`
+- `references/storage-cdn-caching.md`
+- `references/storage-download-urls.md`
+- `references/storage-ops-file-management.md`
+- `references/storage-transform-images.md`
+- `references/storage-upload-resumable.md`
+- `references/storage-upload-standard.md`
+
 **Tooling** (`tooling-`):
 - `references/tooling-tool-overlap.md`
 - `references/tooling-tool-selection.md`
@@ -90,6 +152,16 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/tooling-workflow-migration-create.md`
 - `references/tooling-workflow-type-generation.md`
 
+**Vectors** (`vectors-`):
+- `references/vectors-embed-generation.md`
+- `references/vectors-index-hnsw.md`
+- `references/vectors-index-ivfflat.md`
+- `references/vectors-perf-tuning.md`
+- `references/vectors-rag-patterns.md`
+- `references/vectors-search-hybrid.md`
+- `references/vectors-search-semantic.md`
+- `references/vectors-setup-pgvector.md`
+
 ---
 
-*44 reference files across 5 categories*
+*101 reference files across 10 categories*
