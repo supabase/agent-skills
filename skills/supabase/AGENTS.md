@@ -4,7 +4,7 @@
 
 ## Overview
 
-Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions.
+Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Vectors/AI, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions including vector search, embeddings, RAG, and semantic search.
 
 ## Structure
 
@@ -27,7 +27,8 @@ supabase/
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
 | 1 | Database | CRITICAL | `db-` |
-| 2 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 2 | Vectors | MEDIUM | `vectors-` |
+| 3 | Realtime | MEDIUM-HIGH | `realtime-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -64,6 +65,16 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/realtime-setup-auth.md`
 - `references/realtime-setup-channels.md`
 
+**Vectors** (`vectors-`):
+- `references/vectors-embed-generation.md`
+- `references/vectors-index-hnsw.md`
+- `references/vectors-index-ivfflat.md`
+- `references/vectors-perf-tuning.md`
+- `references/vectors-rag-patterns.md`
+- `references/vectors-search-hybrid.md`
+- `references/vectors-search-semantic.md`
+- `references/vectors-setup-pgvector.md`
+
 ---
 
-*27 reference files across 2 categories*
+*35 reference files across 3 categories*
