@@ -42,7 +42,7 @@ Fetching exact match_count from each source may miss relevant results after fusi
 
 ```sql
 -- May miss good results after RRF fusion
-with semantic as (select id from docs order by embedding <=> query limit 5),
+with semantic as (select id from docs order by embedding <#> query limit 5),
      full_text as (select id from docs where fts @@ query limit 5)
 select * from semantic union full_text limit 5;
 ```
@@ -50,38 +50,44 @@ select * from semantic union full_text limit 5;
 **Correct:**
 
 ```sql
--- Fetch 2x from each, then fuse and limit
-with semantic as (select id from docs order by embedding <=> query limit 10),
-     full_text as (select id from docs where fts @@ query limit 10)
+-- Over-fetch 2x with least() cap, then fuse and limit
+with semantic as (select id from docs order by embedding <#> query limit least(5, 30) * 2),
+     full_text as (select id from docs where fts @@ query limit least(5, 30) * 2)
 -- Apply RRF scoring...
-limit 5;
+limit least(5, 30);
 ```
 
 ## Complete Hybrid Search Function
 
 ```sql
-create function hybrid_search(
+create or replace function hybrid_search(
   query_text text,
-  query_embedding vector(1536),
-  match_count int default 10
+  query_embedding extensions.vector(512),
+  match_count int,
+  full_text_weight float = 1,
+  semantic_weight float = 1,
+  rrf_k int = 50
 )
-returns setof documents language sql stable security invoker as $$
+returns setof documents language sql as $$
 with full_text as (
   select id, row_number() over (order by ts_rank_cd(fts, websearch_to_tsquery(query_text)) desc) as rank_ix
   from documents where fts @@ websearch_to_tsquery(query_text)
-  limit match_count * 2
+  limit least(match_count, 30) * 2
 ),
 semantic as (
-  select id, row_number() over (order by embedding <=> query_embedding) as rank_ix
+  select id, row_number() over (order by embedding <#> query_embedding) as rank_ix
   from documents
-  order by embedding <=> query_embedding
-  limit match_count * 2
+  order by embedding <#> query_embedding
+  limit least(match_count, 30) * 2
 )
 select documents.* from full_text
 full outer join semantic on full_text.id = semantic.id
 join documents on coalesce(full_text.id, semantic.id) = documents.id
-order by coalesce(1.0/(50+full_text.rank_ix),0) + coalesce(1.0/(50+semantic.rank_ix),0) desc
-limit match_count;
+order by
+  coalesce(1.0/(rrf_k + full_text.rank_ix), 0.0) * full_text_weight +
+  coalesce(1.0/(rrf_k + semantic.rank_ix), 0.0) * semantic_weight
+  desc
+limit least(match_count, 30);
 $$;
 ```
 
