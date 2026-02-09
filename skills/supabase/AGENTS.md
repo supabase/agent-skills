@@ -26,17 +26,8 @@ supabase/
 
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
-| 1 | Getting Started | CRITICAL | `getting-` |
-| 2 | Database | CRITICAL | `db-` |
-| 3 | Authentication | CRITICAL | `auth-` |
-| 4 | Storage | HIGH | `storage-` |
-| 5 | Edge Functions | HIGH | `edge-` |
-| 6 | Realtime | MEDIUM-HIGH | `realtime-` |
-| 7 | SDK | HIGH | `sdk-` |
-| 8 | CLI | CRITICAL | `cli-` |
-| 9 | MCP | MEDIUM | `mcp-` |
-| 10 | Tooling | MEDIUM | `tooling-` |
-| 11 | Vectors | MEDIUM | `vectors-` |
+| 1 | Database | CRITICAL | `db-` |
+| 2 | Realtime | MEDIUM-HIGH | `realtime-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -75,4 +66,4 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ---
 
-*27 reference files across 11 categories*
+*27 reference files across 2 categories*
