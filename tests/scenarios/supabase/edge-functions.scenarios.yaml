@@ -1,0 +1,229 @@
+# Test scenarios for Supabase Edge Functions
+# Validates correct Deno patterns, JWT auth, CORS, database access, and routing
+#
+# Source references:
+#   - skills/supabase/references/edge-fun-quickstart.md
+#   - skills/supabase/references/edge-auth-jwt-verification.md
+#   - skills/supabase/references/edge-pat-cors.md
+#   - skills/supabase/references/edge-db-supabase-client.md
+#   - skills/supabase/references/edge-pat-routing.md
+
+config:
+  model: gpt-4
+  max_tokens: 2000
+  temperature: 0.3
+
+scenarios:
+  # Basic Edge Function with Deno.serve
+  - name: basic_edge_function
+    prompt: |
+      Create a basic Supabase Edge Function that accepts a JSON body with a "name"
+      field and returns a greeting. Include proper error handling for invalid JSON
+      and set the correct Content-Type header.
+    expected_patterns:
+      - "Deno.serve"
+      - "new Response"
+      - "Content-Type"
+      - "application/json"
+      - "catch"
+      - "400"
+    forbidden_patterns:
+      - "require("
+      - "express"
+      - "node:http"
+      - "module.exports"
+      - "createServer"
+    tags:
+      - edge-functions
+      - env:any
+      - priority:p0
+    mock_response: |
+      Deno.serve(async (req) => {
+        try {
+          const { name } = await req.json();
+          return new Response(JSON.stringify({ message: `Hello ${name}!` }), {
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch {
+          return new Response("Invalid JSON", { status: 400 });
+        }
+      });
+
+  # JWT verification with jose library
+  - name: jwt_verification
+    prompt: |
+      Create an Edge Function that verifies JWT tokens using the jose library.
+      Use JWKS for key resolution and validate the issuer. Return 401 for
+      unauthorized requests. Skip auth for OPTIONS preflight requests.
+    expected_patterns:
+      - "jose"
+      - "jwtVerify"
+      - "createRemoteJWKSet"
+      - "SUPABASE_URL"
+      - "Authorization"
+      - "Bearer"
+      - "401"
+    forbidden_patterns:
+      - "jsonwebtoken"
+      - "SUPABASE_JWT_SECRET"
+      - "HS256"
+      - "djwt"
+      - "require("
+    tags:
+      - edge-functions
+      - env:any
+      - priority:p0
+    mock_response: |
+      import * as jose from "jsr:@panva/jose@6";
+
+      const JWKS = jose.createRemoteJWKSet(
+        new URL(Deno.env.get("SUPABASE_URL")! + "/auth/v1/.well-known/jwks.json")
+      );
+
+      Deno.serve(async (req) => {
+        // Skip auth for preflight
+        if (req.method === "OPTIONS") return new Response("ok");
+
+        const authHeader = req.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return new Response("Unauthorized", { status: 401 });
+        }
+
+        const issuer =
+          Deno.env.get("SB_JWT_ISSUER") ?? Deno.env.get("SUPABASE_URL") + "/auth/v1";
+        const { payload } = await jose.jwtVerify(authHeader.slice(7), JWKS, {
+          issuer,
+        });
+
+        return new Response(JSON.stringify({ userId: payload.sub }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      });
+
+  # CORS handling with OPTIONS preflight
+  - name: cors_handling
+    prompt: |
+      Create an Edge Function with proper CORS handling. Include an OPTIONS
+      preflight handler, CORS headers on all responses including errors,
+      and a shared corsHeaders object.
+    expected_patterns:
+      - "Access-Control-Allow-Origin"
+      - "Access-Control-Allow-Headers"
+      - "OPTIONS"
+      - "corsHeaders"
+      - "Deno.serve"
+    forbidden_patterns:
+      - "require("
+      - "express"
+    tags:
+      - edge-functions
+      - env:any
+      - priority:p0
+    mock_response: |
+      const corsHeaders = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+      };
+
+      Deno.serve(async (req) => {
+        // Handle preflight OPTIONS request
+        if (req.method === "OPTIONS") {
+          return new Response("ok", { headers: corsHeaders });
+        }
+
+        try {
+          const { name } = await req.json();
+          return new Response(JSON.stringify({ message: `Hello ${name}!` }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      });
+
+  # Database access with supabase-js client
+  - name: db_query_supabase_client
+    prompt: |
+      Create an Edge Function that queries a "posts" table using supabase-js.
+      Create the client with the user's Authorization header for RLS support.
+      Insert a post and return the created row. Handle errors properly.
+    expected_patterns:
+      - "createClient"
+      - "SUPABASE_URL"
+      - "SUPABASE_ANON_KEY"
+      - "Authorization"
+      - ".select()"
+      - "error"
+    forbidden_patterns:
+      - "postgresql://"
+      - "pg_connect"
+      - "5432"
+      - "SUPABASE_SERVICE_ROLE_KEY"
+    tags:
+      - edge-functions
+      - env:any
+      - priority:p0
+    mock_response: |
+      import { createClient } from "npm:@supabase/supabase-js@2";
+
+      Deno.serve(async (req) => {
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_ANON_KEY")!,
+          { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
+        );
+
+        const { data, error } = await supabase
+          .from("posts")
+          .insert({ title: "New Post" })
+          .select()
+          .single();
+
+        if (error) {
+          return Response.json({ error: error.message }, { status: 500 });
+        }
+
+        return Response.json(data);
+      });
+
+  # Multi-route function with Hono framework
+  - name: hono_routing
+    prompt: |
+      Create an Edge Function with multiple routes using the Hono framework.
+      Include GET and POST routes for a "/users" resource, set basePath to match
+      the function name, add CORS middleware, and include a 404 catch-all.
+    expected_patterns:
+      - "Hono"
+      - "basePath"
+      - "app.get"
+      - "app.post"
+      - "Deno.serve"
+      - "app.fetch"
+    forbidden_patterns:
+      - "express"
+      - "Express"
+      - "require("
+      - "createServer"
+    tags:
+      - edge-functions
+      - env:any
+      - priority:p0
+    mock_response: |
+      import { Hono } from "npm:hono";
+      import { cors } from "npm:hono/cors";
+
+      // Single function handling all user operations
+      const app = new Hono().basePath("/api"); // Must match function name!
+
+      app.use("*", cors());
+
+      app.get("/users", (c) => c.json({ users: [] }));
+      app.get("/users/:id", (c) => c.json({ id: c.req.param("id") }));
+      app.post("/users", async (c) => c.json(await c.req.json(), 201));
+      app.delete("/users/:id", (c) => c.json({ deleted: c.req.param("id") }));
+      app.all("*", (c) => c.json({ error: "Not found" }, 404));
+
+      Deno.serve(app.fetch);

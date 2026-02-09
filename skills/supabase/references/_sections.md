@@ -10,10 +10,10 @@ queries.
 **Impact:** CRITICAL
 **Description:** Row Level Security policies, connection pooling, schema design patterns, migrations, performance optimization, and security functions for Supabase Postgres.
 
-## 2. Authentication (auth)
+## 2. Edge Functions (edge)
 
-**Impact:** CRITICAL
-**Description:** Sign-up, sign-in, sign-out, session management, OAuth/social login, SAML SSO, MFA, passwordless flows, auth hooks, and server-side auth patterns.
+**Impact:** HIGH
+**Description:** Fundamentals, authentication, database access, CORS, routing, error handling, streaming, WebSockets, regional invocations, testing, and limits.
 
 ## 3. Realtime (realtime)
 

@@ -1,0 +1,168 @@
+# Test scenarios for Supabase MCP vs CLI tool selection
+# Validates that agents recommend MCP tools when connected, CLI for local-only operations
+#
+# Source references:
+#   - skills/supabase/references/tooling-tool-selection.md
+#   - skills/supabase/references/tooling-tool-overlap.md
+#   - skills/supabase/references/tooling-workflow-local-dev.md
+#   - skills/supabase/references/mcp-setup-configuration.md
+
+config:
+  model: gpt-4
+  max_tokens: 2000
+  temperature: 0.3
+
+scenarios:
+  # MCP preference when connected
+  - name: mcp_list_migrations
+    prompt: |
+      Show how to list migrations for a Supabase project when MCP is connected.
+      The project ref is "abc123". MCP is available and authenticated.
+    expected_patterns:
+      - "list_migrations"
+      - "project_id"
+    forbidden_patterns:
+      - "supabase migration list"
+      - "supabase link"
+    tags:
+      - tool:mcp
+      - env:any
+      - priority:p0
+    mock_response: |
+      // When MCP is connected, use the MCP tool directly — no login or link needed:
+      list_migrations({ project_id: "abc123" })
+
+      // This returns all migrations applied to the remote database.
+      // Do NOT use `supabase migration list` when MCP is connected — it requires
+      // `supabase link` and is slower.
+
+  # MCP-only capability
+  - name: mcp_execute_sql
+    prompt: |
+      Execute a SQL query to create a table called "posts" with columns id (serial primary key),
+      title (text not null), and created_at (timestamptz default now()). MCP is connected,
+      project ref is "abc123".
+    expected_patterns:
+      - "execute_sql"
+      - "project_id"
+      - "CREATE TABLE"
+      - "posts"
+      - "serial"
+      - "primary key"
+      - "timestamptz"
+    forbidden_patterns:
+      - "psql"
+      - "postgresql://"
+      - "5432"
+      - "supabase db"
+    tags:
+      - tool:mcp
+      - env:cloud
+      - priority:p0
+    mock_response: |
+      // Use MCP execute_sql for direct SQL execution — no CLI equivalent exists
+      execute_sql({
+        project_id: "abc123",
+        query: `
+          CREATE TABLE posts (
+            id serial PRIMARY KEY,
+            title text NOT NULL,
+            created_at timestamptz DEFAULT now()
+          );
+        `
+      })
+
+  # CLI-only: project initialization
+  - name: cli_only_init
+    prompt: |
+      Initialize a new Supabase project in the current directory.
+      There is no MCP equivalent for this operation.
+    expected_patterns:
+      - "supabase init"
+    forbidden_patterns:
+      - "create_project"
+      - "apply_migration"
+      - "execute_sql"
+      - "list_projects"
+    tags:
+      - tool:cli
+      - env:local
+      - priority:p0
+    mock_response: |
+      # Initialize a new Supabase project locally (CLI-only, no MCP equivalent)
+      npx supabase init
+
+      # This creates the local directory structure:
+      #   supabase/
+      #     config.toml
+      #     migrations/
+      #     functions/
+      #     seed.sql
+
+  # CLI-only: schema diffing
+  - name: cli_only_db_diff
+    prompt: |
+      Generate a migration file from local schema changes. The migration should be
+      named "create_posts". This is a local-only operation with no MCP equivalent.
+    expected_patterns:
+      - "supabase db diff"
+      - "-f"
+      - "create_posts"
+    forbidden_patterns:
+      - "execute_sql"
+      - "apply_migration"
+      - "list_migrations"
+    tags:
+      - tool:cli
+      - env:local
+      - priority:p0
+    mock_response: |
+      # Generate a migration from local schema changes (CLI-only, no MCP equivalent)
+      # This compares the local database state against committed migrations
+      npx supabase db diff -f "create_posts"
+
+      # Output: creates supabase/migrations/<timestamp>_create_posts.sql
+      # containing the SQL diff of your changes
+
+  # Combined MCP+CLI local development workflow
+  - name: local_dev_workflow
+    prompt: |
+      Show the optimal local development workflow for iterating on database schema.
+      The developer wants to create and refine a "posts" table without creating
+      multiple migration files. Use both CLI and MCP tools where appropriate.
+    expected_patterns:
+      - "supabase start"
+      - "execute_sql"
+      - "supabase db diff"
+    forbidden_patterns:
+      - "apply_migration"
+    tags:
+      - tool:both
+      - env:local
+      - priority:p0
+    mock_response: |
+      # Local development workflow: CLI for stack management, MCP for rapid iteration
+
+      # Step 1: Start local stack (CLI only)
+      npx supabase start
+
+      # Step 2: Iterate schema with MCP execute_sql (no migration files created)
+      execute_sql({ query: "CREATE TABLE posts (id serial PRIMARY KEY, title text NOT NULL)" })
+      execute_sql({ query: "ALTER TABLE posts ADD COLUMN content text" })
+      execute_sql({ query: "ALTER TABLE posts ADD COLUMN created_at timestamptz DEFAULT now()" })
+      # Keep iterating until satisfied...
+
+      # Step 3: Check for issues (MCP)
+      get_advisors({ project_id: "local" })
+
+      # Step 4: Capture final state as a single clean migration (CLI)
+      npx supabase db diff -f "create_posts"
+
+      # Step 5: Generate TypeScript types (CLI)
+      npx supabase gen types --lang typescript --local > src/types/database.ts
+
+      # Why this works:
+      # - MCP execute_sql changes schema WITHOUT creating migration files
+      # - You iterate freely without cluttering supabase/migrations/
+      # - CLI db diff captures the final state as ONE clean migration
+      # - Do NOT use apply_migration during local iteration (creates migration per change)
