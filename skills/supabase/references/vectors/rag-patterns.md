@@ -71,6 +71,31 @@ create table document_chunks (
 );
 
 create index on document_chunks using hnsw (embedding vector_cosine_ops);
+
+-- Search function for RAG retrieval
+create or replace function match_document_chunks(
+  query_embedding extensions.vector(1536),
+  match_count int default 5
+)
+returns table (
+  id bigint,
+  document_id bigint,
+  chunk_index int,
+  content text,
+  similarity float
+)
+language sql stable
+as $$
+  select
+    dc.id,
+    dc.document_id,
+    dc.chunk_index,
+    dc.content,
+    1 - (dc.embedding <=> query_embedding) as similarity
+  from document_chunks dc
+  order by dc.embedding <=> query_embedding
+  limit match_count;
+$$;
 ```
 
 ## RAG Query Pipeline

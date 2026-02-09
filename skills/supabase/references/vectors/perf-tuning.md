@@ -16,7 +16,7 @@ Vector indexes must fit in RAM for optimal performance.
 **Incorrect:**
 
 ```sql
--- Free tier (1GB RAM) with 100K 1536-dim vectors
+-- Free tier (0.5GB RAM) with 100K 1536-dim vectors
 -- Symptoms: high disk reads, slow queries
 select count(*) from documents;  -- Returns 100000
 ```
@@ -50,12 +50,17 @@ create index concurrently on documents using hnsw (embedding vector_cosine_ops);
 
 ## Compute Sizing
 
+Approximate capacity for 1536-dimension vectors with HNSW index:
+
 | Plan | RAM | Vectors (1536d) |
 |------|-----|-----------------|
-| Free | 1GB | ~20K |
+| Nano (Free) | 0.5GB | Limited — index may swap |
+| Micro | 1GB | ~15K |
 | Small | 2GB | ~50K |
 | Medium | 4GB | ~100K |
-| Large | 8GB | ~250K |
+| Large | 8GB | ~225K |
+
+See the [compute sizing guide](https://supabase.com/docs/guides/ai/choosing-compute-addon) for detailed benchmarks.
 
 ## Index Pre-Warming
 
