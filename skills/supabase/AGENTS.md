@@ -26,15 +26,32 @@ supabase/
 
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
-| 1 | Database | CRITICAL | `db-` |
-| 2 | Edge Functions | HIGH | `edge-` |
-| 3 | SDK | HIGH | `sdk-` |
-| 4 | Realtime | MEDIUM-HIGH | `realtime-` |
-| 5 | Storage | HIGH | `storage-` |
+| 1 | Authentication | CRITICAL | `auth-` |
+| 2 | Database | CRITICAL | `db-` |
+| 3 | Edge Functions | HIGH | `edge-` |
+| 4 | SDK | HIGH | `sdk-` |
+| 5 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 6 | Storage | HIGH | `storage-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
 ## Available References
+
+**Authentication** (`auth-`):
+- `references/auth-core-sessions.md`
+- `references/auth-core-signin.md`
+- `references/auth-core-signup.md`
+- `references/auth-hooks-custom-claims.md`
+- `references/auth-hooks-send-email.md`
+- `references/auth-mfa-phone.md`
+- `references/auth-mfa-totp.md`
+- `references/auth-oauth-pkce.md`
+- `references/auth-oauth-providers.md`
+- `references/auth-passwordless-magic-links.md`
+- `references/auth-passwordless-otp.md`
+- `references/auth-server-admin-api.md`
+- `references/auth-server-ssr.md`
+- `references/auth-sso-saml.md`
 
 **Database** (`db-`):
 - `references/db-conn-pooling.md`
@@ -110,4 +127,4 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ---
 
-*62 reference files across 5 categories*
+*76 reference files across 6 categories*
