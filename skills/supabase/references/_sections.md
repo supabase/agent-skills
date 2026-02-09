@@ -10,10 +10,10 @@ queries.
 **Impact:** CRITICAL
 **Description:** Row Level Security policies, connection pooling, schema design patterns, migrations, performance optimization, and security functions for Supabase Postgres.
 
-## 2. Storage (storage)
+## 2. SDK (sdk)
 
 **Impact:** HIGH
-**Description:** Access control, RLS policies, standard and resumable uploads, download URLs, image transformations, CDN caching, and file operations.
+**Description:** supabase-js client initialization, TypeScript generation, CRUD queries, filters, joins, RPC calls, error handling, performance, and Next.js integration.
 
 ## 3. Realtime (realtime)
 
