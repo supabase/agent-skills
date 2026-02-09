@@ -10,10 +10,10 @@ queries.
 **Impact:** CRITICAL
 **Description:** Row Level Security policies, connection pooling, schema design patterns, migrations, performance optimization, and security functions for Supabase Postgres.
 
-## 2. SDK (sdk)
+## 2. Vectors (vectors)
 
-**Impact:** HIGH
-**Description:** supabase-js client initialization, TypeScript generation, CRUD queries, filters, joins, RPC calls, error handling, performance, and Next.js integration.
+**Impact:** MEDIUM
+**Description:** pgvector setup, HNSW/IVFFlat indexing, semantic and hybrid search, embedding generation, RAG patterns, and performance tuning.
 
 ## 3. Realtime (realtime)
 
