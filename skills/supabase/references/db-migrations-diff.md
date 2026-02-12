@@ -34,7 +34,7 @@ git commit -m "Add profiles table migration"
 
 ## Workflow
 
-1. Make changes in Supabase Dashboard (create tables, add columns, etc.)
+1. Stop and ask the user to make the desired schema changes in the Supabase Dashboard (create tables, add columns, etc.)
 2. Generate migration from diff:
 
 ```bash
