@@ -68,7 +68,7 @@ if (error instanceof FunctionsHttpError) {
 
 ## Automatic Retries
 
-Use `fetch-retry` for resilient requests:
+Use `fetch-retry` for resilient requests. Only retry on network errors (e.g., Cloudflare 520). Excessive retries can exhaust the Data API connection pool, causing lower throughput and failed requests.
 
 ```typescript
 import { createClient } from '@supabase/supabase-js'
@@ -77,7 +77,7 @@ import fetchRetry from 'fetch-retry'
 const retryFetch = fetchRetry(fetch, {
   retries: 3,
   retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
-  retryOn: [500, 502, 503, 504],
+  retryOn: [520],
 })
 
 const supabase = createClient(url, key, {
@@ -89,7 +89,7 @@ const supabase = createClient(url, key, {
 
 | Code | Meaning |
 |------|---------|
-| `PGRST116` | No rows returned (with `.single()`) |
+| `PGRST116` | More than 1 or no items returned (with `.single()`) |
 | `23505` | Unique constraint violation |
 | `23503` | Foreign key violation |
 | `42501` | RLS policy violation |

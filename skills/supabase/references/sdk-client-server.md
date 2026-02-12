@@ -35,7 +35,7 @@ export async function createClient() {
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll() {
@@ -70,7 +70,7 @@ export async function proxy(request: NextRequest) {
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll() {
@@ -115,7 +115,7 @@ const userId = data.claims.sub
 const { data: { user } } = await supabase.auth.getUser()
 ```
 
-> **Asymmetric JWTs (recommended):** Stop and ask the user to enable asymmetric JWT signing keys in the Supabase Dashboard under Auth > Settings. With asymmetric keys, `getClaims()` verifies tokens locally via WebCrypto with no network request — significantly faster than `getUser()` which always round-trips to the Auth server.
+> **Asymmetric JWTs (recommended):** Stop and ask the user to enable asymmetric JWT signing keys in the Supabase Dashboard under Settings > JWT Signing Keys. With asymmetric keys, `getClaims()` verifies tokens locally via WebCrypto with no network request — significantly faster than `getUser()` which always round-trips to the Auth server.
 
 ## Related
 

@@ -26,17 +26,10 @@ const { count, error } = await supabase
 
 ## Insert
 
-**Incorrect:**
-
 ```typescript
-// Insert without returning data
+// Basic insert (no data returned)
 const { error } = await supabase.from('users').insert({ name: 'Alice' })
-// No way to get the inserted row's id!
-```
 
-**Correct:**
-
-```typescript
 // Insert and return the created row
 const { data, error } = await supabase
   .from('users')
@@ -114,7 +107,7 @@ const { data, error } = await supabase
 ## single() vs maybeSingle()
 
 ```typescript
-// Throws error if 0 or >1 rows
+// Returns error if 0 or >1 rows
 .single()
 
 // Returns null if 0 rows, error only if >1 rows

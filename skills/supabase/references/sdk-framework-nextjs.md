@@ -34,7 +34,15 @@ export async function createClient() {
   return createServerClient(url, key, {
     cookies: {
       getAll() { return cookieStore.getAll() },
-      setAll(cookiesToSet) { /* ... */ },
+      setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // Server Component - ignore
+          }
+        },
     },
   })
 }
@@ -133,7 +141,9 @@ export async function proxy(request: NextRequest) {
   )
 
   // Refresh the Auth token
-  await supabase.auth.getClaims()
+  // getClaims() validates JWT locally (fast, no network request, requires asymmetric keys)
+  // getUser() validates via Auth server round-trip (detects logouts/revocations)
+  await supabase.auth.getUser()
 
   return supabaseResponse
 }
@@ -204,7 +214,7 @@ export async function createPost(formData: FormData) {
 |---------|----------|
 | Using `auth-helpers-nextjs` | Use `@supabase/ssr` |
 | Individual cookie methods | Use `getAll()`/`setAll()` |
-| Trusting `getSession()` | Use `getClaims()` or `getUser()` on server |
+| Trusting `getSession()` | Use `getUser()` (server-verified) or `getClaims()` (local JWT validation, requires asymmetric keys) |
 | Missing proxy | Required for session refresh |
 | Reusing server client | Create fresh client per request |
 

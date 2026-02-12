@@ -18,7 +18,7 @@ import { createClient } from '@supabase/supabase-js'
 function MyComponent() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
   )
   // ...
 }
@@ -33,7 +33,7 @@ import { createBrowserClient } from '@supabase/ssr'
 export function createClient() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
   )
 }
 
@@ -56,7 +56,7 @@ function MyComponent() {
 
 - `createBrowserClient` returns the same instance on subsequent calls
 - Do not use `@supabase/auth-helpers-nextjs` (deprecated)
-- Session is stored in cookies, automatically synced with server
+- Session is stored in cookies; requires middleware/proxy setup for server sync
 
 ## Related
 

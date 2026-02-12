@@ -111,9 +111,11 @@ const { data, error } = await query
 ## JSON Column Filters
 
 ```typescript
-// Filter by JSON property
-.eq('metadata->role', 'admin')
-.eq('address->city', 'London')
+// -> returns JSONB (use for non-string comparisons)
+.eq('address->postcode', 90210)
+
+// ->> returns text (use for string comparisons)
+.eq('address->>city', 'London')
 ```
 
 ## Related

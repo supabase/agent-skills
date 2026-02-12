@@ -79,11 +79,11 @@ const channel = supabase
 ```typescript
 const channel = supabase.channel('my-channel')
 
-channel.subscribe((status, err) => {
+channel.subscribe((status) => {
   if (status === 'SUBSCRIBED') {
     console.log('Connected')
   } else if (status === 'CHANNEL_ERROR') {
-    console.error('Connection error:', err)
+    console.error('Connection error')
   } else if (status === 'TIMED_OUT') {
     console.log('Connection timed out, retrying...')
   } else if (status === 'CLOSED') {
@@ -94,16 +94,24 @@ channel.subscribe((status, err) => {
 
 ## Use Broadcast for Scale
 
-Postgres Changes don't scale horizontally. For high-throughput use cases, use Broadcast:
+Postgres Changes don't scale horizontally. For high-throughput use cases, use Broadcast from Database. This requires private channels, Realtime Authorization RLS policies, and `setAuth()`:
+
+```sql
+-- RLS policy for broadcast authorization
+create policy "Authenticated users can receive broadcasts"
+on "realtime"."messages"
+for select
+to authenticated
+using ( true );
+```
 
 ```typescript
-// In a database trigger, broadcast changes
-// create trigger notify_changes after insert on messages
-// for each row execute function realtime.broadcast_changes('messages', 'INSERT', ...);
-
-// Client subscribes to broadcast
+// Client subscribes to broadcast (requires authorization setup)
+await supabase.realtime.setAuth()
 const channel = supabase
-  .channel('messages-broadcast')
+  .channel('messages-broadcast', {
+    config: { private: true },
+  })
   .on('broadcast', { event: 'INSERT' }, (payload) => {
     console.log('New message:', payload)
   })

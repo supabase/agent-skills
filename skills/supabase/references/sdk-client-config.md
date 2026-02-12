@@ -70,6 +70,8 @@ const supabase = createClient(url, key, {
 React Native requires AsyncStorage and `detectSessionInUrl: false`:
 
 ```typescript
+import 'react-native-url-polyfill/auto'
+import { AppState } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createClient } from '@supabase/supabase-js'
 
@@ -80,6 +82,15 @@ const supabase = createClient(url, key, {
     persistSession: true,
     detectSessionInUrl: false,  // Important for React Native
   },
+})
+
+// Manage token refresh based on app state
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') {
+    supabase.auth.startAutoRefresh()
+  } else {
+    supabase.auth.stopAutoRefresh()
+  }
 })
 ```
 

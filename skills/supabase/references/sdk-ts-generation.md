@@ -53,7 +53,7 @@ import { Database } from './database.types'
 
 const supabase = createClient<Database>(
   process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
+  process.env.SUPABASE_PUBLISHABLE_KEY!
 )
 
 // Queries are now type-safe
@@ -74,12 +74,12 @@ export interface Database {
           created_at: string
         }
         Insert: {        // INSERT payload type
-          id?: number    // Optional (has default)
+          id?: never     // Generated columns must not be supplied
           name: string   // Required
           created_at?: string
         }
         Update: {        // UPDATE payload type
-          id?: number
+          id?: never
           name?: string
           created_at?: string
         }

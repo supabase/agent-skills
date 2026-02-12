@@ -101,8 +101,10 @@ const { data, error } = await supabase
 const { data, error } = await supabase.rpc('risky_operation', { id: 123 })
 
 if (error) {
-  // error.message contains Postgres error
-  // error.code contains Postgres error code
+  // error.code    - error code (Postgres or PostgREST-specific, e.g. '42501')
+  // error.message - human-readable description
+  // error.details - additional context (can be null)
+  // error.hint    - suggested fix (can be null)
   console.error('RPC failed:', error.message)
   return
 }

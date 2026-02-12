@@ -84,22 +84,30 @@ const { data, error } = await supabase.from('posts')
 
 ## Multiple Relationships (Aliases)
 
-When a table has multiple FKs to the same table:
+When a table has multiple FKs to the same table, disambiguate using the column name or constraint name:
 
 ```typescript
-// messages table has sender_id and receiver_id both pointing to users
+// Option 1: Column-based disambiguation
 const { data, error } = await supabase.from('messages').select(`
   id,
   content,
-  sender:users!sender_id (name),
-  receiver:users!receiver_id (name)
+  from:sender_id (name),
+  to:receiver_id (name)
+`)
+
+// Option 2: Explicit constraint name (recommended for type inference)
+const { data, error } = await supabase.from('messages').select(`
+  id,
+  content,
+  from:users!messages_sender_id_fkey (name),
+  to:users!messages_receiver_id_fkey (name)
 `)
 ```
 
 ## Filter on Related Table
 
 ```typescript
-// Posts where author is active
+// Posts where author is active (use table name in dot notation, not alias)
 const { data, error } = await supabase.from('posts')
   .select(`
     id,
@@ -109,7 +117,7 @@ const { data, error } = await supabase.from('posts')
       name
     )
   `)
-  .eq('author.status', 'active')
+  .eq('users.status', 'active')
 ```
 
 ## Count Related Rows

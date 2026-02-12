@@ -78,24 +78,37 @@ const postsWithAuthorQuery = supabase.from('posts').select(`
   )
 `)
 
-// Infer type from query
-type PostWithAuthor = QueryData<typeof postsWithAuthorQuery>[number]
-// { id: number; title: string; author: { id: number; name: string } | null }
+// Infer type from query (QueryData returns the array type)
+type PostsWithAuthor = QueryData<typeof postsWithAuthorQuery>
+// { id: number; title: string; author: { id: number; name: string } | null }[]
 
 // Use the type
 const { data } = await postsWithAuthorQuery
-const posts: PostWithAuthor[] = data ?? []
+const posts: PostsWithAuthor = data ?? []
 ```
 
 ## Type Overrides
 
-Override inferred types when needed:
+Override inferred types. Use `Array<>` for array responses, bare type after `.maybeSingle()`:
 
 ```typescript
+// Partial override (merges with existing types)
+const { data } = await supabase
+  .from('users')
+  .select()
+  .overrideTypes<Array<{ status: 'active' | 'inactive' }>>()
+
+// Complete override (replaces types entirely)
 const { data } = await supabase
   .from('users')
   .select('id, metadata')
-  .single()
+  .overrideTypes<Array<{ id: number; metadata: CustomMetadataType }>, { merge: false }>()
+
+// Single row override (no Array<> needed)
+const { data } = await supabase
+  .from('users')
+  .select('id, metadata')
+  .maybeSingle()
   .overrideTypes<{ id: number; metadata: CustomMetadataType }>()
 ```
 

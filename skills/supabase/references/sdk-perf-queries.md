@@ -87,6 +87,13 @@ const { count, error } = await supabase
 
 ## Debug with EXPLAIN
 
+`explain()` is disabled by default. Enable it first (recommended for non-production only):
+
+```sql
+alter role authenticator set pgrst.db_plan_enabled to 'true';
+notify pgrst, 'reload config';
+```
+
 ```typescript
 // See query execution plan
 const { data, error } = await supabase
