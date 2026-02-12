@@ -79,8 +79,10 @@ const channel = supabase.channel('room:123', {
 | Free | 20 |
 | Pro | 50 |
 | Pro (no spend cap) | 1,000 |
-| Team/Enterprise | 1,000 |
-For Pay as you go customers, stop and ask the user to edit these limits in the Supabase Dashboard under Realtime Settings.
+| Team/Enterprise | 1,000+ |
+
+Limits are configurable per project. Pro (no spend cap), Team, and Enterprise users can adjust limits in the Supabase Dashboard under Realtime Settings.
+
 ## Related
 
 - [setup-channels.md](setup-channels.md)
