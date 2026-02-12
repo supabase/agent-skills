@@ -44,15 +44,14 @@ channel.subscribe((status, err) => {
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| `too_many_connections` | Connection limit exceeded | Clean up unused channels, upgrade plan |
-| `too_many_channels` | Too many channels per connection | Remove unused channels (limit: 100/connection) |
-| `too_many_joins` | Channel join rate exceeded | Reduce join frequency |
-| `tenant_events` | Too many messages/second | Reduce message rate or upgrade plan |
+| `ConnectionRateLimitReached` | Connection limit exceeded | Clean up unused channels, upgrade plan |
+| `ChannelRateLimitReached` | Too many channels per connection | Remove unused channels (limit: 100/connection) |
+| `ClientJoinRateLimitReached` | Channel join rate exceeded | Reduce join frequency |
 | `TenantNotFound` | Invalid project reference | Verify project URL |
 
 ## Automatic Reconnection
 
-Supabase handles reconnection automatically with exponential backoff. No manual re-subscribe is needed.
+Supabase handles reconnection automatically with exponential backoff (1s, 2s, 5s, 10s). No manual re-subscribe is needed for standard disconnects. For silent disconnections in backgrounded apps, use `heartbeatCallback` to detect and trigger reconnection (see below).
 
 ## Client-Side Logging
 
@@ -81,9 +80,9 @@ const supabase = createClient(url, key, {
     // 1. Use Web Worker to prevent browser throttling of heartbeats
     worker: true,
     // 2. Detect disconnections and reconnect
-    heartbeatCallback: (client) => {
-      if (client.connectionState() === 'disconnected') {
-        client.connect()
+    heartbeatCallback: (status) => {
+      if (status === 'disconnected') {
+        supabase.realtime.connect()
       }
     },
   },
