@@ -4,7 +4,7 @@ description: Guides and best practices for working with Supabase. Covers getting
 license: MIT
 metadata:
   author: supabase
-  version: "1.0.0"
+  version: '1.0.0'
   organization: Supabase
   date: January 2026
   abstract: Comprehensive Supabase development guide for building applications with Supabase services. Contains guides covering Auth, Database, Storage, Edge Functions, Realtime, client libraries, CLI, and tooling. Each reference includes setup instructions, code examples, common mistakes, and integration patterns.
