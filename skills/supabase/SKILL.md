@@ -27,7 +27,7 @@ Reference the appropriate resource file based on the user's needs:
 | Enterprise SSO     | `references/auth-sso-*.md`         | SAML 2.0, enterprise identity providers                  |
 | MFA                | `references/auth-mfa-*.md`         | TOTP authenticator apps, phone MFA, AAL levels           |
 | Passwordless       | `references/auth-passwordless-*.md`| Magic links, email OTP, phone OTP                        |
-| Auth Hooks         | `references/auth-hooks-*.md`       | Custom JWT claims, custom email templates                |
+| Auth Hooks         | `references/auth-hooks-*.md`       | Custom JWT claims, send email hooks (HTTP and SQL)       |
 | Server-Side Auth   | `references/auth-server-*.md`      | Admin API, SSR with Next.js/SvelteKit, service role auth |
 
 ### Database

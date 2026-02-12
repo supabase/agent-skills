@@ -42,7 +42,8 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/auth-core-signin.md`
 - `references/auth-core-signup.md`
 - `references/auth-hooks-custom-claims.md`
-- `references/auth-hooks-send-email.md`
+- `references/auth-hooks-send-email-http.md`
+- `references/auth-hooks-send-email-sql.md`
 - `references/auth-mfa-phone.md`
 - `references/auth-mfa-totp.md`
 - `references/auth-oauth-pkce.md`
