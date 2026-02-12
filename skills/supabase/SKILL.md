@@ -12,19 +12,8 @@ metadata:
 
 # Supabase
 
-Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and works with any language, framework, or ORM.
+Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and provides several language sdks, including supabase-js and supabase-py.
 
-## Supabase Documentation
-
-Always reference the Supabase documentation before making Supabase-related claims. The documentation is the source of truth for all Supabase-related information.
-
-You can use the `curl` commands to fetch the documentation page as markdown:
-
-**Documentation:**
-
-```bash
-# Fetch any doc page as markdown
-curl -H "Accept: text/markdown" https://supabase.com/docs/<path>
 ```
 
 ## Overview of Resources
@@ -53,3 +42,19 @@ Reference the appropriate resource file based on the user's needs:
 | Patterns         | `references/realtime-patterns-*.md`  | Cleanup, error handling, React integration      |
 
 **CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
+
+## Supabase Documentation
+
+Everytime something is not clear, or you want to double-check something, reference the official Supabase documentation. It is the source of truth for all things Supabase and is regularly updated with the latest information, best practices, and examples. - [Supabase Documentation](https://supabase.com/docs). The documentation is available in html format on the website, but you can also fetch plain text versions of specific sections using the following endpoints:
+
+**Documentation:**
+
+```bash
+# Index of all available docs
+curl https://supabase.com/llms.txt
+
+# Fetch all guides as plain text
+curl https://supabase.com/llms/guides.txt
+
+# Fetch JavaScript SDK reference
+curl https://supabase.com/llms/js.txt

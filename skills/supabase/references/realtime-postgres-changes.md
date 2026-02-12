@@ -12,7 +12,7 @@ Postgres Changes streams database changes via logical replication. Note: **Broad
 ## When to Use Postgres Changes
 
 - Quick prototyping and development
-- Low user counts (< 100 concurrent subscribers per table)
+- Low subscriber counts per table (each change triggers RLS checks for every subscriber, so performance degrades linearly)
 - When simplicity is more important than scale
 
 ## Basic Setup
