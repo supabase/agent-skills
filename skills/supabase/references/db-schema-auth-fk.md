@@ -30,6 +30,14 @@ create table profiles (
   username text,
   avatar_url text
 );
+
+-- Enable RLS on profiles
+alter table profiles enable row level security;
+
+create policy "Users can view own profile"
+  on profiles for select
+  to authenticated
+  using ((select auth.uid()) = id);
 ```
 
 ## Alternative: SET NULL for Optional Relationships
@@ -72,7 +80,7 @@ create trigger on_auth_user_created
 ```
 
 **Important:** Use `security definer` and `set search_path = ''` for triggers on
-auth.users.
+auth.users. If the trigger fails, it will block signups — test thoroughly.
 
 ## Related
 

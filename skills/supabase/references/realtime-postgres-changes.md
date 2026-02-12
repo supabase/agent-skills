@@ -78,6 +78,9 @@ alter table messages replica identity full;
 alter publication supabase_realtime add table messages;
 ```
 
+**Caveat:** RLS policies are not applied to DELETE events. With `replica identity
+full`, DELETE events still only include primary key columns in the `old` record.
+
 ## Scaling Limitation
 
 Each change triggers RLS checks for every subscriber:
@@ -85,6 +88,10 @@ Each change triggers RLS checks for every subscriber:
 ```text
 100 subscribers = 100 database reads per change
 ```
+
+Database changes are processed on a single thread to maintain order. Compute
+upgrades do not significantly improve Postgres Changes throughput. If your
+database cannot authorize changes fast enough, changes are delayed until timeout.
 
 For high-traffic tables, migrate to [broadcast-database.md](broadcast-database.md).
 

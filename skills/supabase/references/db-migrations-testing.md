@@ -72,18 +72,21 @@ on conflict (id) do nothing;
 # Apply all pending migrations
 npx supabase migration up
 
-# Check migration status
+# Check migration status (requires supabase link for remote)
 npx supabase migration list
 ```
 
 ## Repair Failed Migration
 
-If a migration partially fails:
+If local and remote migration histories diverge, use `migration repair` to
+manually update the remote history table without re-executing migrations:
 
 ```bash
-# Fix the migration file
-# Then repair the migration history
+# Mark a migration as applied (inserts record without running it)
 npx supabase migration repair --status applied 20240315120000
+
+# Mark a migration as reverted (removes record from history)
+npx supabase migration repair --status reverted 20240315120000
 ```
 
 ## Inspect Database State

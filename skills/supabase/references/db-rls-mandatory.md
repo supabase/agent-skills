@@ -37,13 +37,16 @@ alter table profiles enable row level security;
 create policy "Users can view own profile"
   on profiles for select
   to authenticated
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 ```
 
 Tables created via Dashboard have RLS enabled by default. Tables created via SQL
 require manual enablement. Supabase sends daily warnings for tables without RLS.
 
-**Note:** Service role key bypasses ALL RLS policies. Never expose it to browsers.
+**Note:** Service role key bypasses RLS policies only when no user is signed in.
+If a user is authenticated, Supabase adheres to that user's RLS policies even
+when the client is initialized with the service role key. Never expose the
+service role key to browsers.
 
 ## Related
 

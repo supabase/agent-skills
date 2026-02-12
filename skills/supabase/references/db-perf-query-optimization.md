@@ -125,21 +125,35 @@ const { count } = await supabase
 
 ## Debug Query Performance
 
+`explain()` is disabled by default to protect sensitive database information.
+Enable it first:
+
+```sql
+alter role authenticator set pgrst.db_plan_enabled to 'true';
+notify pgrst, 'reload config';
+```
+
+Then use it in queries:
+
 ```javascript
-// Get query execution plan
+// Get query execution plan (text format by default)
 const { data } = await supabase
   .from("posts")
   .select("*")
   .eq("author_id", userId)
   .explain({ analyze: true, verbose: true });
 
-console.log(data); // Shows execution plan
+// JSON format
+const { data: jsonPlan } = await supabase
+  .from("posts")
+  .select("*")
+  .explain({ analyze: true, format: "json" });
 ```
 
-Enable explain in database:
+Disable after use:
 
 ```sql
-alter role authenticator set pgrst.db_plan_enabled to true;
+alter role authenticator set pgrst.db_plan_enabled to 'false';
 notify pgrst, 'reload config';
 ```
 

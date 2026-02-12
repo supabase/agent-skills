@@ -7,7 +7,9 @@ tags: realtime, broadcast, send, receive, subscribe
 
 ## Send and Receive Broadcast Messages
 
-Broadcast enables low-latency pub/sub messaging between clients. Prefer Broadcast over Postgres Changes for applications that require more concurrent connections.
+Broadcast enables low-latency pub/sub messaging between clients. Prefer Broadcast
+over Postgres Changes for scalability — Postgres Changes triggers per-subscriber
+RLS checks and processes on a single thread.
 
 ## Subscribe to Broadcast Events
 
@@ -42,10 +44,12 @@ channel.send({
 })
 ```
 
-**Before subscribing or one-off (HTTP):**
+**Before subscribing or one-off (HTTP — no subscribe needed):**
 
 ```javascript
-await channel.httpSend('message_created', { text: 'Hello!' })
+supabase
+  .channel('room:123')
+  .httpSend('message_created', { text: 'Hello!' })
 ```
 
 ## Receive Own Messages
@@ -79,7 +83,7 @@ const channel = supabase.channel('room:123', {
   },
 })
 
-// Returns 'ok' when server confirms receipt
+// Server confirms receipt when ack is enabled
 const status = await channel.send({
   type: 'broadcast',
   event: 'message_created',

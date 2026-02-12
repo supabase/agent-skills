@@ -44,7 +44,7 @@ function ChatRoom({ roomId }) {
 
     return () => {
       if (channelRef.current) {
-        supabase.removeChannel(channelRef.current)
+        channelRef.current.unsubscribe()
         channelRef.current = null
       }
     }
@@ -81,10 +81,11 @@ channel.subscribe()
 |------|-----------------|------------------------|
 | Free | 200 | 100 |
 | Pro | 500 | 100 |
+| Pro (no spend cap) | 10,000 | 100 |
 | Team | 10,000 | 100 |
 
 Leaked channels count against quotas even when inactive.
-For Pay as you go customers you can edit these limits on [Realtime Settings](https://supabase.com/dashboard/project/_/realtime/settings)
+For Pay as you go customers, stop and ask the user to edit these limits in the Supabase Dashboard under Realtime Settings.
 ## Related
 
 - [patterns-errors.md](patterns-errors.md)
