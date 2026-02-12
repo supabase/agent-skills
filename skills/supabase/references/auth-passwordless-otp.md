@@ -43,7 +43,7 @@ if (!error) {
 
 ### Configure Email Template
 
-Dashboard: Auth > Email Templates > Magic Link
+Stop and ask the user to update the email template in the Supabase Dashboard under Auth > Email Templates > Magic Link.
 
 Include `{{ .Token }}` to show the OTP code:
 
@@ -53,7 +53,7 @@ Include `{{ .Token }}` to show the OTP code:
 <p style="font-size: 32px; font-weight: bold; letter-spacing: 4px;">
   {{ .Token }}
 </p>
-<p>This code expires in 1 hour.</p>
+<p>This code will expire shortly.</p>
 ```
 
 ## Phone OTP
@@ -63,12 +63,17 @@ Include `{{ .Token }}` to show the OTP code:
 ```typescript
 const { error } = await supabase.auth.signInWithOtp({
   phone: '+1234567890',
+  options: {
+    channel: 'sms', // or 'whatsapp' (requires Twilio WhatsApp sender)
+  },
 })
 
 if (!error) {
   showMessage('Check your phone for the verification code')
 }
 ```
+
+> **Note:** The user receives a 6-digit PIN that must be verified within 60 seconds.
 
 ### Step 2: Verify OTP
 

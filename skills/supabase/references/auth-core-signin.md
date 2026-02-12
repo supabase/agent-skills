@@ -118,7 +118,7 @@ await supabase.auth.resetPasswordForEmail(email)
 **Correct:**
 
 ```typescript
-// Add redirect URL to allowlist in Dashboard first
+// Stop and ask the user to add the redirect URL to the allowlist in the Supabase Dashboard under Auth > URL Configuration > Redirect URLs
 await supabase.auth.resetPasswordForEmail(email, {
   redirectTo: 'https://yourapp.com/update-password',
 })
@@ -166,8 +166,9 @@ const { error } = await supabase.auth.updateUser({
   email: 'newemail@example.com',
 })
 
-// By default, confirmation emails sent to BOTH old and new email
+// If "Secure Email Change" is enabled (default), confirmation emails sent to BOTH old and new email
 // User must confirm on both to complete the change
+// If disabled, only a single confirmation to the new email is required
 ```
 
 ## Related

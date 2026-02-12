@@ -133,7 +133,7 @@ supabase secrets set RESEND_API_KEY=re_xxxxx
 
 ### Step 4: Enable Hook
 
-Dashboard: **Auth > Hooks > Send Email**
+Stop and ask the user to enable the hook in the Supabase Dashboard under **Auth > Hooks > Send Email** with these settings:
 
 - Enabled: Yes
 - URI: `https://<project-ref>.supabase.co/functions/v1/send-email`

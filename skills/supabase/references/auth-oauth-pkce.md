@@ -35,10 +35,10 @@ export async function GET(request: Request) {
   const next = searchParams.get('next') ?? '/'
 
   if (code) {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
       {
         cookies: {
           getAll() {
@@ -109,11 +109,11 @@ if (data.url) {
 **Incorrect:**
 
 ```typescript
-// Client-side only - implicit flow, less secure
+// Client-side only - no server callback to exchange code securely
 const { data, error } = await supabase.auth.signInWithOAuth({
   provider: 'google',
 })
-// Tokens returned in URL fragment, vulnerable to interception
+// Without a server callback route, session handling is less secure
 ```
 
 **Correct:**
@@ -236,4 +236,4 @@ const popup = window.open(data.url, 'oauth', 'width=500,height=600')
 
 - [oauth-providers.md](oauth-providers.md) - Provider configuration
 - [server-ssr.md](server-ssr.md) - Server-side auth setup
-- [Docs: PKCE Flow](https://supabase.com/docs/guides/auth/server-side/oauth-with-pkce)
+- [Docs: PKCE Flow](https://supabase.com/docs/guides/auth/sessions/pkce-flow)

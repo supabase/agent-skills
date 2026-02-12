@@ -9,6 +9,8 @@ tags: auth, sso, saml, enterprise, okta, azure-ad, identity-provider
 
 Set up enterprise Single Sign-On with SAML 2.0 identity providers (Okta, Azure AD, Google Workspaces, etc.).
 
+> **Prerequisite:** SAML 2.0 support is disabled by default. Stop and ask the user to enable it on the Auth Providers page in the Supabase Dashboard.
+
 ## Key SAML Information
 
 Provide these values to your Identity Provider:
@@ -183,6 +185,8 @@ create policy "SSO users view settings" on org_settings
   );
 ```
 
+> **MFA caveat:** If MFA is enabled with SSO, the `amr` array may have a different method at index `0`. Check all entries rather than only `amr[0]`.
+
 ## Provider-Specific Setup
 
 ### Okta
@@ -210,8 +214,9 @@ create policy "SSO users view settings" on org_settings
 
 ## Pricing
 
-- Available on Pro plan and above
-- $0.015 per SSO Monthly Active User
+Available on Pro plan and above. Pro and Team plans include 50 SSO MAUs before overage charges apply.
+
+For pricing information regarding SSO MAU, fetch https://supabase.com/docs/guides/platform/manage-your-usage/monthly-active-users-sso
 
 ## Related
 

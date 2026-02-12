@@ -61,17 +61,17 @@ $$;
 
 -- Grant required permissions
 grant usage on schema public to supabase_auth_admin;
+grant all on table public.user_roles to supabase_auth_admin;
 grant execute on function public.custom_access_token_hook to supabase_auth_admin;
 
 -- Revoke from other roles for security
+revoke all on table public.user_roles from authenticated, anon, public;
 revoke execute on function public.custom_access_token_hook from authenticated, anon, public;
 ```
 
 ### Step 2: Enable the Hook
 
-Dashboard: Auth > Hooks > Customize Access Token (JWT) Claims
-
-Select your function: `public.custom_access_token_hook`
+Stop and ask the user to enable the hook in the Supabase Dashboard under Auth > Hooks > Customize Access Token (JWT) Claims, and select the function `public.custom_access_token_hook`.
 
 ### Step 3: Use Claims in RLS Policies
 
@@ -239,6 +239,14 @@ revoke execute on function public.custom_access_token_hook
 grant execute on function public.custom_access_token_hook
   to supabase_auth_admin;
 ```
+
+## Hook Input Fields
+
+The hook receives a JSON event with:
+
+- `user_id` - UUID of the user requesting the token
+- `claims` - existing JWT claims to modify
+- `authentication_method` - how the user authenticated (`password`, `otp`, `oauth`, `totp`, `recovery`, `invite`, `sso/saml`, `magiclink`, `email/signup`, `email_change`, `token_refresh`, `anonymous`)
 
 ## JWT Claims Structure After Hook
 

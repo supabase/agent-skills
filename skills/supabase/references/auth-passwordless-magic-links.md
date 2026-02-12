@@ -29,13 +29,17 @@ if (!error) {
 
 For server-side apps, use PKCE with code exchange:
 
-### Email Template (Dashboard: Auth > Email Templates > Magic Link)
+### Email Template (Auth > Email Templates > Magic Link in the Supabase Dashboard)
+
+Stop and ask the user to update the Magic Link email template in the Supabase Dashboard under Auth > Email Templates > Magic Link with the following:
 
 ```html
 <h2>Login to {{ .SiteURL }}</h2>
 <p>Click the link below to sign in:</p>
-<p><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Log In</a></p>
+<p><a href="{{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Log In</a></p>
 ```
+
+> **Note:** Use `{{ .RedirectTo }}` instead of `{{ .SiteURL }}` when using the `redirectTo` option so the link respects custom redirect URLs.
 
 ### Server Callback Route
 
@@ -156,7 +160,7 @@ await supabase.auth.signInWithOtp({
 
 **Correct:**
 
-1. Add URL to Dashboard: Auth > URL Configuration > Redirect URLs
+1. Stop and ask the user to add the redirect URL to the allowlist in the Supabase Dashboard under Auth > URL Configuration > Redirect URLs
 2. Then use in code:
 
 ```typescript
@@ -215,17 +219,20 @@ await supabase.auth.signInWithOtp({ email })
 | Limit | Default |
 |-------|---------|
 | Per email | 1 per 60 seconds |
-| Link expiry | Configurable in Dashboard |
+| Link expiry | Configurable in the Supabase Dashboard |
 
 ## Customizing Email Template
 
-Dashboard: Auth > Email Templates > Magic Link
+Stop and ask the user to customize the email template in the Supabase Dashboard under Auth > Email Templates > Magic Link.
 
 Variables available:
 - `{{ .Token }}` - 6-digit OTP code
-- `{{ .TokenHash }}` - Hashed token for PKCE
-- `{{ .SiteURL }}` - Your app's URL
-- `{{ .ConfirmationURL }}` - Full magic link URL
+- `{{ .TokenHash }}` - Hashed version of the token
+- `{{ .SiteURL }}` - Your app's configured Site URL
+- `{{ .RedirectTo }}` - The redirect URL passed during auth operations
+- `{{ .ConfirmationURL }}` - Full confirmation URL
+- `{{ .Data }}` - User metadata from `auth.users.user_metadata`
+- `{{ .Email }}` - The user's email address
 
 ## Related
 

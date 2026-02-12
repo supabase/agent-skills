@@ -87,7 +87,7 @@ if (error) {
 **Incorrect:**
 
 ```typescript
-// Redirect URL not in allowlist - will fail silently
+// Redirect URL not in allowlist - redirects to Site URL instead
 await supabase.auth.signUp({
   email,
   password,
@@ -99,7 +99,7 @@ await supabase.auth.signUp({
 
 **Correct:**
 
-1. Add redirect URL to Dashboard: Auth > URL Configuration > Redirect URLs
+1. Stop and ask the user to add the redirect URL to the allowlist in the Supabase Dashboard under Auth > URL Configuration > Redirect URLs
 2. Then use it in code:
 
 ```typescript
@@ -168,6 +168,8 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 ```
+
+> **Warning:** If the trigger function fails, it will block sign-ups entirely. Test your trigger code thoroughly.
 
 ## Related
 

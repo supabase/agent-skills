@@ -165,7 +165,7 @@ create policy "MFA for enrolled users"
         else array['aal1', 'aal2']
         end
       from auth.mfa_factors
-      where user_id = auth.uid() and status = 'verified'
+      where ((select auth.uid()) = user_id) and status = 'verified'
     )
   );
 ```

@@ -11,13 +11,14 @@ Add phone-based second factor authentication via SMS or WhatsApp.
 
 ## Prerequisites
 
-1. Enable "Advanced MFA Phone" in Dashboard: Auth > Multi Factor
+1. Stop and ask the user to enable "Advanced MFA Phone" in the Supabase Dashboard under Auth > Multi Factor
 2. Configure a phone provider (Twilio, MessageBird, Vonage)
 
 ## Pricing
 
-- Feature cost: $0.10/hour ($75/month) for first project, $0.01/hour ($10/month) additional
-- SMS/WhatsApp costs from provider apply separately
+For pricing information regarding Advanced MFA Phone, fetch https://supabase.com/docs/guides/platform/manage-your-usage/advanced-mfa-phone
+
+SMS/WhatsApp costs from provider apply separately.
 
 ## Enrollment Flow
 
@@ -32,7 +33,7 @@ const { data, error } = await supabase.auth.mfa.enroll({
 if (error) throw error
 
 const factorId = data.id
-// SMS/WhatsApp message sent automatically
+// SMS is NOT sent automatically — you must call challenge() next
 ```
 
 ### Step 2: Verify Phone
@@ -201,9 +202,11 @@ if (factors.totp.length === 0) {
 
 ## Provider Configuration
 
+> **Note:** The phone messaging configuration for MFA is shared with phone auth login. The same provider settings are used for both.
+
 ### Twilio
 
-Dashboard: Auth > Providers > Phone
+Stop and ask the user to configure the phone provider in the Supabase Dashboard under Auth > Providers > Phone with the following settings:
 
 ```
 Account SID: AC...

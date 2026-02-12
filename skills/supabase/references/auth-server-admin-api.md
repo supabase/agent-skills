@@ -19,6 +19,8 @@ The Admin Auth API (`supabase.auth.admin.*`) uses the service role key to bypass
 
 ## Setup
 
+> **Key model transition:** Supabase is transitioning from `anon`/`service_role` JWT keys to `sb_publishable_xxx`/`sb_secret_xxx` keys. Both formats work. See [API Keys](https://supabase.com/docs/guides/api/api-keys) for details.
+
 ```typescript
 import { createClient } from '@supabase/supabase-js'
 

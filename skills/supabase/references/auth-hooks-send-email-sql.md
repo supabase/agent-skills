@@ -199,7 +199,7 @@ select cron.schedule(
 
 ### Step 5: Enable Hook
 
-Dashboard: **Auth > Hooks > Send Email**
+Stop and ask the user to enable the hook in the Supabase Dashboard under **Auth > Hooks > Send Email** with these settings:
 
 - Enabled: Yes
 - Type: PostgreSQL Function

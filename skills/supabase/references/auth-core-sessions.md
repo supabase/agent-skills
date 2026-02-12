@@ -54,7 +54,7 @@ function useSession() {
 
 | Event | When Fired |
 |-------|------------|
-| `INITIAL_SESSION` | On page load (before React hydration — React apps rarely see this) |
+| `INITIAL_SESSION` | Right after client is constructed and initial session from storage is loaded |
 | `SIGNED_IN` | User signed in successfully |
 | `SIGNED_OUT` | User signed out |
 | `TOKEN_REFRESHED` | Access token was refreshed |
@@ -67,7 +67,10 @@ function useSession() {
 // From local storage (fast, but not validated)
 const { data: { session } } = await supabase.auth.getSession()
 
-// Validate user on server (slower, but secure)
+// Validate on server: getClaims() validates JWT locally (fast, preferred with asymmetric keys)
+const { data: claims } = await supabase.auth.getClaims()
+
+// Or use getUser() which round-trips to Auth server (always accurate)
 const { data: { user } } = await supabase.auth.getUser()
 ```
 
@@ -95,7 +98,7 @@ if (error || !data) {
 const userId = data.claims.sub
 ```
 
-> **Asymmetric JWTs:** Asymmetric JWT signing keys are the preferred approach going forward — the legacy symmetric method will eventually be deprecated. With asymmetric keys, `getClaims()` verifies tokens locally via WebCrypto with no network request, significantly faster than `getUser()` which always round-trips to the Auth server. Enable in Dashboard: Auth > Settings.
+> **Asymmetric JWTs:** Asymmetric JWT signing keys are the recommended approach. Symmetric signing is not recommended for production. With asymmetric keys, `getClaims()` verifies tokens locally via WebCrypto with no network request, significantly faster than `getUser()` which always round-trips to the Auth server.
 
 ### 2. Calling Supabase in onAuthStateChange Without Deferring
 
@@ -162,16 +165,6 @@ auth.jwt() ->> 'email'                        -- User email
 auth.jwt() -> 'app_metadata' ->> 'role'       -- Custom role (admin-set)
 auth.jwt() ->> 'aal'                          -- Auth assurance level (aal1/aal2)
 ```
-
-## Session Settings
-
-Configure in Dashboard: Auth > Settings
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| JWT Expiry | 3600s (1 hour) | How long access tokens are valid |
-| Refresh Token Rotation | Enabled | New refresh token on each use |
-| Refresh Token Reuse Interval | 10s | Grace period for concurrent requests |
 
 ## Related
 

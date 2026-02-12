@@ -40,10 +40,10 @@ const { data, error } = await supabase.auth.signInWithOAuth({
 
 ## Setup Steps (All Providers)
 
-1. **Enable provider** in Dashboard: Auth > Providers
+1. Stop and ask the user to **enable the provider** in the Supabase Dashboard under Auth > Providers
 2. **Create OAuth app** at provider's developer console
 3. **Set callback URL** on provider: `https://<project-ref>.supabase.co/auth/v1/callback`
-4. **Add Client ID and Secret** to Supabase Dashboard
+4. Stop and ask the user to **add the Client ID and Secret** in the Supabase Dashboard under Auth > Providers
 
 ## Provider-Specific Configuration
 
@@ -97,11 +97,15 @@ const { data, error } = await supabase.auth.signInWithOAuth({
 
 **Apple Setup:**
 1. Requires Apple Developer Program membership
-2. Create App ID with "Sign in with Apple" capability
-3. Create Service ID for web authentication
-4. Generate private key for token signing
+2. Register email sources for "Sign in with Apple for Email Communication"
+3. Create App ID with "Sign in with Apple" capability
+4. Create Service ID for web authentication, configure redirect URL
+5. Generate private key (`.p8` file) for token signing
+6. Stop and ask the user to add the Team ID, Service ID, and key in the Supabase Dashboard under Auth > Providers > Apple
 
-**Important:** Apple only returns user's name on first sign-in. Store it immediately.
+**Important:**
+- Apple only returns user's name on first sign-in. Store it immediately via `updateUser`.
+- Apple requires generating a new secret key every 6 months using the `.p8` file. Set a calendar reminder — missed rotation breaks auth.
 
 ### Azure/Microsoft
 
@@ -109,7 +113,7 @@ const { data, error } = await supabase.auth.signInWithOAuth({
 const { data, error } = await supabase.auth.signInWithOAuth({
   provider: 'azure',
   options: {
-    scopes: 'email profile openid',
+    scopes: 'email',
   },
 })
 ```
@@ -158,7 +162,7 @@ await supabase.auth.signInWithOAuth({
 
 **Correct:**
 
-1. Add `http://localhost:3000/auth/callback` to Dashboard: Auth > URL Configuration > Redirect URLs
+1. Stop and ask the user to add `http://localhost:3000/auth/callback` to the allowlist in the Supabase Dashboard under Auth > URL Configuration > Redirect URLs
 2. Then use in code
 
 ### 3. Not Handling OAuth Callback
@@ -220,14 +224,18 @@ await supabase.auth.signInWithOAuth({
 ## Access Provider Tokens
 
 ```typescript
-// After OAuth sign-in, get the provider's access token
-const { data, error } = await supabase.auth.getSession()
-
-const providerToken = data.session?.provider_token     // Access token
-const providerRefreshToken = data.session?.provider_refresh_token
+// Use onAuthStateChange to capture provider tokens after OAuth sign-in
+supabase.auth.onAuthStateChange((event, session) => {
+  if (session?.provider_token) {
+    const providerToken = session.provider_token         // Access token
+    const providerRefreshToken = session.provider_refresh_token
+  }
+})
 ```
 
 ## Link Multiple Providers
+
+Manual identity linking is in beta. Stop and ask the user to enable it in the Supabase Dashboard under Auth configuration, or set `GOTRUE_SECURITY_MANUAL_LINKING_ENABLED: true`.
 
 ```typescript
 // User already signed in with email/password
