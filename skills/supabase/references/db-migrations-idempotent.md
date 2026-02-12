@@ -38,15 +38,7 @@ create index if not exists idx_users_email on users(email);
 
 ```sql
 -- Add column only if it doesn't exist
-do $$
-begin
-  if not exists (
-    select 1 from information_schema.columns
-    where table_name = 'users' and column_name = 'phone'
-  ) then
-    alter table users add column phone text;
-  end if;
-end $$;
+alter table users add column if not exists phone text;
 ```
 
 ## Idempotent Drops

@@ -30,14 +30,16 @@ as
   from profiles;
 ```
 
-**Correct (Older Postgres):**
+**Correct (Pre-Postgres 15):**
+
+`security_invoker` is not available before PG15. Use one of these alternatives:
 
 ```sql
--- Option 1: Revoke direct access, create RLS on view
-revoke all on public_profiles from anon, authenticated;
+-- Option 1: Create a public table synced via trigger instead of a view
+-- This avoids the security definer bypass entirely
 
 -- Option 2: Create view in unexposed schema
-create schema private;
+create schema if not exists private;
 create view private.profiles_view as
   select * from profiles;
 ```

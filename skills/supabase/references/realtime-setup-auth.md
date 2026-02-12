@@ -11,6 +11,10 @@ Always use private channels in production. Public channels allow any client to s
 
 ## Enable Private Channels
 
+**Prerequisite:** Stop and ask the user to disable "Allow public access" in the
+Supabase Dashboard under Realtime Settings. Without this, channels are public
+even with `private: true`.
+
 **Incorrect:**
 
 ```javascript
@@ -57,11 +61,11 @@ create policy "room_members_can_read"
 on realtime.messages for select
 to authenticated
 using (
-  extension in ('broadcast', 'presence')
-  and exists (
+  exists (
     select 1 from room_members
     where user_id = (select auth.uid())
-    and room_id = split_part(realtime.topic(), ':', 2)::uuid
+    and topic = (select realtime.topic())
+    and realtime.messages.extension in ('broadcast', 'presence')
   )
 );
 ```
