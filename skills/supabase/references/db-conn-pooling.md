@@ -39,7 +39,9 @@ const prisma = new PrismaClient({
 
 ## Session Mode (Port 5432)
 
-Best for: Long-running servers, apps needing prepared statements.
+Alternative to direct connection when IPv4 is required. Supports prepared
+statements, SET commands, and LISTEN/NOTIFY. Recommended for migrations
+when direct connection is unavailable.
 
 ```bash
 ## Session mode (via pooler for IPv4)
@@ -48,11 +50,21 @@ postgres://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:5432/pos
 
 ## Direct Connection (Port 5432)
 
-Best for: Migrations, admin tasks, persistent servers.
+Best for: Admin tasks, persistent servers.
 
 ```bash
 ## Direct connection (IPv6 only unless IPv4 add-on enabled)
-postgres://postgres.[ref]:[password]@db.[ref].supabase.co:5432/postgres
+postgres://postgres:[password]@db.[ref].supabase.co:5432/postgres
+```
+
+## Dedicated Pooler (PgBouncer)
+
+For paying customers. Co-located with Postgres for best latency. Transaction
+mode only. Requires IPv6 or IPv4 add-on.
+
+```bash
+## Dedicated pooler (port 6543)
+postgres://postgres.[ref]:[password]@db.[ref].supabase.co:6543/postgres
 ```
 
 ## Common Mistakes

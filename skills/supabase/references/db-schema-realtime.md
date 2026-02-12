@@ -43,7 +43,7 @@ alter publication supabase_realtime add table messages;
 
 **Via Dashboard:**
 
-Database > Publications > supabase_realtime > Add table
+Stop and ask the user to navigate to the Supabase Dashboard and add the table under Database > Publications > supabase_realtime.
 
 ## Realtime with RLS
 
@@ -73,7 +73,9 @@ const channel = supabase
 
 - Add indexes on columns used in Realtime filters
 - Keep RLS policies simple for subscribed tables
-- Monitor "Realtime Private Channel RLS Execution Time" in Dashboard
+- Stop and ask the user to monitor "Realtime Private Channel RLS Execution Time" in the Supabase Dashboard
+- Prefer Broadcast over Postgres Changes for scalability — Postgres Changes
+  has limitations at scale due to single-thread processing
 
 ## Replica Identity
 
@@ -84,6 +86,10 @@ all columns:
 -- Send all columns in change events (increases bandwidth)
 alter table messages replica identity full;
 ```
+
+**Caveat:** RLS policies are not applied to DELETE events — there is no way for
+Postgres to verify user access to a deleted record. With `replica identity full`,
+DELETE events only include primary key columns in the `old` record.
 
 ## Related
 

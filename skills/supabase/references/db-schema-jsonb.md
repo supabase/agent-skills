@@ -87,6 +87,18 @@ const { data } = await supabase
   .from("users")
   .select("email, preferences->theme")
   .eq("preferences->>notifications", "true");
+
+// containment queries
+const { data: darkUsers } = await supabase
+  .from("users")
+  .select("*")
+  .contains("preferences", { theme: "dark" });
+
+// contained-by query
+const { data: subset } = await supabase
+  .from("users")
+  .select("*")
+  .containedBy("preferences", { theme: "dark", notifications: true });
 ```
 
 ## Related

@@ -11,7 +11,7 @@ Channels are rooms where clients communicate. Use consistent naming and appropri
 
 ## Topic Naming Convention
 
-Use `scope:entity:id` format for predictable, filterable topics.
+Use `scope:id:entity` format for predictable, filterable topics.
 
 **Incorrect:**
 
@@ -35,7 +35,7 @@ const channel = supabase.channel('game:789:moves')
 ```javascript
 const channel = supabase.channel('room:123:messages', {
   config: {
-    private: true,              // Require authentication (recommended)
+    private: true,              // Require authentication (requires RLS on realtime.messages)
     broadcast: {
       self: true,               // Receive own messages
       ack: true,                // Get server acknowledgment

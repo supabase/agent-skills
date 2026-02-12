@@ -67,7 +67,9 @@ begin
     raise exception 'Unauthorized';
   end if;
 
-  delete from auth.users where id = target_user_id;
+  -- Use the Supabase Admin API to delete users instead of direct table access
+  -- Direct DML on auth.users is unsupported and may break auth internals
+  delete from public.profiles where id = target_user_id;
 end;
 $$;
 ```
@@ -87,6 +89,10 @@ as $$
   where user_id = (select auth.uid());
 $$;
 
+-- Revoke default public access, grant only to authenticated
+revoke execute on function private.user_teams from public;
+grant execute on function private.user_teams to authenticated;
+
 -- RLS policy uses cached function result (no per-row join)
 create policy "Team members see team data" on team_data
   for select to authenticated
@@ -95,10 +101,13 @@ create policy "Team members see team data" on team_data
 
 ## Security Best Practices
 
-1. **Always set search_path = ''** - Prevents search_path injection attacks
-2. **Validate caller permissions** - Don't assume caller is authorized
-3. **Keep functions minimal** - Only expose necessary operations
-4. **Log sensitive operations** - Audit trail for admin actions
+1. **Always set search_path = ''** - Prevents search_path injection attacks. Qualify all table references (e.g., `public.my_table`)
+2. **Revoke default execute permissions** - `revoke execute on function my_func from public;` then grant selectively
+3. **Validate caller permissions** - Don't assume caller is authorized
+4. **Keep functions minimal** - Only expose necessary operations
+5. **Log sensitive operations** - Audit trail for admin actions
+6. **Never directly modify `auth.users`** - Use the Supabase Admin API instead
+7. **JWT freshness caveat** - `auth.jwt()` values reflect the JWT at issuance time. Changes to `app_metadata` (e.g., removing a role) are not reflected until the JWT is refreshed
 
 ```sql
 create function private.sensitive_operation()
@@ -109,7 +118,7 @@ set search_path = ''
 as $$
 begin
   -- Log the operation
-  insert into audit_log (user_id, action, timestamp)
+  insert into public.audit_log (user_id, action, timestamp)
   values ((select auth.uid()), 'sensitive_operation', now());
 
   -- Perform operation

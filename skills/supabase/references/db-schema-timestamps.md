@@ -39,8 +39,15 @@ create table events (
 - Stores time in UTC internally
 - Converts to/from session timezone automatically
 - `now()` returns current time in session timezone, stored as UTC
+- Supabase databases are set to UTC by default — keep it that way
 
 ```sql
+-- Check current timezone
+show timezone;
+
+-- Change database timezone (not recommended)
+alter database postgres set timezone to 'America/New_York';
+
 -- Insert with timezone
 insert into events (name, starts_at)
 values ('Launch', '2024-03-15 10:00:00-05');  -- EST

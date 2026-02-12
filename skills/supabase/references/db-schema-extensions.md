@@ -39,8 +39,8 @@ create extension if not exists vector with schema extensions;
 -- Scheduled jobs (pg_cron requires pg_catalog, not extensions)
 create extension if not exists pg_cron with schema pg_catalog;
 
--- HTTP requests from database
-create extension if not exists pg_net with schema extensions;
+-- HTTP requests from database (pg_net creates its own 'net' schema)
+create extension if not exists pg_net;
 
 -- Full-text search improvements
 create extension if not exists pg_trgm with schema extensions;
@@ -65,14 +65,19 @@ select * from pg_extension;
 ## Using Extensions
 
 ```sql
--- pgvector example
+-- pgvector example (use extensions. prefix for type)
 create table documents (
   id bigint primary key generated always as identity,
   content text,
-  embedding vector(1536)  -- OpenAI ada-002 dimensions
+  embedding extensions.vector(1536)  -- OpenAI ada-002 dimensions
 );
 
-create index on documents using ivfflat (embedding vector_cosine_ops);
+-- HNSW is recommended over IVFFlat for most use cases
+create index on documents using hnsw (embedding extensions.vector_cosine_ops);
+
+-- If using IVFFlat, lists parameter is required
+create index on documents using ivfflat (embedding extensions.vector_cosine_ops)
+  with (lists = 100);
 ```
 
 ## Related

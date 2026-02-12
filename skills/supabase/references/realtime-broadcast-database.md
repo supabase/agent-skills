@@ -17,6 +17,7 @@ Broadcasts database changes in a standard format.
 create or replace function room_messages_broadcast()
 returns trigger
 security definer
+set search_path = ''
 language plpgsql
 as $$
 begin
@@ -29,7 +30,7 @@ begin
     new,                                                   -- new record
     old                                                    -- old record
   );
-  return coalesce(new, old);
+  return null;  -- AFTER trigger return value is ignored
 end;
 $$;
 

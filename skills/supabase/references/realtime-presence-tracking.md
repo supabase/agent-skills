@@ -12,9 +12,9 @@ Presence synchronizes shared state between users. Use sparingly due to computati
 ## Track Presence
 
 ```javascript
-const channel = supabase.channel('room:123', {
-  config: { private: true },
-})
+// private: true is a channel setting, not presence-specific
+// Add it for production use (see setup-auth.md)
+const channel = supabase.channel('room:123')
 
 channel
   .on('presence', { event: 'sync' }, () => {
@@ -78,8 +78,9 @@ const channel = supabase.channel('room:123', {
 |------|-------------------------|
 | Free | 20 |
 | Pro | 50 |
+| Pro (no spend cap) | 1,000 |
 | Team/Enterprise | 1,000 |
-For Pay as you go customers you can edit these limits on [Realtime Settings](https://supabase.com/dashboard/project/_/realtime/settings)
+For Pay as you go customers, stop and ask the user to edit these limits in the Supabase Dashboard under Realtime Settings.
 ## Related
 
 - [setup-channels.md](setup-channels.md)
