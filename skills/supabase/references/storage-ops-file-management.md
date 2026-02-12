@@ -29,8 +29,10 @@ await supabase.storage.from('bucket').remove(['file.jpg']);
 
 ## Delete Files
 
+Limit: 1,000 objects per `remove()` call.
+
 ```javascript
-// Single or multiple files
+// Single or multiple files (max 1,000 per call)
 await supabase.storage.from('bucket').remove([
   'folder/file1.jpg',
   'folder/file2.jpg'
@@ -39,19 +41,44 @@ await supabase.storage.from('bucket').remove([
 
 ### Delete Folder Contents
 
-```javascript
-const { data: files } = await supabase.storage
-  .from('bucket')
-  .list('folder-to-delete');
+This pattern only handles top-level files. For nested subfolders, recurse into
+each subfolder. The default `list()` limit is 100 — paginate for larger folders.
 
-if (files?.length) {
-  await supabase.storage
-    .from('bucket')
-    .remove(files.map(f => `folder-to-delete/${f.name}`));
+```javascript
+async function deleteFolderContents(bucket, folder) {
+  let offset = 0;
+  const limit = 100;
+
+  while (true) {
+    const { data: items } = await supabase.storage
+      .from(bucket)
+      .list(folder, { limit, offset });
+
+    if (!items?.length) break;
+
+    const files = items.filter(item => item.id); // files have ids
+    const folders = items.filter(item => !item.id); // folders don't
+
+    // Recurse into subfolders
+    for (const sub of folders) {
+      await deleteFolderContents(bucket, `${folder}/${sub.name}`);
+    }
+
+    // Delete files (max 1,000 per call)
+    if (files.length) {
+      await supabase.storage
+        .from(bucket)
+        .remove(files.map(f => `${folder}/${f.name}`));
+    }
+
+    offset += limit;
+  }
 }
 ```
 
 ## Move Files
+
+Max file size: 5GB.
 
 ```javascript
 await supabase.storage
@@ -62,6 +89,8 @@ await supabase.storage
 Requires SELECT on source and INSERT on destination via RLS.
 
 ## Copy Files
+
+Max file size: 5GB.
 
 ```javascript
 await supabase.storage

@@ -30,8 +30,9 @@ await supabase.storage
   .upload('folder/file.jpg', file, { upsert: true });
 ```
 
-**Warning:** Upsert with CDN caching can serve stale content for up to 60
-seconds. Consider unique paths instead.
+**Warning:** With Smart CDN (Pro+), upsert can serve stale content for up to 60
+seconds while the cache invalidates. Without Smart CDN, stale content persists
+until CDN eviction. Consider unique paths instead.
 
 ## Concurrent Upload Conflicts
 
@@ -86,9 +87,7 @@ await supabase.storage
 
 File size limits vary by plan. See
 [Docs](https://supabase.com/docs/guides/storage/uploads/file-limits) for current
-limits. Use resumable uploads for files > 6MB. For optimal performance when
-uploading large files, use the direct storage hostname
-(`https://<ref>.storage.supabase.co`).
+limits. Use resumable uploads for files > 6MB.
 
 ## Related
 

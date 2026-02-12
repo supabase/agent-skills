@@ -11,13 +11,17 @@ All plans include CDN caching. Smart CDN (Pro+) automatically invalidates the
 CDN cache when files change (up to 60s propagation). Without Smart CDN, the CDN
 evicts based on regional request activity only.
 
-`cacheControl` controls **browser** cache, not CDN cache.
+With Smart CDN (Pro+), `cacheControl` controls **browser** cache only — the CDN
+cache is managed automatically. Without Smart CDN, `cacheControl` influences both
+browser and CDN cache behavior.
 
 ## Smart CDN Behavior (Pro+)
 
 - Automatically invalidates cache when files change
 - Propagation delay: up to 60 seconds
 - No manual cache purging available
+- Bypass cache with query-string versioning: append `?version=1` to the URL,
+  then increment (`?version=2`) when content changes
 
 ## Setting Cache Control
 
@@ -78,7 +82,8 @@ curl -I "https://<ref>.supabase.co/storage/v1/object/public/bucket/file.jpg"
 
 - `Cache-Control`: Configured TTL
 - `Age`: Seconds since cached
-- `cf-cache-status`: HIT or MISS
+- `cf-cache-status`: HIT, MISS, STALE, REVALIDATED, UPDATING, EXPIRED, BYPASS,
+  or DYNAMIC (HIT/STALE/REVALIDATED/UPDATING = cache hit)
 
 ## Related
 

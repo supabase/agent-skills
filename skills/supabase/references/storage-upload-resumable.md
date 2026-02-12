@@ -60,7 +60,7 @@ upload.start();
 For server-side uploads or S3-compatible tooling:
 
 ```javascript
-import { S3Client, CreateMultipartUploadCommand } from '@aws-sdk/client-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 
 const s3 = new S3Client({
@@ -73,14 +73,11 @@ const s3 = new S3Client({
   forcePathStyle: true
 });
 
-const upload = new Upload({
-  client: s3,
-  params: {
-    Bucket: 'bucket-name',
-    Key: 'path/to/file.zip',
-    Body: fileStream,
-    ContentType: 'application/zip'
-  }
+const upload = new Upload(s3, {
+  Bucket: 'bucket-name',
+  Key: 'path/to/file.zip',
+  Body: fileStream,
+  ContentType: 'application/zip'
 });
 
 upload.on('httpUploadProgress', (progress) => {

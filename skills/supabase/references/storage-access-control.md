@@ -75,8 +75,8 @@ with check (
 ```sql
 create policy "Owner access"
 on storage.objects for all to authenticated
-using (owner_id = auth.uid())
-with check (owner_id = auth.uid());
+using (owner_id = (select auth.uid()::text))
+with check (owner_id = (select auth.uid()::text));
 ```
 
 ### File Type Restriction
@@ -110,8 +110,8 @@ with check (bucket_id = 'public-assets');
 | upload (upsert) | SELECT + INSERT + UPDATE |
 | download   | SELECT        |
 | list       | SELECT        |
-| remove     | SELECT + DELETE |
-| move       | SELECT + UPDATE |
+| remove     | DELETE          |
+| move       | SELECT + INSERT |
 | copy       | SELECT + INSERT |
 
 ## Related

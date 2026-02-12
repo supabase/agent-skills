@@ -30,7 +30,7 @@ const { data } = supabase.storage
 | Mode | Behavior |
 |------|----------|
 | `cover` | Crop to fill dimensions (default) |
-| `contain` | Fit within dimensions, may letterbox |
+| `contain` | Fit within dimensions, keep aspect ratio |
 | `fill` | Stretch to fill dimensions |
 
 ## Transformation Limits
