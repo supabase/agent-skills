@@ -41,14 +41,12 @@ Log message types:
 
 ## Server-Side Log Level
 
-Configure Realtime server log verbosity via client params:
+Configure Realtime server log verbosity:
 
 ```javascript
 const supabase = createClient(url, key, {
   realtime: {
-    params: {
-      log_level: 'info',  // 'debug' | 'info' | 'warn' | 'error'
-    },
+    logLevel: 'info',  // 'info' | 'warn' | 'error'
   },
 })
 ```

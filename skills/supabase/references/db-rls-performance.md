@@ -90,12 +90,15 @@ using (
 -- Function in private schema
 create function private.user_team_ids()
 returns setof uuid
-language sql
+language plpgsql
 security definer
 stable
+set search_path = ''
 as $$
-  select team_id from team_members
-  where user_id = (select auth.uid())
+begin
+  return query select team_id from public.team_members
+  where user_id = (select auth.uid());
+end;
 $$;
 
 -- Policy uses cached function result

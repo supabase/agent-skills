@@ -45,9 +45,9 @@ channel.subscribe((status, err) => {
 | Error | Cause | Solution |
 |-------|-------|----------|
 | `too_many_connections` | Connection limit exceeded | Clean up unused channels, upgrade plan |
+| `too_many_channels` | Too many channels per connection | Remove unused channels (limit: 100/connection) |
 | `too_many_joins` | Channel join rate exceeded | Reduce join frequency |
-| `ConnectionRateLimitReached` | Max connections reached | Upgrade plan |
-| `DatabaseLackOfConnections` | No available DB connections | Increase compute size |
+| `tenant_events` | Too many messages/second | Reduce message rate or upgrade plan |
 | `TenantNotFound` | Invalid project reference | Verify project URL |
 
 ## Automatic Reconnection
@@ -72,12 +72,30 @@ Log message types include `push`, `receive`, `transport`, `error`, and `worker`.
 
 ## Silent Disconnections in Background
 
-WebSocket connections can disconnect when apps are backgrounded (mobile, inactive tabs). Supabase reconnects automatically. Re-track presence after reconnection if needed:
+WebSocket connections can disconnect when apps are backgrounded (mobile, inactive
+tabs) due to browser throttling of timers. Two solutions:
+
+```javascript
+const supabase = createClient(url, key, {
+  realtime: {
+    // 1. Use Web Worker to prevent browser throttling of heartbeats
+    worker: true,
+    // 2. Detect disconnections and reconnect
+    heartbeatCallback: (client) => {
+      if (client.connectionState() === 'disconnected') {
+        client.connect()
+      }
+    },
+  },
+})
+```
+
+Use both together: `worker` prevents throttling, `heartbeatCallback` handles
+network-level disconnections. Re-track presence after reconnection if needed:
 
 ```javascript
 channel.subscribe((status) => {
   if (status === 'SUBSCRIBED') {
-    // Re-track presence after reconnection
     channel.track({ user_id: userId, online_at: new Date().toISOString() })
   }
 })
@@ -94,4 +112,4 @@ Private channel authorization fails when:
 
 - [patterns-cleanup.md](patterns-cleanup.md)
 - [setup-auth.md](setup-auth.md)
-- [Docs](https://supabase.com/docs/guides/realtime/troubleshooting)
+- [Docs](https://supabase.com/docs/guides/realtime/limits)

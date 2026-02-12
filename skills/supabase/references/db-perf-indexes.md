@@ -33,7 +33,9 @@ create index idx_logs_created on logs using brin(created_at);
 create index idx_events_id on events using brin(id);
 ```
 
-**When to use:** Tables with millions of rows where data is inserted in order.
+**When to use:** Tables with millions of rows where data is inserted in order and
+updated infrequently. Ideal for `created_at` on append-only tables like orders
+or logs. Routinely 10x+ smaller than equivalent B-tree indexes.
 
 ## GIN (Generalized Inverted Index)
 

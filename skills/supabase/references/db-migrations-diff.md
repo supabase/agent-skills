@@ -77,16 +77,18 @@ npx supabase db diff --linked -f sync_remote_changes
 - Indexes
 - Constraints
 - Functions and triggers
-- RLS policies
+- RLS policies (new policies only; `alter policy` may not diff correctly)
 - Extensions
 
 ## What diff Does NOT Capture
 
+- Publications
+- Storage buckets
+- Views with `security_invoker` attributes
 - DML (INSERT, UPDATE, DELETE)
-- View ownership changes
-- Materialized views
-- Partitions
-- Comments
+
+**Caveat:** `alter policy` changes may not be captured correctly. Use versioned
+migrations for RLS policy modifications.
 
 For these, write manual migrations.
 
