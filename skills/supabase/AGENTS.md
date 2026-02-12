@@ -27,11 +27,14 @@ supabase/
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
 | 1 | Authentication | CRITICAL | `auth-` |
-| 2 | Database | CRITICAL | `db-` |
-| 3 | Edge Functions | HIGH | `edge-` |
-| 4 | SDK | HIGH | `sdk-` |
-| 5 | Realtime | MEDIUM-HIGH | `realtime-` |
-| 6 | Storage | HIGH | `storage-` |
+| 2 | CLI | CRITICAL | `cli-` |
+| 3 | Database | CRITICAL | `db-` |
+| 4 | Edge Functions | HIGH | `edge-` |
+| 5 | MCP | CRITICAL | `mcp-` |
+| 6 | SDK | HIGH | `sdk-` |
+| 7 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 8 | Storage | HIGH | `storage-` |
+| 9 | Tooling | CRITICAL | `tooling-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -53,6 +56,16 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/auth-server-admin-api.md`
 - `references/auth-server-ssr.md`
 - `references/auth-sso-saml.md`
+
+**CLI** (`cli-`):
+- `references/cli-database-commands.md`
+- `references/cli-decision-guide.md`
+- `references/cli-functions-commands.md`
+- `references/cli-generation-commands.md`
+- `references/cli-gotchas-pitfalls.md`
+- `references/cli-migration-commands.md`
+- `references/cli-project-commands.md`
+- `references/cli-secrets-commands.md`
 
 **Database** (`db-`):
 - `references/db-conn-pooling.md`
@@ -91,6 +104,11 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/edge-pat-error-handling.md`
 - `references/edge-pat-routing.md`
 
+**MCP** (`mcp-`):
+- `references/mcp-setup-configuration.md`
+- `references/mcp-setup-feature-groups.md`
+- `references/mcp-setup-security.md`
+
 **Realtime** (`realtime-`):
 - `references/realtime-broadcast-basics.md`
 - `references/realtime-broadcast-database.md`
@@ -126,6 +144,14 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/storage-upload-resumable.md`
 - `references/storage-upload-standard.md`
 
+**Tooling** (`tooling-`):
+- `references/tooling-tool-overlap.md`
+- `references/tooling-tool-selection.md`
+- `references/tooling-workflow-function-dev.md`
+- `references/tooling-workflow-local-dev.md`
+- `references/tooling-workflow-migration-create.md`
+- `references/tooling-workflow-type-generation.md`
+
 ---
 
-*77 reference files across 6 categories*
+*94 reference files across 9 categories*

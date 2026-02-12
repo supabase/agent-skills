@@ -15,22 +15,37 @@ queries.
 **Impact:** CRITICAL
 **Description:** Row Level Security policies, connection pooling, schema design patterns, migrations, performance optimization, and security functions for Supabase Postgres.
 
-## 3. Edge Functions (edge)
+## 3. CLI (cli)
+
+**Impact:** CRITICAL
+**Description:** Supabase CLI commands for project management, database operations, migrations, Edge Functions, secrets, type generation, decision guides, and common pitfalls.
+
+## 4. Edge Functions (edge)
 
 **Impact:** HIGH
 **Description:** Fundamentals, authentication, database access, CORS, routing, error handling, streaming, WebSockets, regional invocations, testing, and limits.
 
-## 4. SDK (sdk)
+## 5. MCP (mcp)
+
+**Impact:** CRITICAL
+**Description:** MCP server configuration for local, hosted, and self-hosted environments. Security settings, OAuth, and feature groups.
+
+## 6. SDK (sdk)
 
 **Impact:** HIGH
 **Description:** supabase-js client initialization, TypeScript generation, CRUD queries, filters, joins, RPC calls, error handling, performance, and Next.js integration.
 
-## 5. Realtime (realtime)
+## 7. Realtime (realtime)
 
 **Impact:** MEDIUM-HIGH
 **Description:** Channel setup, Broadcast messaging, Presence tracking, Postgres Changes listeners, cleanup patterns, error handling, and debugging.
 
-## 6. Storage (storage)
+## 8. Storage (storage)
 
 **Impact:** HIGH
 **Description:** File uploads (standard and resumable), downloads, signed URLs, image transformations, CDN caching, access control with RLS policies, and file management operations.
+
+## 9. Tooling (tooling)
+
+**Impact:** CRITICAL
+**Description:** Decision guidance for choosing between MCP and CLI. Combined workflows for local development, migrations, type generation, and Edge Function deployment.
