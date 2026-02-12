@@ -18,7 +18,17 @@ supabase/
 
 Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and provides several language sdks, including supabase-js and supabase-py.
 
-## Overview of Resources
+| Priority | Category | Impact | Prefix |
+|----------|----------|--------|--------|
+| 1 | Authentication | CRITICAL | `auth-` |
+| 2 | CLI | CRITICAL | `cli-` |
+| 3 | Database | CRITICAL | `db-` |
+| 4 | Edge Functions | HIGH | `edge-` |
+| 5 | MCP | CRITICAL | `mcp-` |
+| 6 | SDK | HIGH | `sdk-` |
+| 7 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 8 | Storage | HIGH | `storage-` |
+| 9 | Tooling | CRITICAL | `tooling-` |
 
 Reference the appropriate resource file based on the user's needs:
 
@@ -34,7 +44,35 @@ Reference the appropriate resource file based on the user's needs:
 | Auth Hooks         | `references/auth-hooks-*.md`       | Custom JWT claims, send email hooks (HTTP and SQL)       |
 | Server-Side Auth   | `references/auth-server-*.md`      | Admin API, SSR with Next.js/SvelteKit, service role auth |
 
-### Database
+**CLI** (`cli-`):
+- `references/cli-database-commands.md`
+- `references/cli-decision-guide.md`
+- `references/cli-functions-commands.md`
+- `references/cli-generation-commands.md`
+- `references/cli-gotchas-pitfalls.md`
+- `references/cli-migration-commands.md`
+- `references/cli-project-commands.md`
+- `references/cli-secrets-commands.md`
+
+**Database** (`db-`):
+- `references/db-conn-pooling.md`
+- `references/db-migrations-diff.md`
+- `references/db-migrations-idempotent.md`
+- `references/db-migrations-testing.md`
+- `references/db-perf-indexes.md`
+- `references/db-perf-query-optimization.md`
+- `references/db-rls-common-mistakes.md`
+- `references/db-rls-mandatory.md`
+- `references/db-rls-performance.md`
+- `references/db-rls-policy-types.md`
+- `references/db-rls-views.md`
+- `references/db-schema-auth-fk.md`
+- `references/db-schema-extensions.md`
+- `references/db-schema-jsonb.md`
+- `references/db-schema-realtime.md`
+- `references/db-schema-timestamps.md`
+- `references/db-security-functions.md`
+- `references/db-security-service-role.md`
 
 | Area               | Resource                        | When to Use                                    |
 | ------------------ | ------------------------------- | ---------------------------------------------- |
@@ -45,7 +83,21 @@ Reference the appropriate resource file based on the user's needs:
 | Performance        | `references/db-perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
 | Security           | `references/db-security-*.md`   | Service role key, security_definer functions   |
 
-### Edge Functions
+**MCP** (`mcp-`):
+- `references/mcp-setup-configuration.md`
+- `references/mcp-setup-feature-groups.md`
+- `references/mcp-setup-security.md`
+
+**Realtime** (`realtime-`):
+- `references/realtime-broadcast-basics.md`
+- `references/realtime-broadcast-database.md`
+- `references/realtime-patterns-cleanup.md`
+- `references/realtime-patterns-debugging.md`
+- `references/realtime-patterns-errors.md`
+- `references/realtime-postgres-changes.md`
+- `references/realtime-presence-tracking.md`
+- `references/realtime-setup-auth.md`
+- `references/realtime-setup-channels.md`
 
 | Area                   | Resource                              | When to Use                            |
 | ---------------------- | ------------------------------------- | -------------------------------------- |
@@ -67,51 +119,14 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Realtime
 
-| Area             | Resource                             | When to Use                                     |
-| ---------------- | ------------------------------------ | ----------------------------------------------- |
-| Channel Setup    | `references/realtime-setup-*.md`     | Creating channels, naming conventions, auth     |
-| Broadcast        | `references/realtime-broadcast-*.md` | Client messaging, database-triggered broadcasts |
-| Presence         | `references/realtime-presence-*.md`  | User online status, shared state tracking       |
-| Postgres Changes | `references/realtime-postgres-*.md`  | Database change listeners (prefer Broadcast)    |
-| Patterns         | `references/realtime-patterns-*.md`  | Cleanup, error handling, React integration      |
+**Tooling** (`tooling-`):
+- `references/tooling-tool-overlap.md`
+- `references/tooling-tool-selection.md`
+- `references/tooling-workflow-function-dev.md`
+- `references/tooling-workflow-local-dev.md`
+- `references/tooling-workflow-migration-create.md`
+- `references/tooling-workflow-type-generation.md`
 
-### SDK (supabase-js)
+---
 
-| Area            | Resource                        | When to Use                               |
-| --------------- | ------------------------------- | ----------------------------------------- |
-| Client Setup    | `references/sdk-client-*.md`    | Browser/server client, SSR, configuration |
-| TypeScript      | `references/sdk-ts-*.md`        | Type generation, using Database types     |
-| Query Patterns  | `references/sdk-query-*.md`     | CRUD, filters, joins, RPC calls           |
-| Error Handling  | `references/sdk-error-*.md`     | Error types, retries, handling patterns   |
-| SDK Performance | `references/sdk-perf-*.md`      | Query optimization, realtime cleanup      |
-| Framework       | `references/sdk-framework-*.md` | Next.js App Router, middleware setup      |
-
-### Storage
-
-| Area            | Resource                              | When to Use                                    |
-| --------------- | ------------------------------------- | ---------------------------------------------- |
-| Access Control  | `references/storage-access-control.md`| Bucket policies, RLS for storage               |
-| Standard Upload | `references/storage-upload-standard.md`| File uploads up to 5GB                         |
-| Resumable Upload| `references/storage-upload-resumable.md`| Large file uploads with TUS protocol          |
-| Downloads       | `references/storage-download-urls.md` | Public URLs, signed URLs, download methods     |
-| Transformations | `references/storage-transform-images.md`| Image resize, crop, format conversion         |
-| CDN & Caching   | `references/storage-cdn-caching.md`   | Cache control, Smart CDN, stale content        |
-| File Operations | `references/storage-ops-file-management.md`| Move, copy, delete, list files             |
-
-**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
-
-## Supabase Documentation
-
-Everytime something is not clear, or you want to double-check something, reference the official Supabase documentation. It is the source of truth for all things Supabase and is regularly updated with the latest information, best practices, and examples. - [Supabase Documentation](https://supabase.com/docs). The documentation is available in html format on the website, but you can also fetch plain text versions of specific sections using the following endpoints:
-
-**Documentation:**
-
-```bash
-# Index of all available docs
-curl https://supabase.com/llms.txt
-
-# Fetch all guides as plain text
-curl https://supabase.com/llms/guides.txt
-
-# Fetch JavaScript SDK reference
-curl https://supabase.com/llms/js.txt
+*94 reference files across 9 categories*

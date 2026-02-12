@@ -94,6 +94,32 @@ Reference the appropriate resource file based on the user's needs:
 | CDN & Caching   | `references/storage-cdn-caching.md`   | Cache control, Smart CDN, stale content        |
 | File Operations | `references/storage-ops-file-management.md`| Move, copy, delete, list files             |
 
+### CLI Commands
+
+| Area       | Resource                              | When to Use                                          |
+| ---------- | ------------------------------------- | ---------------------------------------------------- |
+| Project    | `references/cli-project-commands.md`  | init, start, stop, status, link, login               |
+| Database   | `references/cli-database-commands.md` | push, pull, diff, reset, dump                        |
+| Migrations | `references/cli-migration-commands.md`| new, list, fetch, repair, squash                     |
+| Functions  | `references/cli-functions-commands.md`| new, serve, deploy                                   |
+| Secrets    | `references/cli-secrets-commands.md`  | set, list                                            |
+| Generation | `references/cli-generation-commands.md`| gen types                                           |
+| Decisions  | `references/cli-decision-guide.md`    | pull vs diff, push vs up, targeting, --experimental  |
+| Gotchas    | `references/cli-gotchas-pitfalls.md`  | Common mistakes, edge cases, troubleshooting         |
+
+### MCP + CLI Workflows
+
+| Area               | Resource                        | When to Use                                         |
+| ------------------ | ------------------------------- | --------------------------------------------------- |
+| Tool Selection     | `references/tooling-tool-*.md`  | MCP vs CLI decision, capability comparison          |
+| Combined Workflows | `references/tooling-workflow-*.md` | Local dev, migrations, type gen, function workflows |
+
+### MCP Setup
+
+| Area      | Resource                       | When to Use                                          |
+| --------- | ------------------------------ | ---------------------------------------------------- |
+| MCP Setup | `references/mcp-setup-*.md`    | Configuring MCP connection, security, feature groups |
+
 **CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
 
 ## Supabase Documentation
