@@ -67,7 +67,7 @@ export async function createClient() {
 ### Middleware
 
 ```typescript
-// middleware.ts
+// proxy.ts
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
@@ -96,10 +96,10 @@ export async function middleware(request: NextRequest) {
   )
 
   // Refresh session if needed
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: claims } = await supabase.auth.getClaims()
 
   // Protect routes
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (!claims && request.nextUrl.pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
@@ -270,7 +270,7 @@ const supabase = createServerClient(url, key, {
 **Incorrect:**
 
 ```typescript
-// middleware.ts
+// proxy.ts
 export async function middleware(request: NextRequest) {
   // No supabase call - session never refreshed
   return NextResponse.next()
@@ -287,7 +287,7 @@ export async function middleware(request: NextRequest) {
   })
 
   // This refreshes the session if needed
-  await supabase.auth.getUser()
+  await supabase.auth.getClaims()
 
   return supabaseResponse
 }
