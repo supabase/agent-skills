@@ -7,7 +7,7 @@ tags: edge-functions, quickstart, deployment, cli, deno
 
 ## Edge Functions Quick Start
 
-Create and deploy serverless TypeScript functions that run globally at the edge on Deno runtime. Functions use `Deno.serve()` as the handler and have automatic access to environment variables like `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
+Create and deploy serverless TypeScript functions that run globally at the edge on Deno runtime. Functions use `Deno.serve()` as the handler and have automatic access to environment variables: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_DB_URL`.
 
 **Incorrect:**
 
@@ -35,6 +35,6 @@ Deno.serve(async (req) => {
 });
 ```
 
-CLI workflow: `npx supabase functions new hello-world`, then `npx supabase functions serve` for local dev, and `npx supabase functions deploy hello-world` for production (after `npx supabase link --project-ref PROJECT_ID`).
+CLI workflow: `npx supabase functions new hello-world`, then `npx supabase start && npx supabase functions serve` for local dev, and `npx supabase functions deploy hello-world` for production (after `npx supabase login` and `npx supabase link --project-ref PROJECT_ID`).
 
 Reference: [Quickstart Guide](https://supabase.com/docs/guides/functions/quickstart)

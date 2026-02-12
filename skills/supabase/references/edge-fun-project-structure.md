@@ -25,6 +25,7 @@ supabase/functions/
 ```bash
 # Hyphens for functions, underscore prefix for shared
 supabase/functions/
+  import_map.json        # Top-level import map
   _shared/               # Excluded from deployment
     cors.ts
     supabaseClient.ts
@@ -32,6 +33,13 @@ supabase/functions/
     index.ts
 ```
 
-For VSCode/Cursor, create `.vscode/settings.json` with `"deno.enablePaths": ["./supabase/functions"]` for Deno LSP support.
+For VSCode/Cursor, create `.vscode/settings.json`:
 
-Reference: [Functions Structure](https://supabase.com/docs/guides/functions/quickstart)
+```json
+{
+  "deno.enablePaths": ["./supabase/functions"],
+  "deno.importMap": "./supabase/functions/import_map.json"
+}
+```
+
+Reference: [Development Tips](https://supabase.com/docs/guides/functions/development-tips)

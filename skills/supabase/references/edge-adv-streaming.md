@@ -12,10 +12,11 @@ Stream data progressively to clients using ReadableStream or Server-Sent Events.
 **Incorrect:**
 
 ```typescript
-// Wrong SSE format - missing "data:" prefix and double newline
+// Missing error handling in stream callback
 const stream = new ReadableStream({
   start(controller) {
     controller.enqueue(encoder.encode(JSON.stringify({ test: true })));
+    // No try/catch/finally — errors silently lost, stream never closed
   },
 });
 ```
@@ -23,18 +24,23 @@ const stream = new ReadableStream({
 **Correct:**
 
 ```typescript
-// Server: SSE stream
+// SSE stream with proper error handling
 Deno.serve(async (req) => {
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
     async start(controller) {
-      for (let i = 1; i <= 5; i++) {
-        // SSE format: "data:" prefix + double newline
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ count: i })}\n\n`));
-        await new Promise((r) => setTimeout(r, 1000));
+      try {
+        for (let i = 1; i <= 5; i++) {
+          // SSE format: "data:" prefix + double newline
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ count: i })}\n\n`));
+          await new Promise((r) => setTimeout(r, 1000));
+        }
+      } catch (err) {
+        console.error("Stream error:", err);
+      } finally {
+        controller.close();
       }
-      controller.close();
     },
   });
 
@@ -47,3 +53,5 @@ Deno.serve(async (req) => {
   });
 });
 ```
+
+Both SSE-formatted streaming (with `data:` prefix) and raw streaming (without prefix) are valid. Use SSE format when consumed by `EventSource`; use raw streaming for AI model responses or binary data.

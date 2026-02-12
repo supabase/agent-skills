@@ -38,15 +38,11 @@ Deno.serve(async () => {
   });
   const db = drizzle(client);
 
-  try {
-    const data = await db.select().from(users);
-    return Response.json(data);
-  } finally {
-    await client.end(); // Release connection
-  }
+  const data = await db.select().from(users);
+  return Response.json(data);
 });
 ```
 
-Use `SUPABASE_DB_URL` (auto-injected) which includes the correct pooler endpoint. For Deno Postgres, use pool size of 1 for edge functions.
+Use `SUPABASE_DB_URL` (auto-injected) for the connection string. When using `deno.land/x/postgres` (not postgres-js), use a pool size of 1.
 
 Reference: [Connect to Postgres](https://supabase.com/docs/guides/functions/connect-to-postgres)

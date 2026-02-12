@@ -7,7 +7,7 @@ tags: edge-functions, limits, debugging, troubleshooting
 
 ## Limits and Troubleshooting
 
-Understand Edge Function limits: 256MB memory, 2s CPU time, 150s (free) or 400s (paid) wall clock. Check logs for debugging.
+Understand Edge Function limits: 256MB memory, 2s CPU time, 150s (free) or 400s (paid) wall clock, and 150s request idle timeout (triggers 504 if no response sent). Check logs for debugging.
 
 **Incorrect:**
 
@@ -45,8 +45,8 @@ EdgeRuntime.waitUntil(processInBatches(items, 100));
 return Response.json({ status: "processing" });
 ```
 
-Debug with: `npx supabase functions serve --debug`. Check `SB_REGION` and `SB_EXECUTION_ID` env vars for tracing.
+Debug with: `npx supabase functions serve --inspect-mode brk` (or shorthand `--inspect`). Check `SB_REGION` and `SB_EXECUTION_ID` env vars for tracing (hosted environment only).
 
 Common errors: 504 (timeout), 503 (boot error — syntax/import), 500 (uncaught exception), 401 (invalid JWT), 546 (resource limit — memory/CPU exceeded).
 
-Reference: [Troubleshooting](https://supabase.com/docs/guides/functions/troubleshooting)
+Reference: [Limits](https://supabase.com/docs/guides/functions/limits)

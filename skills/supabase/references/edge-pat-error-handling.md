@@ -7,7 +7,7 @@ tags: edge-functions, errors, debugging, client-errors
 
 ## Error Handling Patterns
 
-Handle errors gracefully and return meaningful responses. Never expose internal error details to clients. Always include CORS headers in error responses.
+Handle errors gracefully and return meaningful responses. Include helpful error messages in the response body — never expose stack traces, but `error.message` is fine. Always include CORS headers in error responses.
 
 **Incorrect:**
 
@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     console.error("Internal error:", error); // Log internally
 
     return Response.json(
-      { error: "Internal server error" }, // Generic message
+      { error: error.message },
       {
         status: 500,
         headers: corsHeaders,
@@ -57,4 +57,4 @@ Deno.serve(async (req) => {
 
 Use appropriate status codes: 400 for validation errors, 401 for unauthorized, 404 for not found, 500 for server errors.
 
-Reference: [Troubleshooting](https://supabase.com/docs/guides/functions/troubleshooting)
+Reference: [Error Handling](https://supabase.com/docs/guides/functions/error-handling)

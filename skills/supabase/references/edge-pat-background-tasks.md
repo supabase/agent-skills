@@ -43,8 +43,14 @@ Deno.serve(async (req) => {
 addEventListener("beforeunload", (event) => {
   console.log("Shutting down:", event.detail?.reason);
 });
+
+// Catch unhandled promise rejections in background tasks
+addEventListener("unhandledrejection", (ev) => {
+  console.log("unhandledrejection", ev.reason);
+  ev.preventDefault();
+});
 ```
 
-For local development, set `[edge_runtime] policy = "per_worker"` in config.toml (disables hot reload).
+For local development, set `[edge_runtime] policy = "per_worker"` in config.toml (disables hot reload; requires manual restart via `npx supabase functions serve`).
 
 Reference: [Background Tasks](https://supabase.com/docs/guides/functions/background-tasks)

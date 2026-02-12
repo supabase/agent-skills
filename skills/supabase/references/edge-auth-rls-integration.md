@@ -46,6 +46,6 @@ Deno.serve(async (req) => {
 });
 ```
 
-Use `SUPABASE_SERVICE_ROLE_KEY` for admin operations that need to bypass RLS (background jobs, webhooks).
+Use `SUPABASE_SERVICE_ROLE_KEY` for admin operations that need to bypass RLS (background jobs, webhooks). For verifying the user's identity, use `supabase.auth.getClaims()` on the per-request client.
 
-Reference: [Auth in Functions](https://supabase.com/docs/guides/functions/auth)
+Reference: [Connect to Postgres](https://supabase.com/docs/guides/functions/connect-to-postgres)

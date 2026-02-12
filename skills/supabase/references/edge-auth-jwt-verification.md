@@ -20,7 +20,7 @@ const payload = await verify(token, JWT_SECRET, "HS256");
 **Correct:**
 
 ```typescript
-// Simple: getClaims() verifies locally via JWKS (cached, no network request)
+// Simple: getClaims() verifies via JWKS (initial fetch required, then cached ~10min)
 const token = req.headers.get("Authorization")?.replace("Bearer ", "");
 const { data, error } = await supabase.auth.getClaims(token);
 if (error) return new Response("Invalid JWT", { status: 401 });
@@ -54,6 +54,11 @@ Deno.serve(async (req) => {
 });
 ```
 
-Separately, the API gateway verifies JWTs before they reach your function. To disable this gateway-level check (e.g., for webhooks or WebSocket endpoints that handle auth themselves): `npx supabase functions deploy fn-name --no-verify-jwt`.
+Separately, the API gateway verifies JWTs before they reach your function. Supabase is transitioning toward developer-controlled verification (explicit in-function checks) rather than implicit gateway validation — `verify_jwt` remains supported during this transition. To disable gateway-level verification, use either the CLI flag (`npx supabase functions deploy fn-name --no-verify-jwt`) or `config.toml`:
+
+```toml
+[functions.fn-name]
+verify_jwt = false
+```
 
 Reference: [Securing Functions](https://supabase.com/docs/guides/functions/auth)

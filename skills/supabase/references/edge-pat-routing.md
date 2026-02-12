@@ -18,7 +18,7 @@ Handle multiple routes in a single Edge Function to minimize cold starts. Use Ho
 // supabase/functions/update-user/index.ts
 
 // Also wrong: missing basePath causes route mismatches
-import { Hono } from "npm:hono";
+import { Hono } from "jsr:@hono/hono";
 const app = new Hono();
 app.get("/users", handler); // Won't match /functions/v1/api/users
 ```
@@ -26,8 +26,8 @@ app.get("/users", handler); // Won't match /functions/v1/api/users
 **Correct:**
 
 ```typescript
-import { Hono } from "npm:hono";
-import { cors } from "npm:hono/cors";
+import { Hono } from "jsr:@hono/hono";
+import { cors } from "jsr:@hono/hono/cors";
 
 // Single function handling all user operations
 const app = new Hono().basePath("/api"); // Must match function name!

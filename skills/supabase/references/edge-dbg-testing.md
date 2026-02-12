@@ -7,7 +7,7 @@ tags: edge-functions, testing, deno, unit-tests
 
 ## Testing Edge Functions
 
-Test Edge Functions locally using Deno's built-in test runner. Start `npx supabase functions serve` before running tests.
+Test Edge Functions locally using Deno's built-in test runner. Run `npx supabase start` first, then `npx supabase functions serve` before running tests.
 
 **Incorrect:**
 
@@ -58,6 +58,6 @@ Deno.test("creates and cleans up user", async () => {
 });
 ```
 
-Run: `npx supabase functions serve &` then `deno test --allow-all supabase/functions/tests/`
+Run: `npx supabase start && npx supabase functions serve &` then `deno test --allow-all supabase/functions/tests/`
 
 Reference: [Testing Guide](https://supabase.com/docs/guides/functions/unit-test)

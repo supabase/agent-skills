@@ -32,17 +32,18 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 Deno.serve(async (req) => {
   const url = new URL(req.url);
-  const token = url.searchParams.get("token");
+  const jwt = url.searchParams.get("jwt");
 
-  if (!token) return new Response("Missing token", { status: 401 });
+  if (!jwt) return new Response("Missing token", { status: 403 });
 
-  // Verify JWT
+  // Verify JWT using getClaims()
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: `Bearer ${jwt}` } } }
   );
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return new Response("Invalid token", { status: 401 });
+  const { data, error } = await supabase.auth.getClaims();
+  if (error || !data.claims?.sub) return new Response("Invalid token", { status: 403 });
 
   // Verify this is a WebSocket upgrade request
   const upgrade = req.headers.get("upgrade") || "";
@@ -61,8 +62,8 @@ Deno.serve(async (req) => {
   return response;
 });
 
-// Client: pass token via query param
-const ws = new WebSocket(`wss://PROJECT.supabase.co/functions/v1/ws?token=${token}`);
+// Client: pass JWT via query param (note: query params may be logged in some logging systems)
+const ws = new WebSocket(`wss://PROJECT.supabase.co/functions/v1/ws?jwt=${jwt}`);
 ```
 
 Deploy: `npx supabase functions deploy websocket --no-verify-jwt`
