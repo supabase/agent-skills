@@ -71,10 +71,16 @@ The publishable and secret keys are replacing the legacy JWT-based keys. Decode 
 
 ## If Service Key is Exposed
 
-1. Immediately rotate keys in Dashboard > Settings > API Keys
-2. Review database for unauthorized changes
-3. Check logs for suspicious activity
-4. Update all backend services with new key
+Don't rush. Remediate the root cause first, then:
+
+1. Stop and ask the user to create a new secret API key in the Supabase Dashboard under Settings > API Keys
+2. Replace the compromised key across all backend services
+3. Delete the old key (irreversible)
+4. Review database for unauthorized changes
+5. Check logs for suspicious activity
+
+For legacy JWT `service_role` keys, transition to the new secret key format
+first, then rotate the JWT secret if it was also compromised.
 
 ## Alternative: Security Definer Functions
 
