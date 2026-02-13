@@ -27,14 +27,12 @@ supabase/
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
 | 1 | Authentication | CRITICAL | `auth-` |
-| 2 | CLI | CRITICAL | `cli-` |
-| 3 | Database | CRITICAL | `db-` |
+| 2 | Database | CRITICAL | `db-` |
+| 3 | Development | CRITICAL | `dev-` |
 | 4 | Edge Functions | HIGH | `edge-` |
-| 5 | MCP | CRITICAL | `mcp-` |
-| 6 | SDK | HIGH | `sdk-` |
-| 7 | Realtime | MEDIUM-HIGH | `realtime-` |
-| 8 | Storage | HIGH | `storage-` |
-| 9 | Tooling | CRITICAL | `tooling-` |
+| 5 | SDK | HIGH | `sdk-` |
+| 6 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 7 | Storage | HIGH | `storage-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -57,15 +55,6 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/auth-server-ssr.md`
 - `references/auth-sso-saml.md`
 
-**CLI** (`cli-`):
-- `references/cli-database-commands.md`
-- `references/cli-decision-guide.md`
-- `references/cli-functions-commands.md`
-- `references/cli-generation-commands.md`
-- `references/cli-gotchas-pitfalls.md`
-- `references/cli-migration-commands.md`
-- `references/cli-project-commands.md`
-- `references/cli-secrets-commands.md`
 
 **Database** (`db-`):
 - `references/db-conn-pooling.md`
@@ -87,6 +76,15 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
+**Development** (`dev-`):
+- `references/dev-cli-reference.md`
+- `references/dev-cli-vs-mcp.md`
+- `references/dev-getting-started.md`
+- `references/dev-local-workflow.md`
+- `references/dev-mcp-setup.md`
+- `references/dev-mcp-tools.md`
+- `references/dev-remote-workflow.md`
+
 **Edge Functions** (`edge-`):
 - `references/edge-adv-regional.md`
 - `references/edge-adv-streaming.md`
@@ -103,11 +101,6 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/edge-pat-cors.md`
 - `references/edge-pat-error-handling.md`
 - `references/edge-pat-routing.md`
-
-**MCP** (`mcp-`):
-- `references/mcp-setup-configuration.md`
-- `references/mcp-setup-feature-groups.md`
-- `references/mcp-setup-security.md`
 
 **Realtime** (`realtime-`):
 - `references/realtime-broadcast-basics.md`
@@ -144,14 +137,6 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/storage-upload-resumable.md`
 - `references/storage-upload-standard.md`
 
-**Tooling** (`tooling-`):
-- `references/tooling-tool-overlap.md`
-- `references/tooling-tool-selection.md`
-- `references/tooling-workflow-function-dev.md`
-- `references/tooling-workflow-local-dev.md`
-- `references/tooling-workflow-migration-create.md`
-- `references/tooling-workflow-type-generation.md`
-
 ---
 
-*94 reference files across 9 categories*
+*84 reference files across 7 categories*

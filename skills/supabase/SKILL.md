@@ -94,33 +94,35 @@ Reference the appropriate resource file based on the user's needs:
 | CDN & Caching   | `references/storage-cdn-caching.md`   | Cache control, Smart CDN, stale content        |
 | File Operations | `references/storage-ops-file-management.md`| Move, copy, delete, list files             |
 
-### CLI Commands
+### Development
 
-| Area       | Resource                              | When to Use                                          |
-| ---------- | ------------------------------------- | ---------------------------------------------------- |
-| Project    | `references/cli-project-commands.md`  | init, start, stop, status, link, login               |
-| Database   | `references/cli-database-commands.md` | push, pull, diff, reset, dump                        |
-| Migrations | `references/cli-migration-commands.md`| new, list, fetch, repair, squash                     |
-| Functions  | `references/cli-functions-commands.md`| new, serve, deploy                                   |
-| Secrets    | `references/cli-secrets-commands.md`  | set, list                                            |
-| Generation | `references/cli-generation-commands.md`| gen types                                           |
-| Decisions  | `references/cli-decision-guide.md`    | pull vs diff, push vs up, targeting, --experimental  |
-| Gotchas    | `references/cli-gotchas-pitfalls.md`  | Common mistakes, edge cases, troubleshooting         |
+| Area            | Resource                            | When to Use                                          |
+| --------------- | ----------------------------------- | ---------------------------------------------------- |
+| Getting Started | `references/dev-getting-started.md` | New project setup, CLI install, first-time init      |
+| MCP Setup       | `references/dev-mcp-setup.md`      | Configuring remote and local MCP server connections  |
+| CLI Reference   | `references/dev-cli-reference.md`  | CLI command details, best practices, pitfalls        |
+| MCP Tools       | `references/dev-mcp-tools.md`      | execute_sql, apply_migration, get_logs, get_advisors |
+| CLI vs MCP      | `references/dev-cli-vs-mcp.md`     | Choosing between CLI and MCP for any operation       |
+| Local Workflow  | `references/dev-local-workflow.md`  | Developing with local Supabase stack                 |
+| Remote Workflow | `references/dev-remote-workflow.md` | Developing against hosted Supabase project           |
 
-### MCP + CLI Workflows
+## Development Guidance
 
-| Area               | Resource                        | When to Use                                         |
-| ------------------ | ------------------------------- | --------------------------------------------------- |
-| Tool Selection     | `references/tooling-tool-*.md`  | MCP vs CLI decision, capability comparison          |
-| Combined Workflows | `references/tooling-workflow-*.md` | Local dev, migrations, type gen, function workflows |
+Supabase development uses two complementary tools: the CLI for dev environment management (project management, migrations, deployment, code generation) and the MCP server for running SQL, retrieving logs, and getting security/performance advisors. There are two MCP servers:
 
-### MCP Setup
+- **Remote MCP server** (`mcp.supabase.com`) — targets hosted Supabase projects. Requires OAuth.
+- **Local MCP server** (`localhost:54321/mcp`) — targets the local Supabase stack started with `npx supabase start`. No authentication needed.
 
-| Area      | Resource                       | When to Use                                          |
-| --------- | ------------------------------ | ---------------------------------------------------- |
-| MCP Setup | `references/mcp-setup-*.md`    | Configuring MCP connection, security, feature groups |
+Use the **local MCP server** during local development to iterate on schema, debug, and run advisors against the local database. Use the **remote MCP server** when working directly against a hosted project (e.g., remote-only workflows, or debugging production issues on a staging project). **Only one server should be configured at a time** — both expose tools with identical names, which confuses agents when enabled simultaneously. See [dev-mcp-setup.md](references/dev-mcp-setup.md) for configuration details.
 
-**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
+When the user's project has no `supabase/` directory, start with the getting-started guide. When it already exists, pick up from the appropriate workflow (local or remote) based on user intentions.
+
+- **CLI is the default tool.** All commands prefixed with `npx supabase`.
+- **MCP is preferred for:** running SQL (`execute_sql`), debugging (`get_logs`), and performance/security (`get_advisors`). CLI is recommended for everything else.
+- **Local development:** Start with CLI (`supabase start`), iterate with `execute_sql` via the **local MCP server**, capture with CLI (`db diff`), deploy with CLI (`db push`).
+- **Remote development:** Link with CLI, use the **remote MCP server** for database interaction, sync with CLI.
+- **Prefer `npx supabase db push`** over MCP `apply_migration` for deploying migrations. Only use `apply_migration` as last resort for mismatch fixing, with user consent.
+- **After any schema change:** Generate types and run `get_advisors`.
 
 ## Supabase Documentation
 
