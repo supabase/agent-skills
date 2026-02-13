@@ -77,78 +77,41 @@ function parseSections(rulesDir: string): Section[] {
 }
 
 /**
- * Parse SKILL.md frontmatter to extract metadata
+ * Extract the markdown body from SKILL.md (everything after frontmatter)
  */
-function parseSkillFrontmatter(content: string): Record<string, unknown> {
+function extractSkillBody(content: string): string {
 	if (!content.startsWith("---")) {
-		return {};
+		return content.trim();
 	}
 
 	const endIndex = content.indexOf("---", 3);
 	if (endIndex === -1) {
-		return {};
+		return content.trim();
 	}
 
-	const frontmatterContent = content.slice(3, endIndex).trim();
-	const result: Record<string, unknown> = {};
-	let inMetadata = false;
-	const metadataObj: Record<string, string> = {};
+	return content.slice(endIndex + 3).trim();
+}
 
-	for (const line of frontmatterContent.split("\n")) {
-		// Check for metadata block start
-		if (line.trim() === "metadata:") {
-			inMetadata = true;
-			continue;
-		}
+/**
+ * Parse the SKILL.md body into its H1 title and the content after it.
+ * The first line of the body must be an H1 heading (e.g., "# Supabase").
+ * Returns the title text and the remaining body content.
+ */
+function parseSkillBodySections(body: string): {
+	title: string | null;
+	content: string;
+} {
+	const lines = body.split("\n");
+	const firstLine = lines[0]?.trim() ?? "";
 
-		// Handle metadata nested values
-		if (inMetadata && line.startsWith("  ")) {
-			const colonIndex = line.indexOf(":");
-			if (colonIndex !== -1) {
-				const key = line.slice(0, colonIndex).trim();
-				let value = line.slice(colonIndex + 1).trim();
-				if (
-					(value.startsWith('"') && value.endsWith('"')) ||
-					(value.startsWith("'") && value.endsWith("'"))
-				) {
-					value = value.slice(1, -1);
-				}
-				metadataObj[key] = value;
-			}
-			continue;
-		}
-
-		// End metadata block when we hit a non-indented line
-		if (inMetadata && !line.startsWith("  ") && line.trim()) {
-			inMetadata = false;
-			result.metadata = metadataObj;
-		}
-
-		// Handle top-level key-value
-		const colonIndex = line.indexOf(":");
-		if (colonIndex === -1) continue;
-
-		const currentKey = line.slice(0, colonIndex).trim();
-		let value = line.slice(colonIndex + 1).trim();
-
-		if (
-			(value.startsWith('"') && value.endsWith('"')) ||
-			(value.startsWith("'") && value.endsWith("'"))
-		) {
-			value = value.slice(1, -1);
-		}
-
-		if (value) {
-			result[currentKey] = value;
-		}
+	const h1Match = firstLine.match(/^#\s+(.+)$/);
+	if (!h1Match) {
+		return { title: null, content: body };
 	}
 
-	// Ensure metadata is captured if file ends in metadata block
-	if (inMetadata && Object.keys(metadataObj).length > 0) {
-		result.metadata = metadataObj;
-	}
-
-	return result;
+	// Everything after the H1 line
+	const content = lines.slice(1).join("\n").trim();
+	return { title: h1Match[1].trim(), content };
 }
 
 /**
@@ -250,60 +213,59 @@ function createClaudeSymlink(paths: SkillPaths): void {
 /**
  * Build AGENTS.md for a specific skill
  *
- * AGENTS.md is a concise navigation guide for AI agents, NOT a comprehensive
- * documentation dump. It helps agents understand the skill directory structure
- * and how to find information.
+ * Structure: Title > Structure > Usage > SKILL.md body > Reference Categories > Available References
  */
 function buildSkill(paths: SkillPaths): void {
 	console.log(`[${paths.name}] Building AGENTS.md...`);
 
-	// Read SKILL.md for metadata
+	// Read SKILL.md for body content
 	const skillContent = existsSync(paths.skillFile)
 		? readFileSync(paths.skillFile, "utf-8")
 		: "";
-	const frontmatter = parseSkillFrontmatter(skillContent);
-	const skillTitle = skillNameToTitle(paths.name);
-	const description =
-		(frontmatter.description as string) || `${skillTitle} skill for AI agents.`;
 
 	// Parse sections if available
 	const sections = parseAllSections(paths.referencesDir);
 	const referenceFiles = getReferenceFiles(paths.referencesDir);
 
-	// Generate concise AGENTS.md
 	const output: string[] = [];
 
-	// Header
-	output.push(`# ${paths.name}\n`);
-	output.push(`> **Note:** \`CLAUDE.md\` is a symlink to this file.\n`);
+	// Parse SKILL.md body into title + content
+	const skillBody = extractSkillBody(skillContent);
+	const { title: skillTitle, content: skillBodyContent } =
+		parseSkillBodySections(skillBody);
 
-	// Brief description
-	output.push(`## Overview\n`);
-	output.push(`${description}\n`);
+	// 1. Title (from SKILL.md H1 heading)
+	const title = skillTitle || skillNameToTitle(paths.name);
+	output.push(`# ${title}\n`);
 
-	// Directory structure
+	// 2. Structure
 	output.push(`## Structure\n`);
 	output.push("```");
 	output.push(`${paths.name}/`);
-	output.push(`  SKILL.md       # Main skill file - read this first`);
-	output.push(`  AGENTS.md      # This navigation guide`);
-	output.push(`  CLAUDE.md      # Symlink to AGENTS.md`);
+	output.push(`  SKILL.md       # Main skill file`);
+	output.push(`  AGENTS.md      # This file (CLAUDE.md is a symlink)`);
 	if (existsSync(paths.referencesDir)) {
 		output.push(`  references/    # Detailed reference files`);
 	}
 	output.push("```\n");
 
-	// How to use
+	// 3. Usage
 	output.push(`## Usage\n`);
-	output.push(`1. Read \`SKILL.md\` for the main skill instructions`);
 	output.push(
-		`2. Browse \`references/\` for detailed documentation on specific topics`,
+		`1. Browse \`references/\` for detailed documentation on specific topics`,
 	);
 	output.push(
-		`3. Reference files are loaded on-demand - read only what you need\n`,
+		`2. Reference files are loaded on-demand - read only what you need\n`,
 	);
 
-	// Reference sections (if available)
+	// 4. Overview (SKILL.md body content after the H1 title)
+	if (skillBodyContent) {
+		output.push(`## Overview\n`);
+		output.push(skillBodyContent);
+		output.push("");
+	}
+
+	// 5. Reference Categories (if available)
 	if (sections.length > 0) {
 		output.push(`## Reference Categories\n`);
 		output.push(`| Priority | Category | Impact | Prefix |`);
@@ -319,7 +281,7 @@ function buildSkill(paths: SkillPaths): void {
 		);
 	}
 
-	// Reference file list (just filenames, not content)
+	// 6. Available References (grouped by section)
 	if (referenceFiles.length > 0) {
 		output.push(`## Available References\n`);
 		const grouped = new Map<string, string[]>();
@@ -397,11 +359,13 @@ if (isMainModule) {
 
 export {
 	buildSkill,
+	extractSkillBody,
 	generateSectionMap,
 	getMarkdownFiles,
 	getMarkdownFilesRecursive, // deprecated, use getMarkdownFiles
 	getReferenceFiles,
 	parseAllSections,
+	parseSkillBodySections,
 	parseSections,
 	skillNameToTitle,
 };

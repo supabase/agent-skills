@@ -1,10 +1,12 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { basename } from "node:path";
 import {
+	extractSkillBody,
 	generateSectionMap,
 	getMarkdownFiles,
 	parseAllSections,
 	parseSections,
+	parseSkillBodySections,
 } from "./build.js";
 import {
 	discoverSkills,
@@ -143,10 +145,82 @@ export function validateRuleFile(
 }
 
 /**
+ * Extract the `name` field from SKILL.md frontmatter
+ */
+function extractSkillName(skillFilePath: string): string | null {
+	if (!existsSync(skillFilePath)) return null;
+
+	const content = readFileSync(skillFilePath, "utf-8");
+	if (!content.startsWith("---")) return null;
+
+	const endIndex = content.indexOf("---", 3);
+	if (endIndex === -1) return null;
+
+	const frontmatter = content.slice(3, endIndex);
+	for (const line of frontmatter.split("\n")) {
+		const match = line.match(/^name:\s*(.+)/);
+		if (match) return match[1].trim();
+	}
+	return null;
+}
+
+/**
+ * Validate SKILL.md structure:
+ * - `name` field matches directory name (kebab-case)
+ * - Body starts with an H1 heading (used as AGENTS.md title)
+ */
+function validateSkillStructure(paths: SkillPaths): string[] {
+	const errors: string[] = [];
+	const skillName = extractSkillName(paths.skillFile);
+
+	if (!skillName) {
+		errors.push("SKILL.md is missing the `name` field in frontmatter");
+		return errors;
+	}
+
+	if (skillName !== paths.name) {
+		errors.push(
+			`SKILL.md name "${skillName}" does not match directory name "${paths.name}"`,
+		);
+	}
+
+	// Validate kebab-case format
+	if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(paths.name)) {
+		errors.push(
+			`Directory name "${paths.name}" is not valid kebab-case (lowercase alphanumeric and hyphens only, no leading/trailing/consecutive hyphens)`,
+		);
+	}
+
+	// Validate body starts with H1 heading
+	if (existsSync(paths.skillFile)) {
+		const content = readFileSync(paths.skillFile, "utf-8");
+		const body = extractSkillBody(content);
+		const { title } = parseSkillBodySections(body);
+
+		if (!title) {
+			errors.push(
+				"SKILL.md body must start with an H1 heading (e.g., `# Skill Title`). This heading is used as the AGENTS.md title.",
+			);
+		}
+	}
+
+	return errors;
+}
+
+/**
  * Validate all reference files for a skill
  */
 function validateSkill(paths: SkillPaths): boolean {
 	console.log(`[${paths.name}] Validating...`);
+
+	// Validate skill structure (name, kebab-case, H1 heading)
+	const nameErrors = validateSkillStructure(paths);
+	if (nameErrors.length > 0) {
+		for (const error of nameErrors) {
+			console.log(`  ERROR: ${error}`);
+		}
+		return false;
+	}
 
 	// Check if references directory exists
 	if (!existsSync(paths.referencesDir)) {
