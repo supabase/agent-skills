@@ -28,6 +28,7 @@ supabase/
 |----------|----------|--------|--------|
 | 1 | Database | CRITICAL | `db-` |
 | 2 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 3 | Storage | HIGH | `storage-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -64,6 +65,15 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/realtime-setup-auth.md`
 - `references/realtime-setup-channels.md`
 
+**Storage** (`storage-`):
+- `references/storage-access-control.md`
+- `references/storage-cdn-caching.md`
+- `references/storage-download-urls.md`
+- `references/storage-ops-file-management.md`
+- `references/storage-transform-images.md`
+- `references/storage-upload-resumable.md`
+- `references/storage-upload-standard.md`
+
 ---
 
-*27 reference files across 2 categories*
+*34 reference files across 3 categories*
