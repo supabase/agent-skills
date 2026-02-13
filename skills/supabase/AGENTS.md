@@ -42,7 +42,6 @@ Reference the appropriate resource file based on the user's needs:
 | Auth Hooks         | `references/auth-hooks-*.md`       | Custom JWT claims, send email hooks (HTTP and SQL)       |
 | Server-Side Auth   | `references/auth-server-*.md`      | Admin API, SSR with Next.js/SvelteKit, service role auth |
 
-
 **Database** (`db-`):
 - `references/db-conn-pooling.md`
 - `references/db-migrations-diff.md`
