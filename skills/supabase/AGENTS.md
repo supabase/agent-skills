@@ -128,4 +128,4 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ---
 
-*76 reference files across 6 categories*
+*77 reference files across 6 categories*
