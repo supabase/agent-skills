@@ -21,14 +21,12 @@ Supabase is an open source Firebase alternative that provides a Postgres databas
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
 | 1 | Authentication | CRITICAL | `auth-` |
-| 2 | CLI | CRITICAL | `cli-` |
-| 3 | Database | CRITICAL | `db-` |
+| 2 | Database | CRITICAL | `db-` |
+| 3 | Development | CRITICAL | `dev-` |
 | 4 | Edge Functions | HIGH | `edge-` |
-| 5 | MCP | CRITICAL | `mcp-` |
-| 6 | SDK | HIGH | `sdk-` |
-| 7 | Realtime | MEDIUM-HIGH | `realtime-` |
-| 8 | Storage | HIGH | `storage-` |
-| 9 | Tooling | CRITICAL | `tooling-` |
+| 5 | SDK | HIGH | `sdk-` |
+| 6 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 7 | Storage | HIGH | `storage-` |
 
 Reference the appropriate resource file based on the user's needs:
 
@@ -44,15 +42,6 @@ Reference the appropriate resource file based on the user's needs:
 | Auth Hooks         | `references/auth-hooks-*.md`       | Custom JWT claims, send email hooks (HTTP and SQL)       |
 | Server-Side Auth   | `references/auth-server-*.md`      | Admin API, SSR with Next.js/SvelteKit, service role auth |
 
-**CLI** (`cli-`):
-- `references/cli-database-commands.md`
-- `references/cli-decision-guide.md`
-- `references/cli-functions-commands.md`
-- `references/cli-generation-commands.md`
-- `references/cli-gotchas-pitfalls.md`
-- `references/cli-migration-commands.md`
-- `references/cli-project-commands.md`
-- `references/cli-secrets-commands.md`
 
 **Database** (`db-`):
 - `references/db-conn-pooling.md`
@@ -74,19 +63,31 @@ Reference the appropriate resource file based on the user's needs:
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
-| Area               | Resource                        | When to Use                                    |
-| ------------------ | ------------------------------- | ---------------------------------------------- |
-| RLS Security       | `references/db-rls-*.md`        | Row Level Security policies, common mistakes   |
-| Connection Pooling | `references/db-conn-pooling.md` | Transaction vs Session mode, port 6543 vs 5432 |
-| Schema Design      | `references/db-schema-*.md`     | auth.users FKs, timestamps, JSONB, extensions  |
-| Migrations         | `references/db-migrations-*.md` | CLI workflows, idempotent patterns, db diff    |
-| Performance        | `references/db-perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
-| Security           | `references/db-security-*.md`   | Service role key, security_definer functions   |
+**Development** (`dev-`):
+- `references/dev-cli-reference.md`
+- `references/dev-cli-vs-mcp.md`
+- `references/dev-getting-started.md`
+- `references/dev-local-workflow.md`
+- `references/dev-mcp-setup.md`
+- `references/dev-mcp-tools.md`
+- `references/dev-remote-workflow.md`
 
-**MCP** (`mcp-`):
-- `references/mcp-setup-configuration.md`
-- `references/mcp-setup-feature-groups.md`
-- `references/mcp-setup-security.md`
+**Edge Functions** (`edge-`):
+- `references/edge-adv-regional.md`
+- `references/edge-adv-streaming.md`
+- `references/edge-adv-websockets.md`
+- `references/edge-auth-jwt-verification.md`
+- `references/edge-auth-rls-integration.md`
+- `references/edge-db-direct-postgres.md`
+- `references/edge-db-supabase-client.md`
+- `references/edge-dbg-limits.md`
+- `references/edge-dbg-testing.md`
+- `references/edge-fun-project-structure.md`
+- `references/edge-fun-quickstart.md`
+- `references/edge-pat-background-tasks.md`
+- `references/edge-pat-cors.md`
+- `references/edge-pat-error-handling.md`
+- `references/edge-pat-routing.md`
 
 **Realtime** (`realtime-`):
 - `references/realtime-broadcast-basics.md`
@@ -119,14 +120,6 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Realtime
 
-**Tooling** (`tooling-`):
-- `references/tooling-tool-overlap.md`
-- `references/tooling-tool-selection.md`
-- `references/tooling-workflow-function-dev.md`
-- `references/tooling-workflow-local-dev.md`
-- `references/tooling-workflow-migration-create.md`
-- `references/tooling-workflow-type-generation.md`
-
 ---
 
-*94 reference files across 9 categories*
+*84 reference files across 7 categories*
