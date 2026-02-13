@@ -14,8 +14,6 @@ metadata:
 
 Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and provides several language sdks, including supabase-js and supabase-py.
 
-```
-
 ## Overview of Resources
 
 Reference the appropriate resource file based on the user's needs:
@@ -40,6 +38,18 @@ Reference the appropriate resource file based on the user's needs:
 | Presence         | `references/realtime-presence-*.md`  | User online status, shared state tracking       |
 | Postgres Changes | `references/realtime-postgres-*.md`  | Database change listeners (prefer Broadcast)    |
 | Patterns         | `references/realtime-patterns-*.md`  | Cleanup, error handling, React integration      |
+
+### Storage
+
+| Area            | Resource                              | When to Use                                    |
+| --------------- | ------------------------------------- | ---------------------------------------------- |
+| Access Control  | `references/storage-access-control.md`| Bucket policies, RLS for storage               |
+| Standard Upload | `references/storage-upload-standard.md`| File uploads up to 5GB                         |
+| Resumable Upload| `references/storage-upload-resumable.md`| Large file uploads with TUS protocol          |
+| Downloads       | `references/storage-download-urls.md` | Public URLs, signed URLs, download methods     |
+| Transformations | `references/storage-transform-images.md`| Image resize, crop, format conversion         |
+| CDN & Caching   | `references/storage-cdn-caching.md`   | Cache control, Smart CDN, stale content        |
+| File Operations | `references/storage-ops-file-management.md`| Move, copy, delete, list files             |
 
 **CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
 
