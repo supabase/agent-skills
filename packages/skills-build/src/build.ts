@@ -8,7 +8,7 @@ import {
 	unlinkSync,
 	writeFileSync,
 } from "node:fs";
-import { basename, join } from "node:path";
+import { join } from "node:path";
 import {
 	discoverSkills,
 	getSkillPaths,
@@ -93,28 +93,6 @@ function extractSkillBody(content: string): string {
 }
 
 /**
- * Parse the SKILL.md body into its H1 title and the content after it.
- * The first line of the body must be an H1 heading (e.g., "# Supabase").
- * Returns the title text and the remaining body content.
- */
-function parseSkillBodySections(body: string): {
-	title: string | null;
-	content: string;
-} {
-	const lines = body.split("\n");
-	const firstLine = lines[0]?.trim() ?? "";
-
-	const h1Match = firstLine.match(/^#\s+(.+)$/);
-	if (!h1Match) {
-		return { title: null, content: body };
-	}
-
-	// Everything after the H1 line
-	const content = lines.slice(1).join("\n").trim();
-	return { title: h1Match[1].trim(), content };
-}
-
-/**
  * Parse section definitions from a _sections.md file
  */
 function parseSectionsFromFile(filePath: string): Section[] {
@@ -182,22 +160,9 @@ function getReferenceFiles(referencesDir: string): string[] {
 }
 
 /**
- * Convert skill name to title (e.g., "postgres-best-practices" -> "Postgres Best Practices")
+ * Create a symlink, removing any existing file or symlink at the target path
  */
-function skillNameToTitle(skillName: string): string {
-	return skillName
-		.split("-")
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(" ");
-}
-
-/**
- * Create CLAUDE.md symlink pointing to AGENTS.md
- */
-function createClaudeSymlink(paths: SkillPaths): void {
-	const symlinkPath = paths.claudeSymlink;
-
-	// Remove existing symlink or file if it exists
+function createSymlink(symlinkPath: string, target: string): void {
 	if (existsSync(symlinkPath)) {
 		const stat = lstatSync(symlinkPath);
 		if (stat.isSymbolicLink() || stat.isFile()) {
@@ -205,119 +170,31 @@ function createClaudeSymlink(paths: SkillPaths): void {
 		}
 	}
 
-	// Create symlink (relative path so it works across environments)
-	symlinkSync("AGENTS.md", symlinkPath);
-	console.log(`  Created symlink: CLAUDE.md -> AGENTS.md`);
+	symlinkSync(target, symlinkPath);
 }
 
 /**
  * Build AGENTS.md for a specific skill
  *
- * Structure: Title > Structure > Usage > SKILL.md body > Reference Categories > Available References
+ * AGENTS.md = SKILL.md body (frontmatter stripped).
+ * CLAUDE.md = symlink to AGENTS.md.
  */
 function buildSkill(paths: SkillPaths): void {
 	console.log(`[${paths.name}] Building AGENTS.md...`);
 
-	// Read SKILL.md for body content
+	// Read SKILL.md and strip frontmatter
 	const skillContent = existsSync(paths.skillFile)
 		? readFileSync(paths.skillFile, "utf-8")
 		: "";
+	const body = extractSkillBody(skillContent);
 
-	// Parse sections if available
-	const sections = parseAllSections(paths.referencesDir);
-	const referenceFiles = getReferenceFiles(paths.referencesDir);
-
-	const output: string[] = [];
-
-	// Parse SKILL.md body into title + content
-	const skillBody = extractSkillBody(skillContent);
-	const { title: skillTitle, content: skillBodyContent } =
-		parseSkillBodySections(skillBody);
-
-	// 1. Title (from SKILL.md H1 heading)
-	const title = skillTitle || skillNameToTitle(paths.name);
-	output.push(`# ${title}\n`);
-
-	// 2. Structure
-	output.push(`## Structure\n`);
-	output.push("```");
-	output.push(`${paths.name}/`);
-	output.push(`  SKILL.md       # Main skill file`);
-	output.push(`  AGENTS.md      # This file (CLAUDE.md is a symlink)`);
-	if (existsSync(paths.referencesDir)) {
-		output.push(`  references/    # Detailed reference files`);
-	}
-	output.push("```\n");
-
-	// 3. Usage
-	output.push(`## Usage\n`);
-	output.push(
-		`1. Browse \`references/\` for detailed documentation on specific topics`,
-	);
-	output.push(
-		`2. Reference files are loaded on-demand - read only what you need\n`,
-	);
-
-	// 4. Overview (SKILL.md body content after the H1 title)
-	if (skillBodyContent) {
-		output.push(`## Overview\n`);
-		output.push(skillBodyContent);
-		output.push("");
-	}
-
-	// 5. Reference Categories (if available)
-	if (sections.length > 0) {
-		output.push(`## Reference Categories\n`);
-		output.push(`| Priority | Category | Impact | Prefix |`);
-		output.push(`|----------|----------|--------|--------|`);
-		for (const section of sections.sort((a, b) => a.number - b.number)) {
-			output.push(
-				`| ${section.number} | ${section.title} | ${section.impact} | \`${section.prefix}-\` |`,
-			);
-		}
-		output.push("");
-		output.push(
-			`Reference files are named \`{prefix}-{topic}.md\` (e.g., \`query-missing-indexes.md\`).\n`,
-		);
-	}
-
-	// 6. Available References (grouped by section)
-	if (referenceFiles.length > 0) {
-		output.push(`## Available References\n`);
-		const grouped = new Map<string, string[]>();
-
-		for (const file of referenceFiles) {
-			const name = basename(file, ".md");
-			const prefix = name.split("-")[0];
-			const group = grouped.get(prefix) || [];
-			group.push(name);
-			grouped.set(prefix, group);
-		}
-
-		for (const [prefix, files] of grouped) {
-			const section = sections.find((s) => s.prefix === prefix);
-			const title = section ? section.title : prefix;
-			output.push(`**${title}** (\`${prefix}-\`):`);
-			for (const file of files.sort()) {
-				output.push(`- \`references/${file}.md\``);
-			}
-			output.push("");
-		}
-	}
-
-	// Stats
-	output.push(`---\n`);
-	output.push(
-		`*${referenceFiles.length} reference files across ${sections.length} categories*`,
-	);
-
-	// Write AGENTS.md
-	writeFileSync(paths.agentsOutput, output.join("\n"));
+	// Write AGENTS.md (body only, no frontmatter)
+	writeFileSync(paths.agentsOutput, `${body}\n`);
 	console.log(`  Generated: ${paths.agentsOutput}`);
-	console.log(`  Total references: ${referenceFiles.length}`);
 
-	// Create CLAUDE.md symlink
-	createClaudeSymlink(paths);
+	// Create CLAUDE.md -> AGENTS.md symlink
+	createSymlink(paths.claudeSymlink, "AGENTS.md");
+	console.log(`  Created symlink: CLAUDE.md -> AGENTS.md`);
 }
 
 // Run build when executed directly
@@ -365,7 +242,5 @@ export {
 	getMarkdownFilesRecursive, // deprecated, use getMarkdownFiles
 	getReferenceFiles,
 	parseAllSections,
-	parseSkillBodySections,
 	parseSections,
-	skillNameToTitle,
 };

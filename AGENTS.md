@@ -10,7 +10,7 @@ Guidance for AI coding agents working with this repository.
 skills/
   {skill-name}/
     SKILL.md              # Required: skill manifest (Agent Skills spec)
-    AGENTS.md             # Generated: navigation guide for agents
+    AGENTS.md             # Generated: SKILL.md body (frontmatter stripped)
     CLAUDE.md             # Generated: symlink to AGENTS.md
     references/
       _sections.md        # Required: section definitions

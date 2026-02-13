@@ -1,12 +1,10 @@
 import { existsSync, readFileSync } from "node:fs";
 import { basename } from "node:path";
 import {
-	extractSkillBody,
 	generateSectionMap,
 	getMarkdownFiles,
 	parseAllSections,
 	parseSections,
-	parseSkillBodySections,
 } from "./build.js";
 import {
 	discoverSkills,
@@ -167,7 +165,6 @@ function extractSkillName(skillFilePath: string): string | null {
 /**
  * Validate SKILL.md structure:
  * - `name` field matches directory name (kebab-case)
- * - Body starts with an H1 heading (used as AGENTS.md title)
  */
 function validateSkillStructure(paths: SkillPaths): string[] {
 	const errors: string[] = [];
@@ -189,19 +186,6 @@ function validateSkillStructure(paths: SkillPaths): string[] {
 		errors.push(
 			`Directory name "${paths.name}" is not valid kebab-case (lowercase alphanumeric and hyphens only, no leading/trailing/consecutive hyphens)`,
 		);
-	}
-
-	// Validate body starts with H1 heading
-	if (existsSync(paths.skillFile)) {
-		const content = readFileSync(paths.skillFile, "utf-8");
-		const body = extractSkillBody(content);
-		const { title } = parseSkillBodySections(body);
-
-		if (!title) {
-			errors.push(
-				"SKILL.md body must start with an H1 heading (e.g., `# Skill Title`). This heading is used as the AGENTS.md title.",
-			);
-		}
 	}
 
 	return errors;
