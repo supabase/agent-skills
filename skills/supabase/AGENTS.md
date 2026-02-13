@@ -29,7 +29,7 @@ supabase/
 | 1 | Database | CRITICAL | `db-` |
 | 2 | Edge Functions | HIGH | `edge-` |
 | 3 | Realtime | MEDIUM-HIGH | `realtime-` |
-| 4 | Storage | HIGH | `storage-` |
+| 3 | Storage | HIGH | `storage-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -94,4 +94,4 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ---
 
-*48 reference files across 4 categories*
+*49 reference files across 4 categories*
