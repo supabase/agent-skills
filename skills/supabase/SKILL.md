@@ -12,7 +12,7 @@ metadata:
 
 # Supabase
 
-Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and provides several language sdks, including supabase-js and supabase-py.
+Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions.
 
 ## Overview of Resources
 
@@ -94,7 +94,33 @@ Reference the appropriate resource file based on the user's needs:
 | CDN & Caching   | `references/storage-cdn-caching.md`   | Cache control, Smart CDN, stale content        |
 | File Operations | `references/storage-ops-file-management.md`| Move, copy, delete, list files             |
 
-**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
+### Development
+
+| Area            | Resource                            | When to Use                                                    |
+| --------------- | ----------------------------------- | -------------------------------------------------------------- |
+| Getting Started | `references/dev-getting-started.md` | New project setup, CLI install, first-time init                |
+| MCP Setup       | `references/dev-mcp-setup.md`      | Configuring Supabase remote MCP server for hosted projects     |
+| CLI Reference   | `references/dev-cli-reference.md`  | CLI command details, best practices, pitfalls                  |
+| MCP Tools       | `references/dev-mcp-tools.md`      | execute_sql, apply_migration, get_logs, get_advisors           |
+| CLI vs MCP      | `references/dev-cli-vs-mcp.md`     | Choosing between CLI+psql (local) and MCP (remote)             |
+| Local Workflow  | `references/dev-local-workflow.md`  | Developing with local Supabase stack using CLI and psql        |
+| Remote Workflow | `references/dev-remote-workflow.md` | Developing against hosted Supabase project using MCP           |
+
+## Development Guidance
+
+Supabase development uses different tools depending on the environment:
+
+- **Local development** — Use the **CLI** (`npx supabase`) for project management, migrations, and deployment. Use **`psql`** to interact with the local Postgres database (queries, schema iteration, debugging). The local database connection string is available via `npx supabase status`.
+- **Remote project interaction** — Use the **Supabase remote MCP server** (`mcp.supabase.com`). If no Supabase MCP tools are available, check whether the MCP server is configured for the project. If not, fetch the configuration from [Supabase MCP client configuration](https://supabase.com/docs/guides/getting-started/mcp#step-2-configure-your-ai-tool), configure it for the current AI tool, and ask the user to authenticate via the browser OAuth flow. See [dev-mcp-setup.md](references/dev-mcp-setup.md) for details.
+
+When the user's project has no `supabase/` directory, start with the getting-started guide. When it already exists, pick up from the appropriate workflow (local or remote) based on user intentions.
+
+- **CLI is the default tool for local development.** All commands prefixed with `npx supabase`.
+- **`psql` is for database interaction locally.** Use it to run queries, iterate on schema, debug, and explore data against the local Postgres instance.
+- **MCP is for remote project interaction.** Use `execute_sql` for non-schema-changing SQL (queries, data exploration, debugging). Use `get_logs` and `get_advisors` for debugging and health checks.
+- **Schema changes go through migrations.** Locally, iterate with `psql`, capture with `npx supabase db diff -f "name"`, verify with `npx supabase db reset`.
+- **Deploy migrations with `npx supabase db push`.** Always ask for user permission before pushing to the remote project. Only use MCP `apply_migration` as a last resort for schema mismatch issues that CLI cannot resolve.
+- **After any schema change:** Generate types with `npx supabase gen types`.
 
 ## Supabase Documentation
 
@@ -111,3 +137,4 @@ curl https://supabase.com/llms/guides.txt
 
 # Fetch JavaScript SDK reference
 curl https://supabase.com/llms/js.txt
+```
