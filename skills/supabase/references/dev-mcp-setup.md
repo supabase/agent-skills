@@ -9,21 +9,22 @@ tags: mcp, setup, configuration, oauth, security, remote
 
 The Supabase remote MCP server (`mcp.supabase.com`) provides authenticated access to hosted Supabase projects for database queries, logs, and advisors. It is only used for **remote project interaction** — local development uses CLI and `psql` instead.
 
-**Scoped features (recommended — use CLI for everything else):**
+**Incorrect:**
 
+```text
+# Enabling all features when using CLI alongside MCP
+https://mcp.supabase.com/mcp
+# Agents see overlapping tools for deploy, types, etc.
 ```
+
+**Correct:**
+
+```text
+# Scope to database and debugging only — CLI handles everything else
 https://mcp.supabase.com/mcp?features=database,debugging
 ```
 
-Only database and debugging tools available. Avoids overlap with CLI for deploy, type generation, and project management.
-
-**All features:**
-
-```
-https://mcp.supabase.com/mcp
-```
-
-All features enabled. Use only when MCP is the primary way to interact with Supabase.
+Only database and debugging tools available. Avoids overlap with CLI for deploy, type generation, and project management. Use the full URL (`https://mcp.supabase.com/mcp`) only when MCP is the primary way to interact with Supabase.
 
 ## Self-Configuration for Agents
 
