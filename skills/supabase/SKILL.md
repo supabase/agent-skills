@@ -12,7 +12,7 @@ metadata:
 
 # Supabase
 
-Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and provides several language sdks, including supabase-js and supabase-py.
+Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions.
 
 ## Overview of Resources
 
@@ -137,3 +137,4 @@ curl https://supabase.com/llms/guides.txt
 
 # Fetch JavaScript SDK reference
 curl https://supabase.com/llms/js.txt
+```
