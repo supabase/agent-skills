@@ -29,6 +29,26 @@ Reference the appropriate resource file based on the user's needs:
 | Performance        | `references/db-perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
 | Security           | `references/db-security-*.md`   | Service role key, security_definer functions   |
 
+### Edge Functions
+
+| Area                   | Resource                              | When to Use                            |
+| ---------------------- | ------------------------------------- | -------------------------------------- |
+| Quick Start            | `references/edge-fun-quickstart.md`   | Creating and deploying first function  |
+| Project Structure      | `references/edge-fun-project-structure.md` | Directory layout, shared code, fat functions |
+| JWT Authentication     | `references/edge-auth-jwt-verification.md` | JWT verification, jose library, middleware |
+| RLS Integration        | `references/edge-auth-rls-integration.md` | Passing auth context, user-scoped queries |
+| Database (supabase-js) | `references/edge-db-supabase-client.md` | Queries, inserts, RPC calls          |
+| Database (Direct)      | `references/edge-db-direct-postgres.md` | Postgres pools, Drizzle ORM          |
+| CORS                   | `references/edge-pat-cors.md`         | Browser requests, preflight handling   |
+| Routing                | `references/edge-pat-routing.md`      | Multi-route functions, Hono framework  |
+| Error Handling         | `references/edge-pat-error-handling.md` | Error responses, validation          |
+| Background Tasks       | `references/edge-pat-background-tasks.md` | waitUntil, async processing        |
+| Streaming              | `references/edge-adv-streaming.md`    | SSE, streaming responses               |
+| WebSockets             | `references/edge-adv-websockets.md`   | Bidirectional communication            |
+| Regional Invocation    | `references/edge-adv-regional.md`     | Region selection, latency optimization |
+| Testing                | `references/edge-dbg-testing.md`      | Deno tests, local testing              |
+| Limits & Debugging     | `references/edge-dbg-limits.md`       | Troubleshooting, runtime limits        |
+
 ### Realtime
 
 | Area             | Resource                             | When to Use                                     |

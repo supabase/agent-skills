@@ -27,7 +27,8 @@ supabase/
 | Priority | Category | Impact | Prefix |
 |----------|----------|--------|--------|
 | 1 | Database | CRITICAL | `db-` |
-| 2 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 2 | Edge Functions | HIGH | `edge-` |
+| 3 | Realtime | MEDIUM-HIGH | `realtime-` |
 | 3 | Storage | HIGH | `storage-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
@@ -54,6 +55,23 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/db-security-functions.md`
 - `references/db-security-service-role.md`
 
+**Edge Functions** (`edge-`):
+- `references/edge-adv-regional.md`
+- `references/edge-adv-streaming.md`
+- `references/edge-adv-websockets.md`
+- `references/edge-auth-jwt-verification.md`
+- `references/edge-auth-rls-integration.md`
+- `references/edge-db-direct-postgres.md`
+- `references/edge-db-supabase-client.md`
+- `references/edge-dbg-limits.md`
+- `references/edge-dbg-testing.md`
+- `references/edge-fun-project-structure.md`
+- `references/edge-fun-quickstart.md`
+- `references/edge-pat-background-tasks.md`
+- `references/edge-pat-cors.md`
+- `references/edge-pat-error-handling.md`
+- `references/edge-pat-routing.md`
+
 **Realtime** (`realtime-`):
 - `references/realtime-broadcast-basics.md`
 - `references/realtime-broadcast-database.md`
@@ -76,4 +94,4 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ---
 
-*34 reference files across 3 categories*
+*49 reference files across 4 categories*
