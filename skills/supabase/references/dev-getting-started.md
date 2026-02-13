@@ -2,7 +2,7 @@
 title: Getting Started with Supabase
 impact: CRITICAL
 impactDescription: Required setup for any new Supabase project — blocks all other development
-tags: setup, init, start, install, docker, link
+tags: setup, init, start, install, docker, link, psql
 ---
 
 ## Getting Started with Supabase
@@ -27,7 +27,8 @@ npx supabase start
 ## Prerequisites
 
 - **Docker Desktop** installed and running (`docker version` to verify). Required for `supabase start`.
-- **Node.js** installed.
+- **Node.js** >= v20 installed.
+- **psql** (PostgreSQL client) installed. Used for local database interaction. Verify with `psql --version`.
 
 ## Install the CLI
 
@@ -85,11 +86,21 @@ Exclude unused services to speed up startup:
 npx supabase start -x gotrue,imgproxy
 ```
 
+## Connect to Local Database
+
+After starting the local stack, use `psql` to interact with the local Postgres database. The DB URL is shown in the `supabase start` output. Default:
+
+```bash
+psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+```
+
+Always verify the DB URL with `npx supabase status` — the port may differ if customized in `config.toml`.
+
 ## Verify
 
 ```bash
-npx supabase status            # Display status table
-npx supabase status -o env     # Export as environment variables
+npx supabase status            # Display status table (includes DB URL)
+npx supabase status -o env     # Export credentials as environment variables
 ```
 
 ## Environment Setup

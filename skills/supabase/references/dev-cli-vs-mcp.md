@@ -1,68 +1,86 @@
 ---
-title: CLI vs MCP Decision Guide
+title: CLI + psql vs MCP Decision Guide
 impact: CRITICAL
-impactDescription: Prevents agents from using wrong tool for each operation
-tags: cli, mcp, decision, tool-selection
+impactDescription: Prevents agents from using wrong tool for each operation and environment
+tags: cli, psql, mcp, decision, tool-selection, local, remote
 ---
 
-## CLI vs MCP Decision Guide
+## CLI + psql vs MCP Decision Guide
 
-**Recommended approach: CLI is the default for project management, migrations, deployment, and code generation.** MCP is preferred for running SQL (`execute_sql`), debugging (`get_logs`), and advisory (`get_advisors`). Users who prefer MCP as their primary interface can use it for all operations.
+**Local development uses CLI and `psql`. Remote project interaction uses the Supabase MCP server for database queries, logs, and advisors — and CLI for everything else (migrations, deployments, type generation).**
 
-**Recommended (CLI + MCP):**
+**Incorrect:**
 
 ```bash
-# CLI for deploy and type generation
-npx supabase functions deploy api-handler
-npx supabase gen types --lang typescript --local > types.ts
+# Using MCP execute_sql for local database interaction
+execute_sql({ query: "SELECT * FROM posts" })  # Wrong — use psql locally
 
-# MCP for SQL iteration and debugging (no CLI equivalent)
-execute_sql({ project_id: "ref", query: "SELECT 1" })
-get_logs({ project_id: "ref", service: "api" })
-get_advisors({ project_id: "ref" })
+# Using psql to connect to the remote hosted database
+psql "postgresql://..." -c "SELECT * FROM posts"  # Wrong — use MCP for remote
 ```
 
-## MCP-Only Capabilities (No CLI Equivalent)
+**Correct:**
 
-Available via the remote MCP server (`mcp.supabase.com`) for hosted projects and the local MCP server (`localhost:54321/mcp`) for the local stack.
+```bash
+# Local: use psql for database interaction
+psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -c "SELECT * FROM posts"
 
-| MCP Tool | Use For |
-| --- | --- |
-| `execute_sql` | Run SQL against local or remote database. CLI cannot execute SQL. |
-| `get_logs` | Retrieve service logs (postgres, api, edge_functions, auth, storage, realtime) |
-| `get_advisors` | Security and performance recommendations |
+# Remote: use MCP execute_sql for database interaction
+execute_sql({ project_id: "ref", query: "SELECT * FROM posts" })
+```
 
-## CLI-Recommended Operations
+## Local Development: CLI + psql
 
-| Operation | CLI Command |
-| --- | --- |
-| Initialize project | `npx supabase init` |
-| Start local stack | `npx supabase start` |
-| Stop local stack | `npx supabase stop` |
-| Link to remote | `npx supabase link` |
-| Create migration file | `npx supabase migration new` |
-| Generate diff | `npx supabase db diff` |
-| Push migrations | `npx supabase db push` |
-| Pull schema | `npx supabase db pull` |
-| Reset database | `npx supabase db reset` |
-| Fetch migrations | `npx supabase migration fetch` |
-| List migration status | `npx supabase migration list` |
-| Deploy functions | `npx supabase functions deploy` |
-| Serve functions locally | `npx supabase functions serve` |
-| Set secrets | `npx supabase secrets set` |
-| Generate types | `npx supabase gen types` |
+| Operation | Tool | Command |
+| --- | --- | --- |
+| Initialize project | CLI | `npx supabase init` |
+| Start local stack | CLI | `npx supabase start` |
+| Stop local stack | CLI | `npx supabase stop` |
+| Run SQL queries | psql | `psql "$DB_URL" -c "SELECT ..."` |
+| Iterate on schema | psql | `psql "$DB_URL" -c "CREATE TABLE ..."` |
+| Capture schema changes | CLI | `npx supabase db diff -f "name"` |
+| Create empty migration | CLI | `npx supabase migration new` |
+| Verify migrations replay | CLI | `npx supabase db reset` |
+| Generate types | CLI | `npx supabase gen types --lang typescript --local > types.ts` |
+| Serve functions locally | CLI | `npx supabase functions serve` |
+
+Get the local database URL from `npx supabase status`. The default is `postgresql://postgres:postgres@127.0.0.1:54322/postgres`.
+
+## Remote Project: MCP + CLI
+
+Use the **Supabase remote MCP server** for database queries, logs, and advisors. Use **CLI** for all deployment, migration, and management operations.
+
+### MCP (database interaction and debugging)
+
+| Operation | Tool | Command |
+| --- | --- | --- |
+| Run SQL queries (non-schema) | MCP | `execute_sql({ project_id, query })` |
+| View service logs | MCP | `get_logs({ project_id, service })` |
+| Security/performance check | MCP | `get_advisors({ project_id })` |
+| Inspect tables | MCP | `list_tables({ project_id })` |
+| List migrations | MCP | `list_migrations({ project_id })` |
+
+### CLI (deployment and management)
+
+| Operation | Tool | Command |
+| --- | --- | --- |
+| Push migrations to remote | CLI | `npx supabase db push` |
+| Pull schema from remote | CLI | `npx supabase db pull` |
+| Deploy functions | CLI | `npx supabase functions deploy` |
+| Set secrets | CLI | `npx supabase secrets set` |
+| Generate types from remote | CLI | `npx supabase gen types --lang typescript --linked > types.ts` |
 
 ## Migration Deployment Decision Tree
 
 ```text
 Deploy migrations to remote?
-└── npx supabase db push (always preferred)
+└── npx supabase db push (always preferred — ask user permission first!)
 
 db push fails due to migration mismatch?
 ├── Try: npx supabase migration repair --status applied <version>
 └── Still broken?
     └── Stop and ask user for consent
-        └── MCP apply_migration
+        └── MCP apply_migration (last resort only)
             └── npx supabase migration fetch --yes (sync locally)
 ```
 
@@ -74,9 +92,18 @@ db push fails due to migration mismatch?
 2. **Always ask the user** before using `apply_migration` on remote
 3. **Always sync after** with `npx supabase migration fetch --yes`
 
-## Why We Recommend CLI for These Operations
+## Schema Changes: Always Through Migrations
 
-1. **File-based workflows** — CLI works with local migration files and function code
-2. **CI/CD integration** — CLI integrates naturally with pipelines
-3. **Offline work** — CLI works without network for local operations
-4. **Consistent tooling** — one tool for all operations rather than mixing MCP and CLI
+Use `execute_sql` on the remote MCP server only for **non-schema-changing SQL** (SELECT queries, data exploration, debugging RLS policies). Schema changes on the remote project must go through the migration workflow:
+
+1. Write or capture migrations locally (via `psql` + `db diff`, or `migration new`)
+2. Preview with `npx supabase db push --dry-run`
+3. Ask the user for permission
+4. Deploy with `npx supabase db push`
+
+## Why This Split
+
+1. **Local = CLI + psql** — Fast iteration, no network dependency, file-based migration workflow, CI/CD friendly
+2. **Remote = MCP for queries/logs/advisors** — Authenticated access to hosted project data that CLI cannot provide
+3. **Remote = CLI for deployments** — `db push`, `functions deploy`, `secrets set`, and `gen types` all use CLI for consistent file-based workflows
+4. **Migrations always via CLI** — `db push` ensures local and remote migration history stay in sync
