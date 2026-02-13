@@ -28,8 +28,9 @@ supabase/
 |----------|----------|--------|--------|
 | 1 | Database | CRITICAL | `db-` |
 | 2 | Edge Functions | HIGH | `edge-` |
-| 3 | Realtime | MEDIUM-HIGH | `realtime-` |
-| 3 | Storage | HIGH | `storage-` |
+| 3 | SDK | HIGH | `sdk-` |
+| 4 | Realtime | MEDIUM-HIGH | `realtime-` |
+| 5 | Storage | HIGH | `storage-` |
 
 Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
 
@@ -83,6 +84,21 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/realtime-setup-auth.md`
 - `references/realtime-setup-channels.md`
 
+**SDK** (`sdk-`):
+- `references/sdk-client-browser.md`
+- `references/sdk-client-config.md`
+- `references/sdk-client-server.md`
+- `references/sdk-error-handling.md`
+- `references/sdk-framework-nextjs.md`
+- `references/sdk-perf-queries.md`
+- `references/sdk-perf-realtime.md`
+- `references/sdk-query-crud.md`
+- `references/sdk-query-filters.md`
+- `references/sdk-query-joins.md`
+- `references/sdk-query-rpc.md`
+- `references/sdk-ts-generation.md`
+- `references/sdk-ts-usage.md`
+
 **Storage** (`storage-`):
 - `references/storage-access-control.md`
 - `references/storage-cdn-caching.md`
@@ -94,4 +110,4 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 
 ---
 
-*49 reference files across 4 categories*
+*62 reference files across 5 categories*

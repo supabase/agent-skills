@@ -59,6 +59,17 @@ Reference the appropriate resource file based on the user's needs:
 | Postgres Changes | `references/realtime-postgres-*.md`  | Database change listeners (prefer Broadcast)    |
 | Patterns         | `references/realtime-patterns-*.md`  | Cleanup, error handling, React integration      |
 
+### SDK (supabase-js)
+
+| Area            | Resource                        | When to Use                               |
+| --------------- | ------------------------------- | ----------------------------------------- |
+| Client Setup    | `references/sdk-client-*.md`    | Browser/server client, SSR, configuration |
+| TypeScript      | `references/sdk-ts-*.md`        | Type generation, using Database types     |
+| Query Patterns  | `references/sdk-query-*.md`     | CRUD, filters, joins, RPC calls           |
+| Error Handling  | `references/sdk-error-*.md`     | Error types, retries, handling patterns   |
+| SDK Performance | `references/sdk-perf-*.md`      | Query optimization, realtime cleanup      |
+| Framework       | `references/sdk-framework-*.md` | Next.js App Router, middleware setup      |
+
 ### Storage
 
 | Area            | Resource                              | When to Use                                    |
