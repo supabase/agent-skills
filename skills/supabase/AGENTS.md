@@ -55,7 +55,6 @@ Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md
 - `references/auth-server-ssr.md`
 - `references/auth-sso-saml.md`
 
-
 **Database** (`db-`):
 - `references/db-conn-pooling.md`
 - `references/db-migrations-diff.md`
