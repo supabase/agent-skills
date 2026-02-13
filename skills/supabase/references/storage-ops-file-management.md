@@ -83,7 +83,7 @@ await supabase.storage
   .move('old/path/file.jpg', 'new/path/file.jpg');
 ```
 
-Requires SELECT on source and INSERT on destination via RLS.
+Requires SELECT on source and UPDATE on destination via RLS.
 
 ## Copy Files
 
@@ -95,7 +95,8 @@ await supabase.storage
   .copy('source/file.jpg', 'destination/file.jpg');
 ```
 
-Requires SELECT on source and INSERT on destination via RLS.
+Requires SELECT on source and INSERT on destination via RLS. With upsert,
+additionally requires UPDATE.
 
 ## List Files
 

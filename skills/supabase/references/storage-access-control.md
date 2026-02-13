@@ -111,8 +111,9 @@ with check (bucket_id = 'public-assets');
 | download   | SELECT        |
 | list       | SELECT        |
 | remove     | DELETE          |
-| move       | SELECT + INSERT |
+| move       | SELECT + UPDATE |
 | copy       | SELECT + INSERT |
+| copy (upsert) | SELECT + INSERT + UPDATE |
 
 ## Related
 
