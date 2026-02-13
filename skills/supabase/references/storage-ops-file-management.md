@@ -46,13 +46,12 @@ each subfolder. The default `list()` limit is 100 — paginate for larger folder
 
 ```javascript
 async function deleteFolderContents(bucket, folder) {
-  let offset = 0;
   const limit = 100;
 
   while (true) {
     const { data: items } = await supabase.storage
       .from(bucket)
-      .list(folder, { limit, offset });
+      .list(folder, { limit, offset: 0 });
 
     if (!items?.length) break;
 
@@ -70,8 +69,6 @@ async function deleteFolderContents(bucket, folder) {
         .from(bucket)
         .remove(files.map(f => `${folder}/${f.name}`));
     }
-
-    offset += limit;
   }
 }
 ```
