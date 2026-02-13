@@ -1,10 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { basename } from "node:path";
 import {
+	extractSkillBody,
 	generateSectionMap,
 	getMarkdownFiles,
 	parseAllSections,
 	parseSections,
+	parseSkillBodySections,
 } from "./build.js";
 import {
 	discoverSkills,
@@ -163,8 +165,20 @@ function extractSkillName(skillFilePath: string): string | null {
 }
 
 /**
+ * Convert a title to kebab-case (e.g., "Supabase Postgres Best Practices" -> "supabase-postgres-best-practices")
+ */
+function titleToKebab(title: string): string {
+	return title
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-|-$/g, "");
+}
+
+/**
  * Validate SKILL.md structure:
  * - `name` field matches directory name (kebab-case)
+ * - Body starts with an H1 heading
+ * - H1 title in kebab-case matches directory name
  */
 function validateSkillStructure(paths: SkillPaths): string[] {
 	const errors: string[] = [];
@@ -186,6 +200,26 @@ function validateSkillStructure(paths: SkillPaths): string[] {
 		errors.push(
 			`Directory name "${paths.name}" is not valid kebab-case (lowercase alphanumeric and hyphens only, no leading/trailing/consecutive hyphens)`,
 		);
+	}
+
+	// Validate body starts with H1 and title matches directory name in kebab-case
+	if (existsSync(paths.skillFile)) {
+		const content = readFileSync(paths.skillFile, "utf-8");
+		const body = extractSkillBody(content);
+		const { title } = parseSkillBodySections(body);
+
+		if (!title) {
+			errors.push(
+				"SKILL.md body must start with an H1 heading (e.g., `# Skill Title`)",
+			);
+		} else {
+			const kebabTitle = titleToKebab(title);
+			if (kebabTitle !== paths.name) {
+				errors.push(
+					`H1 title "${title}" in kebab-case is "${kebabTitle}", but directory name is "${paths.name}"`,
+				);
+			}
+		}
 	}
 
 	return errors;

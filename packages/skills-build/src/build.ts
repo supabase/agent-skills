@@ -160,6 +160,26 @@ function getReferenceFiles(referencesDir: string): string[] {
 }
 
 /**
+ * Parse the SKILL.md body into its H1 title and the content after it.
+ * Returns the title text and the remaining body content.
+ */
+function parseSkillBodySections(body: string): {
+	title: string | null;
+	content: string;
+} {
+	const lines = body.split("\n");
+	const firstLine = lines[0]?.trim() ?? "";
+
+	const h1Match = firstLine.match(/^#\s+(.+)$/);
+	if (!h1Match) {
+		return { title: null, content: body };
+	}
+
+	const content = lines.slice(1).join("\n").trim();
+	return { title: h1Match[1].trim(), content };
+}
+
+/**
  * Create a symlink, removing any existing file or symlink at the target path
  */
 function createSymlink(symlinkPath: string, target: string): void {
@@ -176,7 +196,7 @@ function createSymlink(symlinkPath: string, target: string): void {
 /**
  * Build AGENTS.md for a specific skill
  *
- * AGENTS.md = SKILL.md body (frontmatter stripped).
+ * Structure: H1 Title > Structure > Usage > rest of SKILL.md body
  * CLAUDE.md = symlink to AGENTS.md.
  */
 function buildSkill(paths: SkillPaths): void {
@@ -187,9 +207,45 @@ function buildSkill(paths: SkillPaths): void {
 		? readFileSync(paths.skillFile, "utf-8")
 		: "";
 	const body = extractSkillBody(skillContent);
+	const { title, content: skillBodyContent } = parseSkillBodySections(body);
 
-	// Write AGENTS.md (body only, no frontmatter)
-	writeFileSync(paths.agentsOutput, `${body}\n`);
+	const output: string[] = [];
+
+	// 1. Title (from SKILL.md H1)
+	if (title) {
+		output.push(`# ${title}\n`);
+	}
+
+	// 2. Structure
+	output.push(`## Structure\n`);
+	output.push("```");
+	output.push(`${paths.name}/`);
+	output.push(`  SKILL.md       # Main skill file - read this first`);
+	output.push(`  AGENTS.md      # This navigation guide`);
+	output.push(`  CLAUDE.md      # Symlink to AGENTS.md`);
+	if (existsSync(paths.referencesDir)) {
+		output.push(`  references/    # Detailed reference files`);
+	}
+	output.push("```\n");
+
+	// 3. Usage
+	output.push(`## Usage\n`);
+	output.push(`1. Read \`SKILL.md\` for the main skill instructions`);
+	output.push(
+		`2. Browse \`references/\` for detailed documentation on specific topics`,
+	);
+	output.push(
+		`3. Reference files are loaded on-demand - read only what you need\n`,
+	);
+
+	// 4. Rest of SKILL.md body (after H1 title)
+	if (skillBodyContent) {
+		output.push(skillBodyContent);
+		output.push("");
+	}
+
+	// Write AGENTS.md
+	writeFileSync(paths.agentsOutput, output.join("\n"));
 	console.log(`  Generated: ${paths.agentsOutput}`);
 
 	// Create CLAUDE.md -> AGENTS.md symlink
@@ -242,5 +298,6 @@ export {
 	getMarkdownFilesRecursive, // deprecated, use getMarkdownFiles
 	getReferenceFiles,
 	parseAllSections,
+	parseSkillBodySections,
 	parseSections,
 };
