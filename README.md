@@ -5,7 +5,7 @@
 
 Agent Skills to help developers using AI agents with Supabase. Agent Skills are
 folders of instructions, scripts, and resources that agents like Claude Code,
-Cursor, Github Copilot, etc... can discover and use to do things more accurately
+Cursor, Github Copilot, AdaL, etc... can discover and use to do things more accurately
 and efficiently.
 
 The skills in this repo follow the [Agent Skills](https://agentskills.io/)
