@@ -1,7 +1,5 @@
 ---
 title: Use Correct Connection Pooling Mode
-impact: CRITICAL
-impactDescription: Prevents connection exhaustion and enables 10-100x scalability
 tags: connection-pooling, supavisor, transaction-mode, session-mode
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Send and Receive Broadcast Messages
-impact: HIGH
-impactDescription: Core pattern for real-time client-to-client messaging
 tags: realtime, broadcast, send, receive, subscribe
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Implement Email and Phone OTP
-impact: MEDIUM-HIGH
-impactDescription: OTP codes avoid link prefetching issues and work better for mobile apps
 tags: auth, passwordless, otp, email, phone, sms
 ---
 

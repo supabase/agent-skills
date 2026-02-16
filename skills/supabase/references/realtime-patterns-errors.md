@@ -1,7 +1,5 @@
 ---
 title: Handle Realtime Errors and Connection Issues
-impact: HIGH
-impactDescription: Enables graceful handling of connection failures
 tags: realtime, errors, subscribe, status, reconnection
 ---
 

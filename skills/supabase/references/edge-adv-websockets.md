@@ -1,7 +1,5 @@
 ---
 title: WebSocket Handling
-impact: MEDIUM
-impactDescription: Enables bidirectional real-time communication
 tags: edge-functions, websockets, realtime, bidirectional
 ---
 

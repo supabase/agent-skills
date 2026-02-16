@@ -1,7 +1,5 @@
 ---
 title: RPC - Calling Postgres Functions
-impact: MEDIUM
-impactDescription: Enables complex server-side logic via Postgres functions
 tags: rpc, postgres-functions, stored-procedures, plpgsql
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Error Handling Patterns
-impact: MEDIUM-HIGH
-impactDescription: Prevents runtime errors and enables proper error recovery
 tags: error, error-handling, retry, FunctionsHttpError, try-catch
 ---
 

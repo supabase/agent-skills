@@ -1,7 +1,5 @@
 ---
 title: Always Use timestamptz Not timestamp
-impact: MEDIUM-HIGH
-impactDescription: Prevents timezone-related bugs and data inconsistencies
 tags: timestamps, timestamptz, timezone, data-types
 ---
 

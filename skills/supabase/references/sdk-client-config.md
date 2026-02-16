@@ -1,7 +1,5 @@
 ---
 title: Client Configuration Options
-impact: MEDIUM-HIGH
-impactDescription: Enables custom auth storage, fetch behavior, and schema selection
 tags: configuration, auth, fetch, storage, schema, react-native
 ---
 

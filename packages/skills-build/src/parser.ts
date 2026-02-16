@@ -237,11 +237,11 @@ export function parseRuleFile(
 			return { success: false, errors, warnings };
 		}
 
-		// Get impact level
-		const impact = frontmatter.impact as ImpactLevel;
-		if (!impact || !IMPACT_LEVELS.includes(impact)) {
+		// Validate impact level when provided
+		const impact = frontmatter.impact as ImpactLevel | undefined;
+		if (impact && !IMPACT_LEVELS.includes(impact)) {
 			errors.push(
-				`Invalid or missing impact level: ${impact}. Must be one of: ${IMPACT_LEVELS.join(", ")}`,
+				`Invalid impact level: ${impact}. Must be one of: ${IMPACT_LEVELS.join(", ")}`,
 			);
 			return { success: false, errors, warnings };
 		}

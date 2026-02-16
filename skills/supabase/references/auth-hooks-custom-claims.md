@@ -1,7 +1,5 @@
 ---
 title: Add Custom Claims to JWT via Auth Hooks
-impact: HIGH
-impactDescription: Custom claims enable role-based access without database lookups in every request
 tags: auth, hooks, jwt, claims, rbac, roles, permissions
 ---
 

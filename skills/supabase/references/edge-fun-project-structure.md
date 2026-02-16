@@ -1,7 +1,5 @@
 ---
 title: Project Structure and Organization
-impact: HIGH
-impactDescription: Proper organization reduces cold starts and improves maintainability
 tags: edge-functions, structure, shared, organization
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Realtime Performance and Cleanup
-impact: HIGH
-impactDescription: Prevents memory leaks and ensures reliable subscriptions
 tags: realtime, subscriptions, cleanup, channels, broadcast, postgres-changes
 ---
 

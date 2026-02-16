@@ -1,7 +1,5 @@
 ---
 title: Streaming Responses
-impact: MEDIUM
-impactDescription: Enables real-time data delivery and AI response streaming
 tags: edge-functions, streaming, sse, server-sent-events
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Implement Phone-Based MFA
-impact: MEDIUM-HIGH
-impactDescription: Phone MFA provides alternative second factor for users without authenticator apps
 tags: auth, mfa, phone, sms, whatsapp, 2fa
 ---
 

@@ -19,7 +19,7 @@ export interface Rule {
 	title: string;
 	section: number;
 	subsection?: number;
-	impact: ImpactLevel;
+	impact?: ImpactLevel;
 	impactDescription?: string;
 	explanation: string;
 	examples: CodeExample[];
@@ -32,7 +32,7 @@ export interface Section {
 	number: number;
 	title: string;
 	prefix: string;
-	impact: ImpactLevel;
+	impact?: ImpactLevel;
 	description: string;
 }
 

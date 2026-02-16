@@ -1,7 +1,5 @@
 ---
 title: CORS Configuration
-impact: HIGH
-impactDescription: Required for browser-based function invocation
 tags: edge-functions, cors, browser, preflight
 ---
 

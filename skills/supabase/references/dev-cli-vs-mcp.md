@@ -1,7 +1,5 @@
 ---
 title: CLI + psql vs MCP Decision Guide
-impact: CRITICAL
-impactDescription: Prevents agents from using wrong tool for each operation and environment
 tags: cli, psql, mcp, decision, tool-selection, local, remote, sdk
 ---
 

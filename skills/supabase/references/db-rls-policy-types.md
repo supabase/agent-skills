@@ -1,7 +1,5 @@
 ---
 title: Use RESTRICTIVE vs PERMISSIVE Policies
-impact: MEDIUM-HIGH
-impactDescription: Controls policy combination logic to prevent unintended access
 tags: rls, policies, permissive, restrictive
 ---
 

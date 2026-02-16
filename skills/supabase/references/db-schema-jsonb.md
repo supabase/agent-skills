@@ -1,7 +1,5 @@
 ---
 title: Use Structured Columns Over JSONB When Possible
-impact: MEDIUM
-impactDescription: Improves query performance, type safety, and data integrity
 tags: jsonb, json, schema-design, performance
 ---
 

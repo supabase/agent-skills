@@ -1,7 +1,5 @@
 ---
 title: Clean Up Channels to Prevent Memory Leaks
-impact: CRITICAL
-impactDescription: Prevents memory leaks and connection quota exhaustion
 tags: realtime, cleanup, react, lifecycle, removeChannel
 ---
 

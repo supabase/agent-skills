@@ -1,7 +1,5 @@
 ---
 title: Choose the Right Download Method
-impact: MEDIUM
-impactDescription: Ensures correct file access for public and private content
 tags: storage, download, signed-url, public-url, getPublicUrl
 ---
 

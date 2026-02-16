@@ -1,7 +1,5 @@
 ---
 title: Remote Development Workflow
-impact: CRITICAL
-impactDescription: Development workflow for interacting with hosted Supabase projects
 tags: remote, hosted, workflow, deploy, link, mcp
 ---
 

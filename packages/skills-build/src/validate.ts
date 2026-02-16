@@ -11,7 +11,6 @@ import {
 import {
 	discoverSkills,
 	getSkillPaths,
-	IMPACT_LEVELS,
 	type SkillPaths,
 	validateSkillExists,
 } from "./config.js";
@@ -121,20 +120,6 @@ export function validateRuleFile(
 				);
 			}
 		}
-	}
-
-	// Validate impact level
-	if (!IMPACT_LEVELS.includes(rule.impact)) {
-		errors.push(
-			`Invalid impact level: ${rule.impact}. Must be one of: ${IMPACT_LEVELS.join(", ")}`,
-		);
-	}
-
-	// Warning for missing impact description
-	if (!rule.impactDescription) {
-		warnings.push(
-			"Missing impactDescription (recommended for quantifying benefit)",
-		);
 	}
 
 	return {

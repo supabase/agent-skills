@@ -1,7 +1,5 @@
 ---
 title: Choose the Right Index Type
-impact: CRITICAL
-impactDescription: 10-1000x query performance improvements with proper indexing
 tags: indexes, performance, btree, brin, gin, partial
 ---
 

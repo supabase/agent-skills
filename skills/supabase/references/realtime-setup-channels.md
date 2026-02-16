@@ -1,7 +1,5 @@
 ---
 title: Create and Configure Realtime Channels
-impact: HIGH
-impactDescription: Proper channel setup enables reliable real-time communication
 tags: realtime, channels, configuration, topics, naming
 ---
 

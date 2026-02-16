@@ -1,7 +1,5 @@
 ---
 title: Getting Started with Supabase
-impact: CRITICAL
-impactDescription: Required setup for any new Supabase project — blocks all other development
 tags: setup, init, start, install, docker, link, psql
 ---
 

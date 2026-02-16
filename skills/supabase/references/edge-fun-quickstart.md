@@ -1,7 +1,5 @@
 ---
 title: Edge Functions Quick Start
-impact: CRITICAL
-impactDescription: Foundation for all Edge Function development
 tags: edge-functions, quickstart, deployment, cli, deno
 ---
 

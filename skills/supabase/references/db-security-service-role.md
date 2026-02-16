@@ -1,7 +1,5 @@
 ---
 title: Never Expose Service Role Key to Browser
-impact: CRITICAL
-impactDescription: Prevents complete database compromise and data breach
 tags: service-role, security, api-keys, anon-key
 ---
 

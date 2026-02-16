@@ -1,7 +1,5 @@
 ---
 title: Local Development Workflow
-impact: CRITICAL
-impactDescription: Standard development cycle using local Supabase stack with CLI, psql, and supabase-js
 tags: local, development, workflow, iteration, docker, psql, cli, sdk
 ---
 
