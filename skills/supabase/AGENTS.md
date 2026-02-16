@@ -4,25 +4,55 @@
 
 ```
 supabase/
-  SKILL.md       # Main skill file
-  AGENTS.md      # This file (CLAUDE.md is a symlink)
+  SKILL.md       # Main skill file - read this first
+  AGENTS.md      # This navigation guide
+  CLAUDE.md      # Symlink to AGENTS.md
   references/    # Detailed reference files
 ```
 
 ## Usage
 
-1. Browse `references/` for detailed documentation on specific topics
-2. Reference files are loaded on-demand - read only what you need
-
-## Overview
+1. Read `SKILL.md` for the main skill instructions
+2. Browse `references/` for detailed documentation on specific topics
+3. Reference files are loaded on-demand - read only what you need
 
 Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions.
 
+## Development Guidance
+
+**Before performing any Supabase development task, read the development reference files.** They define which tools to use, how to interact with Supabase instances, and the correct workflows for local and remote development. Getting these wrong leads to schema drift, migration conflicts, and broken deployments.
+
+- **Which tool to use for each operation** — read [references/dev-cli-vs-mcp.md](references/dev-cli-vs-mcp.md)
+- **New project or first-time setup** — read [references/dev-getting-started.md](references/dev-getting-started.md)
+- **Local development workflow** (CLI migrations, psql debugging, type generation) — read [references/dev-local-workflow.md](references/dev-local-workflow.md)
+- **Remote project interaction** (MCP queries, logs, advisors, deploying) — read [references/dev-remote-workflow.md](references/dev-remote-workflow.md)
+- **CLI command details and pitfalls** — read [references/dev-cli-reference.md](references/dev-cli-reference.md)
+- **MCP server configuration** — read [references/dev-mcp-setup.md](references/dev-mcp-setup.md)
+- **MCP tool usage** (execute_sql, apply_migration, get_logs, get_advisors) — read [references/dev-mcp-tools.md](references/dev-mcp-tools.md)
+
+When the user's project has no `supabase/` directory, start with [references/dev-getting-started.md](references/dev-getting-started.md). When it already exists, pick up from the appropriate workflow (local or remote) based on user intentions.
+
 ## Overview of Resources
 
-Reference the appropriate resource file based on the user's needs:
+Reference the appropriate resource file based on the user's needs.
+
+### Development (read first)
+
+**Read these files before any Supabase development task.** They define the correct tools, workflows, and boundaries for interacting with Supabase instances. Start here when setting up a project, running CLI or MCP commands, writing migrations, connecting to a database, or deciding which tool to use for an operation.
+
+| Area            | Resource                            | When to Use                                                    |
+| --------------- | ----------------------------------- | -------------------------------------------------------------- |
+| Getting Started | `references/dev-getting-started.md` | New project setup, CLI install, first-time init                |
+| Local Workflow  | `references/dev-local-workflow.md`  | Local development with CLI migrations and psql debugging       |
+| Remote Workflow | `references/dev-remote-workflow.md` | Developing against hosted Supabase project using MCP           |
+| CLI vs MCP      | `references/dev-cli-vs-mcp.md`     | Tool roles: CLI (schema), psql/MCP (debugging), SDK (app code) |
+| CLI Reference   | `references/dev-cli-reference.md`  | CLI command details, best practices, pitfalls                  |
+| MCP Setup       | `references/dev-mcp-setup.md`      | Configuring Supabase remote MCP server for hosted projects     |
+| MCP Tools       | `references/dev-mcp-tools.md`      | execute_sql, apply_migration, get_logs, get_advisors           |
 
 ### Authentication & Security
+
+Read when implementing sign-up, sign-in, OAuth, SSO, MFA, passwordless flows, auth hooks, or server-side auth patterns.
 
 | Area               | Resource                            | When to Use                                              |
 | ------------------ | ----------------------------------- | -------------------------------------------------------- |
@@ -36,6 +66,8 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Database
 
+Read when designing tables, writing RLS policies, creating migrations, configuring connection pooling, or optimizing query performance.
+
 | Area               | Resource                        | When to Use                                    |
 | ------------------ | ------------------------------- | ---------------------------------------------- |
 | RLS Security       | `references/db-rls-*.md`        | Row Level Security policies, common mistakes   |
@@ -46,6 +78,8 @@ Reference the appropriate resource file based on the user's needs:
 | Security           | `references/db-security-*.md`   | Service role key, security_definer functions   |
 
 ### Edge Functions
+
+Read when creating, deploying, or debugging Deno-based Edge Functions — including authentication, database access, CORS, routing, streaming, and testing patterns.
 
 | Area                   | Resource                              | When to Use                            |
 | ---------------------- | ------------------------------------- | -------------------------------------- |
@@ -67,6 +101,8 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Realtime
 
+Read when implementing live updates — Broadcast messaging, Presence tracking, or Postgres Changes listeners.
+
 | Area             | Resource                             | When to Use                                     |
 | ---------------- | ------------------------------------ | ----------------------------------------------- |
 | Channel Setup    | `references/realtime-setup-*.md`     | Creating channels, naming conventions, auth     |
@@ -76,6 +112,8 @@ Reference the appropriate resource file based on the user's needs:
 | Patterns         | `references/realtime-patterns-*.md`  | Cleanup, error handling, React integration      |
 
 ### SDK (supabase-js)
+
+Read when writing application code that interacts with Supabase — client setup, queries, error handling, TypeScript types, or framework integration.
 
 | Area            | Resource                        | When to Use                               |
 | --------------- | ------------------------------- | ----------------------------------------- |
@@ -88,6 +126,8 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Storage
 
+Read when implementing file uploads, downloads, image transformations, or configuring storage access control and CDN caching.
+
 | Area            | Resource                              | When to Use                                    |
 | --------------- | ------------------------------------- | ---------------------------------------------- |
 | Access Control  | `references/storage-access-control.md`| Bucket policies, RLS for storage               |
@@ -98,39 +138,9 @@ Reference the appropriate resource file based on the user's needs:
 | CDN & Caching   | `references/storage-cdn-caching.md`   | Cache control, Smart CDN, stale content        |
 | File Operations | `references/storage-ops-file-management.md`| Move, copy, delete, list files             |
 
-### Development
-
-| Area            | Resource                            | When to Use                                                    |
-| --------------- | ----------------------------------- | -------------------------------------------------------------- |
-| Getting Started | `references/dev-getting-started.md` | New project setup, CLI install, first-time init                |
-| MCP Setup       | `references/dev-mcp-setup.md`      | Configuring Supabase remote MCP server for hosted projects     |
-| CLI Reference   | `references/dev-cli-reference.md`  | CLI command details, best practices, pitfalls                  |
-| MCP Tools       | `references/dev-mcp-tools.md`      | execute_sql, apply_migration, get_logs, get_advisors           |
-| CLI vs MCP      | `references/dev-cli-vs-mcp.md`     | Choosing between CLI+psql (local) and MCP (remote)             |
-| Local Workflow  | `references/dev-local-workflow.md`  | Developing with local Supabase stack using CLI and psql        |
-| Remote Workflow | `references/dev-remote-workflow.md` | Developing against hosted Supabase project using MCP           |
-
-## Development Guidance
-
-Supabase development uses different tools depending on the environment:
-
-- **Local development** — Use the **CLI** (`npx supabase`) for project management, migrations, and deployment. Use **`psql`** to interact with the local Postgres database (queries, schema iteration, debugging). The local database connection string is available via `npx supabase status`.
-- **Remote project interaction** — Use the **Supabase remote MCP server** (`mcp.supabase.com`). If no Supabase MCP tools are available, check whether the MCP server is configured for the project. If not, fetch the configuration from [Supabase MCP client configuration](https://supabase.com/docs/guides/getting-started/mcp#step-2-configure-your-ai-tool), configure it for the current AI tool, and ask the user to authenticate via the browser OAuth flow. See [dev-mcp-setup.md](references/dev-mcp-setup.md) for details.
-
-When the user's project has no `supabase/` directory, start with the getting-started guide. When it already exists, pick up from the appropriate workflow (local or remote) based on user intentions.
-
-- **CLI is the default tool for local development.** All commands prefixed with `npx supabase`.
-- **`psql` is for database interaction locally.** Use it to run queries, iterate on schema, debug, and explore data against the local Postgres instance.
-- **MCP is for remote project interaction.** Use `execute_sql` for non-schema-changing SQL (queries, data exploration, debugging). Use `get_logs` and `get_advisors` for debugging and health checks.
-- **Schema changes go through migrations.** Locally, iterate with `psql`, capture with `npx supabase db diff -f "name"`, verify with `npx supabase db reset`.
-- **Deploy migrations with `npx supabase db push`.** Always ask for user permission before pushing to the remote project. Only use MCP `apply_migration` as a last resort for schema mismatch issues that CLI cannot resolve.
-- **After any schema change:** Generate types with `npx supabase gen types`.
-
 ## Supabase Documentation
 
-Everytime something is not clear, or you want to double-check something, reference the official Supabase documentation. It is the source of truth for all things Supabase and is regularly updated with the latest information, best practices, and examples. - [Supabase Documentation](https://supabase.com/docs). The documentation is available in html format on the website, but you can also fetch plain text versions of specific sections using the following endpoints:
-
-**Documentation:**
+When something is not clear or you need to verify information, reference the official Supabase documentation — it is the source of truth. Available in plain text for easy fetching:
 
 ```bash
 # Index of all available docs
@@ -143,109 +153,4 @@ curl https://supabase.com/llms/guides.txt
 curl https://supabase.com/llms/js.txt
 ```
 
-Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and provides several language sdks, including supabase-js and supabase-py.
-
-| Priority | Category | Impact | Prefix |
-|----------|----------|--------|--------|
-| 1 | Authentication | CRITICAL | `auth-` |
-| 2 | Database | CRITICAL | `db-` |
-| 3 | Development | CRITICAL | `dev-` |
-| 4 | Edge Functions | HIGH | `edge-` |
-| 5 | SDK | HIGH | `sdk-` |
-| 6 | Realtime | MEDIUM-HIGH | `realtime-` |
-| 7 | Storage | HIGH | `storage-` |
-
-Reference the appropriate resource file based on the user's needs:
-
-### Authentication & Security
-
-| Area               | Resource                            | When to Use                                              |
-| ------------------ | ----------------------------------- | -------------------------------------------------------- |
-| Auth Core          | `references/auth-core-*.md`        | Sign-up, sign-in, sessions, password reset               |
-| OAuth/Social       | `references/auth-oauth-*.md`       | Google, GitHub, Apple login, PKCE flow                   |
-| Enterprise SSO     | `references/auth-sso-*.md`         | SAML 2.0, enterprise identity providers                  |
-| MFA                | `references/auth-mfa-*.md`         | TOTP authenticator apps, phone MFA, AAL levels           |
-| Passwordless       | `references/auth-passwordless-*.md`| Magic links, email OTP, phone OTP                        |
-| Auth Hooks         | `references/auth-hooks-*.md`       | Custom JWT claims, send email hooks (HTTP and SQL)       |
-| Server-Side Auth   | `references/auth-server-*.md`      | Admin API, SSR with Next.js/SvelteKit, service role auth |
-
-**Database** (`db-`):
-- `references/db-conn-pooling.md`
-- `references/db-migrations-diff.md`
-- `references/db-migrations-idempotent.md`
-- `references/db-migrations-testing.md`
-- `references/db-perf-indexes.md`
-- `references/db-perf-query-optimization.md`
-- `references/db-rls-common-mistakes.md`
-- `references/db-rls-mandatory.md`
-- `references/db-rls-performance.md`
-- `references/db-rls-policy-types.md`
-- `references/db-rls-views.md`
-- `references/db-schema-auth-fk.md`
-- `references/db-schema-extensions.md`
-- `references/db-schema-jsonb.md`
-- `references/db-schema-realtime.md`
-- `references/db-schema-timestamps.md`
-- `references/db-security-functions.md`
-- `references/db-security-service-role.md`
-
-**Development** (`dev-`):
-- `references/dev-cli-reference.md`
-- `references/dev-cli-vs-mcp.md`
-- `references/dev-getting-started.md`
-- `references/dev-local-workflow.md`
-- `references/dev-mcp-setup.md`
-- `references/dev-mcp-tools.md`
-- `references/dev-remote-workflow.md`
-
-**Edge Functions** (`edge-`):
-- `references/edge-adv-regional.md`
-- `references/edge-adv-streaming.md`
-- `references/edge-adv-websockets.md`
-- `references/edge-auth-jwt-verification.md`
-- `references/edge-auth-rls-integration.md`
-- `references/edge-db-direct-postgres.md`
-- `references/edge-db-supabase-client.md`
-- `references/edge-dbg-limits.md`
-- `references/edge-dbg-testing.md`
-- `references/edge-fun-project-structure.md`
-- `references/edge-fun-quickstart.md`
-- `references/edge-pat-background-tasks.md`
-- `references/edge-pat-cors.md`
-- `references/edge-pat-error-handling.md`
-- `references/edge-pat-routing.md`
-
-**Realtime** (`realtime-`):
-- `references/realtime-broadcast-basics.md`
-- `references/realtime-broadcast-database.md`
-- `references/realtime-patterns-cleanup.md`
-- `references/realtime-patterns-debugging.md`
-- `references/realtime-patterns-errors.md`
-- `references/realtime-postgres-changes.md`
-- `references/realtime-presence-tracking.md`
-- `references/realtime-setup-auth.md`
-- `references/realtime-setup-channels.md`
-
-| Area                   | Resource                              | When to Use                            |
-| ---------------------- | ------------------------------------- | -------------------------------------- |
-| Quick Start            | `references/edge-fun-quickstart.md`   | Creating and deploying first function  |
-| Project Structure      | `references/edge-fun-project-structure.md` | Directory layout, shared code, fat functions |
-| JWT Authentication     | `references/edge-auth-jwt-verification.md` | JWT verification, jose library, middleware |
-| RLS Integration        | `references/edge-auth-rls-integration.md` | Passing auth context, user-scoped queries |
-| Database (supabase-js) | `references/edge-db-supabase-client.md` | Queries, inserts, RPC calls          |
-| Database (Direct)      | `references/edge-db-direct-postgres.md` | Postgres pools, Drizzle ORM          |
-| CORS                   | `references/edge-pat-cors.md`         | Browser requests, preflight handling   |
-| Routing                | `references/edge-pat-routing.md`      | Multi-route functions, Hono framework  |
-| Error Handling         | `references/edge-pat-error-handling.md` | Error responses, validation          |
-| Background Tasks       | `references/edge-pat-background-tasks.md` | waitUntil, async processing        |
-| Streaming              | `references/edge-adv-streaming.md`    | SSE, streaming responses               |
-| WebSockets             | `references/edge-adv-websockets.md`   | Bidirectional communication            |
-| Regional Invocation    | `references/edge-adv-regional.md`     | Region selection, latency optimization |
-| Testing                | `references/edge-dbg-testing.md`      | Deno tests, local testing              |
-| Limits & Debugging     | `references/edge-dbg-limits.md`       | Troubleshooting, runtime limits        |
-
-### Realtime
-
----
-
-*84 reference files across 7 categories*
+Full documentation: [https://supabase.com/docs](https://supabase.com/docs)

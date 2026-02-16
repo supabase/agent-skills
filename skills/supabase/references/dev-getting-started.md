@@ -28,7 +28,7 @@ npx supabase start
 
 - **Docker Desktop** installed and running (`docker version` to verify). Required for `supabase start`.
 - **Node.js** >= v20 installed.
-- **psql** (PostgreSQL client) installed. Used for local database interaction. Verify with `psql --version`.
+- **psql** (PostgreSQL client) installed. Use `psql` to connect to the local database for debugging, inspecting data, and testing RLS policies. Verify with `psql --version`.
 
 ## Install the CLI
 
@@ -88,7 +88,7 @@ npx supabase start -x gotrue,imgproxy
 
 ## Connect to Local Database
 
-After starting the local stack, use `psql` to interact with the local Postgres database. The DB URL is shown in the `supabase start` output. Default:
+After starting the local stack, use `psql` to connect to the local Postgres database for debugging, inspecting data, and testing RLS policies. Do not use `psql` for schema changes — use CLI migrations instead. The DB URL is shown in the `supabase start` output. Default:
 
 ```bash
 psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres"

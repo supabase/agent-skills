@@ -7,7 +7,7 @@ tags: cli, commands, push, pull, diff, reset, migration, functions, secrets, typ
 
 ## CLI Command Reference
 
-Best practices, key flags, and pitfalls for each CLI command group. The CLI is the primary tool for local development (alongside `psql` for database interaction) and for all deployment operations to remote projects. For full flag lists, run `npx supabase <command> --help`.
+Best practices, key flags, and pitfalls for each CLI command group. The CLI is the primary tool for all schema changes, project management, and deployment — both locally and to remote projects. Use `psql` only for debugging, inspecting data, and testing RLS policies against the local database. For full flag lists, run `npx supabase <command> --help`.
 
 **Incorrect:**
 
@@ -184,7 +184,7 @@ npx supabase migration squash --version 20240315     # Squash to version
 | Command | Direction | Use When |
 | --- | --- | --- |
 | `db pull` | Remote → local | Remote has changes from dashboard edits |
-| `db diff` | Local changes | You made changes via `psql`, need migration file |
+| `db diff` | Local changes | Capture schema drift (e.g., from Studio UI) as a migration file |
 
 ### db push vs migration up
 

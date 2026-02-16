@@ -2,32 +2,57 @@
 title: CLI + psql vs MCP Decision Guide
 impact: CRITICAL
 impactDescription: Prevents agents from using wrong tool for each operation and environment
-tags: cli, psql, mcp, decision, tool-selection, local, remote
+tags: cli, psql, mcp, decision, tool-selection, local, remote, sdk
 ---
 
 ## CLI + psql vs MCP Decision Guide
 
-**Local development uses CLI and `psql`. Remote project interaction uses the Supabase MCP server for database queries, logs, and advisors — and CLI for everything else (migrations, deployments, type generation).**
+**Local development uses CLI for schema changes and project management, `psql` for agent debugging and inspection, and supabase-js SDK for application code. Remote project interaction uses MCP for database queries, logs, and advisors — and CLI for everything else (migrations, deployments, type generation).**
 
 **Incorrect:**
 
 ```bash
+# Using psql to author schema changes
+psql "$DB_URL" -c "CREATE TABLE posts (...)"   # Wrong — use CLI migrations
+
 # Using MCP execute_sql for local database interaction
-execute_sql({ query: "SELECT * FROM posts" })  # Wrong — use psql locally
+execute_sql({ query: "SELECT * FROM posts" })   # Wrong — use psql locally
 
 # Using psql to connect to the remote hosted database
-psql "postgresql://..." -c "SELECT * FROM posts"  # Wrong — use MCP for remote
+psql "postgresql://..." -c "SELECT * FROM posts" # Wrong — use MCP for remote
+
+# Writing application code that shells out to psql
+exec("psql ... -c 'SELECT * FROM posts'")        # Wrong — use supabase-js SDK
 ```
 
 **Correct:**
 
 ```bash
-# Local: use psql for database interaction
-psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -c "SELECT * FROM posts"
+# Schema changes: always through CLI migrations
+npx supabase migration new create_posts
+# Edit the migration file...
+npx supabase db reset
 
-# Remote: use MCP execute_sql for database interaction
-execute_sql({ project_id: "ref", query: "SELECT * FROM posts" })
+# Local debugging: psql (agent tool)
+psql "$DB_URL" -c "SELECT * FROM posts LIMIT 10"
+
+# Remote debugging: MCP
+execute_sql({ project_id: "ref", query: "SELECT * FROM posts LIMIT 10" })
+
+# Application code: supabase-js SDK
+# const { data } = await supabase.from('posts').select('*').limit(10)
 ```
+
+## Three Distinct Tool Roles
+
+| Tool | Role | Scope |
+| --- | --- | --- |
+| CLI (`npx supabase`) | Schema changes, project management, deployment | Both local and remote |
+| `psql` | Agent database access (debugging, inspection) | Local only |
+| MCP server | Agent database access (debugging, inspection) | Remote only |
+| supabase-js SDK | Application database client | User's app code |
+
+**`psql` and MCP are the agent's tools** for connecting to the database to debug, inspect, and troubleshoot. They are not for authoring schema changes or for use in the user's application code. The **SDK** is how the application connects to Supabase.
 
 ## Local Development: CLI + psql
 
@@ -36,13 +61,14 @@ execute_sql({ project_id: "ref", query: "SELECT * FROM posts" })
 | Initialize project | CLI | `npx supabase init` |
 | Start local stack | CLI | `npx supabase start` |
 | Stop local stack | CLI | `npx supabase stop` |
-| Run SQL queries | psql | `psql "$DB_URL" -c "SELECT ..."` |
-| Iterate on schema | psql | `psql "$DB_URL" -c "CREATE TABLE ..."` |
-| Capture schema changes | CLI | `npx supabase db diff -f "name"` |
-| Create empty migration | CLI | `npx supabase migration new` |
-| Verify migrations replay | CLI | `npx supabase db reset` |
+| Create migration | CLI | `npx supabase migration new "name"` |
+| Capture schema drift | CLI | `npx supabase db diff -f "name"` |
+| Apply and verify migrations | CLI | `npx supabase db reset` |
 | Generate types | CLI | `npx supabase gen types --lang typescript --local > types.ts` |
 | Serve functions locally | CLI | `npx supabase functions serve` |
+| Debug queries, inspect data | psql | `psql "$DB_URL" -c "SELECT ..."` |
+| Inspect schema | psql | `psql "$DB_URL" -c "\d table_name"` |
+| Test RLS policies | psql | `psql "$DB_URL" -c "SET request.jwt.claims = '...'; SELECT ..."` |
 
 Get the local database URL from `npx supabase status`. The default is `postgresql://postgres:postgres@127.0.0.1:54322/postgres`.
 
@@ -94,16 +120,21 @@ db push fails due to migration mismatch?
 
 ## Schema Changes: Always Through Migrations
 
-Use `execute_sql` on the remote MCP server only for **non-schema-changing SQL** (SELECT queries, data exploration, debugging RLS policies). Schema changes on the remote project must go through the migration workflow:
+Schema changes always go through the CLI migration workflow — never through `psql` DDL or MCP `execute_sql`:
 
-1. Write or capture migrations locally (via `psql` + `db diff`, or `migration new`)
-2. Preview with `npx supabase db push --dry-run`
-3. Ask the user for permission
-4. Deploy with `npx supabase db push`
+1. Create migration with `npx supabase migration new` (or capture drift with `db diff`)
+2. Edit the migration SQL file
+3. Apply locally with `npx supabase db reset`
+4. Preview with `npx supabase db push --dry-run`
+5. Ask the user for permission
+6. Deploy with `npx supabase db push`
+
+Use `execute_sql` on the remote MCP server only for **non-schema-changing SQL** (SELECT queries, data exploration, debugging RLS policies).
 
 ## Why This Split
 
-1. **Local = CLI + psql** — Fast iteration, no network dependency, file-based migration workflow, CI/CD friendly
-2. **Remote = MCP for queries/logs/advisors** — Authenticated access to hosted project data that CLI cannot provide
-3. **Remote = CLI for deployments** — `db push`, `functions deploy`, `secrets set`, and `gen types` all use CLI for consistent file-based workflows
-4. **Migrations always via CLI** — `db push` ensures local and remote migration history stay in sync
+1. **CLI = schema authority** — All schema changes flow through migration files for auditability, repeatability, and CI/CD
+2. **`psql` = agent's local debugger** — Fast, direct access for the agent to inspect data, test RLS, and troubleshoot
+3. **MCP = agent's remote debugger** — Authenticated access to hosted project data that CLI cannot provide
+4. **SDK = application client** — The user's app code connects through supabase-js, not psql or raw SQL
+5. **Migrations always via CLI** — `db push` ensures local and remote migration history stay in sync

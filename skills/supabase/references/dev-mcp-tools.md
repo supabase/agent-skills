@@ -7,7 +7,7 @@ tags: mcp, execute_sql, apply_migration, get_logs, get_advisors, tools, remote
 
 ## MCP Tool Reference
 
-Detailed usage, gotchas, and examples for each MCP tool available through the Supabase remote MCP server (`mcp.supabase.com`). These tools are only for **remote project interaction** — local development uses `psql` and CLI instead.
+Detailed usage, gotchas, and examples for each MCP tool available through the Supabase remote MCP server (`mcp.supabase.com`). These tools are only for **remote project interaction** — local development uses CLI for schema changes and `psql` for debugging.
 
 **Incorrect:**
 
