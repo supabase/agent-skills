@@ -1,10 +1,4 @@
-# supabase
-
-> **Note:** `CLAUDE.md` is a symlink to this file.
-
-## Overview
-
-Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions.
+# Supabase
 
 ## Structure
 
@@ -22,110 +16,102 @@ supabase/
 2. Browse `references/` for detailed documentation on specific topics
 3. Reference files are loaded on-demand - read only what you need
 
-## Reference Categories
+Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and provides several language sdks, including supabase-js and supabase-py.
 
-| Priority | Category | Impact | Prefix |
-|----------|----------|--------|--------|
-| 1 | Authentication | CRITICAL | `auth-` |
-| 2 | Database | CRITICAL | `db-` |
-| 3 | Edge Functions | HIGH | `edge-` |
-| 4 | SDK | HIGH | `sdk-` |
-| 5 | Realtime | MEDIUM-HIGH | `realtime-` |
-| 6 | Storage | HIGH | `storage-` |
+## Overview of Resources
 
-Reference files are named `{prefix}-{topic}.md` (e.g., `query-missing-indexes.md`).
+Reference the appropriate resource file based on the user's needs:
 
-## Available References
+### Authentication & Security
 
-**Authentication** (`auth-`):
-- `references/auth-core-sessions.md`
-- `references/auth-core-signin.md`
-- `references/auth-core-signup.md`
-- `references/auth-hooks-custom-claims.md`
-- `references/auth-hooks-send-email-http.md`
-- `references/auth-hooks-send-email-sql.md`
-- `references/auth-mfa-phone.md`
-- `references/auth-mfa-totp.md`
-- `references/auth-oauth-pkce.md`
-- `references/auth-oauth-providers.md`
-- `references/auth-passwordless-magic-links.md`
-- `references/auth-passwordless-otp.md`
-- `references/auth-server-admin-api.md`
-- `references/auth-server-ssr.md`
-- `references/auth-sso-saml.md`
+| Area               | Resource                            | When to Use                                              |
+| ------------------ | ----------------------------------- | -------------------------------------------------------- |
+| Auth Core          | `references/auth-core-*.md`        | Sign-up, sign-in, sessions, password reset               |
+| OAuth/Social       | `references/auth-oauth-*.md`       | Google, GitHub, Apple login, PKCE flow                   |
+| Enterprise SSO     | `references/auth-sso-*.md`         | SAML 2.0, enterprise identity providers                  |
+| MFA                | `references/auth-mfa-*.md`         | TOTP authenticator apps, phone MFA, AAL levels           |
+| Passwordless       | `references/auth-passwordless-*.md`| Magic links, email OTP, phone OTP                        |
+| Auth Hooks         | `references/auth-hooks-*.md`       | Custom JWT claims, send email hooks (HTTP and SQL)       |
+| Server-Side Auth   | `references/auth-server-*.md`      | Admin API, SSR with Next.js/SvelteKit, service role auth |
 
-**Database** (`db-`):
-- `references/db-conn-pooling.md`
-- `references/db-migrations-diff.md`
-- `references/db-migrations-idempotent.md`
-- `references/db-migrations-testing.md`
-- `references/db-perf-indexes.md`
-- `references/db-perf-query-optimization.md`
-- `references/db-rls-common-mistakes.md`
-- `references/db-rls-mandatory.md`
-- `references/db-rls-performance.md`
-- `references/db-rls-policy-types.md`
-- `references/db-rls-views.md`
-- `references/db-schema-auth-fk.md`
-- `references/db-schema-extensions.md`
-- `references/db-schema-jsonb.md`
-- `references/db-schema-realtime.md`
-- `references/db-schema-timestamps.md`
-- `references/db-security-functions.md`
-- `references/db-security-service-role.md`
+### Database
 
-**Edge Functions** (`edge-`):
-- `references/edge-adv-regional.md`
-- `references/edge-adv-streaming.md`
-- `references/edge-adv-websockets.md`
-- `references/edge-auth-jwt-verification.md`
-- `references/edge-auth-rls-integration.md`
-- `references/edge-db-direct-postgres.md`
-- `references/edge-db-supabase-client.md`
-- `references/edge-dbg-limits.md`
-- `references/edge-dbg-testing.md`
-- `references/edge-fun-project-structure.md`
-- `references/edge-fun-quickstart.md`
-- `references/edge-pat-background-tasks.md`
-- `references/edge-pat-cors.md`
-- `references/edge-pat-error-handling.md`
-- `references/edge-pat-routing.md`
+| Area               | Resource                        | When to Use                                    |
+| ------------------ | ------------------------------- | ---------------------------------------------- |
+| RLS Security       | `references/db-rls-*.md`        | Row Level Security policies, common mistakes   |
+| Connection Pooling | `references/db-conn-pooling.md` | Transaction vs Session mode, port 6543 vs 5432 |
+| Schema Design      | `references/db-schema-*.md`     | auth.users FKs, timestamps, JSONB, extensions  |
+| Migrations         | `references/db-migrations-*.md` | CLI workflows, idempotent patterns, db diff    |
+| Performance        | `references/db-perf-*.md`       | Indexes (BRIN, GIN), query optimization        |
+| Security           | `references/db-security-*.md`   | Service role key, security_definer functions   |
 
-**Realtime** (`realtime-`):
-- `references/realtime-broadcast-basics.md`
-- `references/realtime-broadcast-database.md`
-- `references/realtime-patterns-cleanup.md`
-- `references/realtime-patterns-debugging.md`
-- `references/realtime-patterns-errors.md`
-- `references/realtime-postgres-changes.md`
-- `references/realtime-presence-tracking.md`
-- `references/realtime-setup-auth.md`
-- `references/realtime-setup-channels.md`
+### Edge Functions
 
-**SDK** (`sdk-`):
-- `references/sdk-client-browser.md`
-- `references/sdk-client-config.md`
-- `references/sdk-client-server.md`
-- `references/sdk-error-handling.md`
-- `references/sdk-framework-nextjs.md`
-- `references/sdk-perf-queries.md`
-- `references/sdk-perf-realtime.md`
-- `references/sdk-query-crud.md`
-- `references/sdk-query-filters.md`
-- `references/sdk-query-joins.md`
-- `references/sdk-query-rpc.md`
-- `references/sdk-ts-generation.md`
-- `references/sdk-ts-usage.md`
+| Area                   | Resource                              | When to Use                            |
+| ---------------------- | ------------------------------------- | -------------------------------------- |
+| Quick Start            | `references/edge-fun-quickstart.md`   | Creating and deploying first function  |
+| Project Structure      | `references/edge-fun-project-structure.md` | Directory layout, shared code, fat functions |
+| JWT Authentication     | `references/edge-auth-jwt-verification.md` | JWT verification, jose library, middleware |
+| RLS Integration        | `references/edge-auth-rls-integration.md` | Passing auth context, user-scoped queries |
+| Database (supabase-js) | `references/edge-db-supabase-client.md` | Queries, inserts, RPC calls          |
+| Database (Direct)      | `references/edge-db-direct-postgres.md` | Postgres pools, Drizzle ORM          |
+| CORS                   | `references/edge-pat-cors.md`         | Browser requests, preflight handling   |
+| Routing                | `references/edge-pat-routing.md`      | Multi-route functions, Hono framework  |
+| Error Handling         | `references/edge-pat-error-handling.md` | Error responses, validation          |
+| Background Tasks       | `references/edge-pat-background-tasks.md` | waitUntil, async processing        |
+| Streaming              | `references/edge-adv-streaming.md`    | SSE, streaming responses               |
+| WebSockets             | `references/edge-adv-websockets.md`   | Bidirectional communication            |
+| Regional Invocation    | `references/edge-adv-regional.md`     | Region selection, latency optimization |
+| Testing                | `references/edge-dbg-testing.md`      | Deno tests, local testing              |
+| Limits & Debugging     | `references/edge-dbg-limits.md`       | Troubleshooting, runtime limits        |
 
-**Storage** (`storage-`):
-- `references/storage-access-control.md`
-- `references/storage-cdn-caching.md`
-- `references/storage-download-urls.md`
-- `references/storage-ops-file-management.md`
-- `references/storage-transform-images.md`
-- `references/storage-upload-resumable.md`
-- `references/storage-upload-standard.md`
+### Realtime
 
----
+| Area             | Resource                             | When to Use                                     |
+| ---------------- | ------------------------------------ | ----------------------------------------------- |
+| Channel Setup    | `references/realtime-setup-*.md`     | Creating channels, naming conventions, auth     |
+| Broadcast        | `references/realtime-broadcast-*.md` | Client messaging, database-triggered broadcasts |
+| Presence         | `references/realtime-presence-*.md`  | User online status, shared state tracking       |
+| Postgres Changes | `references/realtime-postgres-*.md`  | Database change listeners (prefer Broadcast)    |
+| Patterns         | `references/realtime-patterns-*.md`  | Cleanup, error handling, React integration      |
 
-*77 reference files across 6 categories*
+### SDK (supabase-js)
+
+| Area            | Resource                        | When to Use                               |
+| --------------- | ------------------------------- | ----------------------------------------- |
+| Client Setup    | `references/sdk-client-*.md`    | Browser/server client, SSR, configuration |
+| TypeScript      | `references/sdk-ts-*.md`        | Type generation, using Database types     |
+| Query Patterns  | `references/sdk-query-*.md`     | CRUD, filters, joins, RPC calls           |
+| Error Handling  | `references/sdk-error-*.md`     | Error types, retries, handling patterns   |
+| SDK Performance | `references/sdk-perf-*.md`      | Query optimization, realtime cleanup      |
+| Framework       | `references/sdk-framework-*.md` | Next.js App Router, middleware setup      |
+
+### Storage
+
+| Area            | Resource                              | When to Use                                    |
+| --------------- | ------------------------------------- | ---------------------------------------------- |
+| Access Control  | `references/storage-access-control.md`| Bucket policies, RLS for storage               |
+| Standard Upload | `references/storage-upload-standard.md`| File uploads up to 5GB                         |
+| Resumable Upload| `references/storage-upload-resumable.md`| Large file uploads with TUS protocol          |
+| Downloads       | `references/storage-download-urls.md` | Public URLs, signed URLs, download methods     |
+| Transformations | `references/storage-transform-images.md`| Image resize, crop, format conversion         |
+| CDN & Caching   | `references/storage-cdn-caching.md`   | Cache control, Smart CDN, stale content        |
+| File Operations | `references/storage-ops-file-management.md`| Move, copy, delete, list files             |
+
+**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
+
+## Supabase Documentation
+
+Everytime something is not clear, or you want to double-check something, reference the official Supabase documentation. It is the source of truth for all things Supabase and is regularly updated with the latest information, best practices, and examples. - [Supabase Documentation](https://supabase.com/docs). The documentation is available in html format on the website, but you can also fetch plain text versions of specific sections using the following endpoints:
+
+**Documentation:**
+
+```bash
+# Index of all available docs
+curl https://supabase.com/llms.txt
+
+# Fetch all guides as plain text
+curl https://supabase.com/llms/guides.txt
+
+# Fetch JavaScript SDK reference
+curl https://supabase.com/llms/js.txt
