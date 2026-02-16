@@ -16,13 +16,43 @@ supabase/
 2. Browse `references/` for detailed documentation on specific topics
 3. Reference files are loaded on-demand - read only what you need
 
-Supabase is an open source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, realtime subscriptions, and storage. It's fully compatible with Postgres and provides several language sdks, including supabase-js and supabase-py.
+Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions.
+
+## Development Guidance
+
+**Before performing any Supabase development task, read the development reference files.** They define which tools to use, how to interact with Supabase instances, and the correct workflows for local and remote development. Getting these wrong leads to schema drift, migration conflicts, and broken deployments.
+
+- **Which tool to use for each operation** — read [references/dev-cli-vs-mcp.md](references/dev-cli-vs-mcp.md)
+- **New project or first-time setup** — read [references/dev-getting-started.md](references/dev-getting-started.md)
+- **Local development workflow** (CLI migrations, psql debugging, type generation) — read [references/dev-local-workflow.md](references/dev-local-workflow.md)
+- **Remote project interaction** (MCP queries, logs, advisors, deploying) — read [references/dev-remote-workflow.md](references/dev-remote-workflow.md)
+- **CLI command details and pitfalls** — read [references/dev-cli-reference.md](references/dev-cli-reference.md)
+- **MCP server configuration** — read [references/dev-mcp-setup.md](references/dev-mcp-setup.md)
+- **MCP tool usage** (execute_sql, apply_migration, get_logs, get_advisors) — read [references/dev-mcp-tools.md](references/dev-mcp-tools.md)
+
+When the user's project has no `supabase/` directory, start with [references/dev-getting-started.md](references/dev-getting-started.md). When it already exists, pick up from the appropriate workflow (local or remote) based on user intentions.
 
 ## Overview of Resources
 
-Reference the appropriate resource file based on the user's needs:
+Reference the appropriate resource file based on the user's needs.
+
+### Development (read first)
+
+**Read these files before any Supabase development task.** They define the correct tools, workflows, and boundaries for interacting with Supabase instances. Start here when setting up a project, running CLI or MCP commands, writing migrations, connecting to a database, or deciding which tool to use for an operation.
+
+| Area            | Resource                            | When to Use                                                    |
+| --------------- | ----------------------------------- | -------------------------------------------------------------- |
+| Getting Started | `references/dev-getting-started.md` | New project setup, CLI install, first-time init                |
+| Local Workflow  | `references/dev-local-workflow.md`  | Local development with CLI migrations and psql debugging       |
+| Remote Workflow | `references/dev-remote-workflow.md` | Developing against hosted Supabase project using MCP           |
+| CLI vs MCP      | `references/dev-cli-vs-mcp.md`     | Tool roles: CLI (schema), psql/MCP (debugging), SDK (app code) |
+| CLI Reference   | `references/dev-cli-reference.md`  | CLI command details, best practices, pitfalls                  |
+| MCP Setup       | `references/dev-mcp-setup.md`      | Configuring Supabase remote MCP server for hosted projects     |
+| MCP Tools       | `references/dev-mcp-tools.md`      | execute_sql, apply_migration, get_logs, get_advisors           |
 
 ### Authentication & Security
+
+Read when implementing sign-up, sign-in, OAuth, SSO, MFA, passwordless flows, auth hooks, or server-side auth patterns.
 
 | Area               | Resource                            | When to Use                                              |
 | ------------------ | ----------------------------------- | -------------------------------------------------------- |
@@ -36,6 +66,8 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Database
 
+Read when designing tables, writing RLS policies, creating migrations, configuring connection pooling, or optimizing query performance.
+
 | Area               | Resource                        | When to Use                                    |
 | ------------------ | ------------------------------- | ---------------------------------------------- |
 | RLS Security       | `references/db-rls-*.md`        | Row Level Security policies, common mistakes   |
@@ -46,6 +78,8 @@ Reference the appropriate resource file based on the user's needs:
 | Security           | `references/db-security-*.md`   | Service role key, security_definer functions   |
 
 ### Edge Functions
+
+Read when creating, deploying, or debugging Deno-based Edge Functions — including authentication, database access, CORS, routing, streaming, and testing patterns.
 
 | Area                   | Resource                              | When to Use                            |
 | ---------------------- | ------------------------------------- | -------------------------------------- |
@@ -67,6 +101,8 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Realtime
 
+Read when implementing live updates — Broadcast messaging, Presence tracking, or Postgres Changes listeners.
+
 | Area             | Resource                             | When to Use                                     |
 | ---------------- | ------------------------------------ | ----------------------------------------------- |
 | Channel Setup    | `references/realtime-setup-*.md`     | Creating channels, naming conventions, auth     |
@@ -76,6 +112,8 @@ Reference the appropriate resource file based on the user's needs:
 | Patterns         | `references/realtime-patterns-*.md`  | Cleanup, error handling, React integration      |
 
 ### SDK (supabase-js)
+
+Read when writing application code that interacts with Supabase — client setup, queries, error handling, TypeScript types, or framework integration.
 
 | Area            | Resource                        | When to Use                               |
 | --------------- | ------------------------------- | ----------------------------------------- |
@@ -88,6 +126,8 @@ Reference the appropriate resource file based on the user's needs:
 
 ### Storage
 
+Read when implementing file uploads, downloads, image transformations, or configuring storage access control and CDN caching.
+
 | Area            | Resource                              | When to Use                                    |
 | --------------- | ------------------------------------- | ---------------------------------------------- |
 | Access Control  | `references/storage-access-control.md`| Bucket policies, RLS for storage               |
@@ -98,13 +138,9 @@ Reference the appropriate resource file based on the user's needs:
 | CDN & Caching   | `references/storage-cdn-caching.md`   | Cache control, Smart CDN, stale content        |
 | File Operations | `references/storage-ops-file-management.md`| Move, copy, delete, list files             |
 
-**CLI Usage:** Always use `npx supabase` instead of `supabase` for version consistency across team members.
-
 ## Supabase Documentation
 
-Everytime something is not clear, or you want to double-check something, reference the official Supabase documentation. It is the source of truth for all things Supabase and is regularly updated with the latest information, best practices, and examples. - [Supabase Documentation](https://supabase.com/docs). The documentation is available in html format on the website, but you can also fetch plain text versions of specific sections using the following endpoints:
-
-**Documentation:**
+When something is not clear or you need to verify information, reference the official Supabase documentation — it is the source of truth. Available in plain text for easy fetching:
 
 ```bash
 # Index of all available docs
@@ -115,3 +151,6 @@ curl https://supabase.com/llms/guides.txt
 
 # Fetch JavaScript SDK reference
 curl https://supabase.com/llms/js.txt
+```
+
+Full documentation: [https://supabase.com/docs](https://supabase.com/docs)
