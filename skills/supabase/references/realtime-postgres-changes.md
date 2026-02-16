@@ -1,7 +1,5 @@
 ---
 title: Listen to Database Changes with Postgres Changes
-impact: MEDIUM
-impactDescription: Simple database change listeners with scaling limitations
 tags: realtime, postgres_changes, database, subscribe, publication
 ---
 

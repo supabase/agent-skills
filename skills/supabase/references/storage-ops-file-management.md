@@ -1,7 +1,5 @@
 ---
 title: Manage Files Through the API
-impact: MEDIUM
-impactDescription: Prevents orphaned files and billing issues
 tags: storage, delete, move, copy, list, operations
 ---
 

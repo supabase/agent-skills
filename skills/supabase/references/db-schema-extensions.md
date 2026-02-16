@@ -1,7 +1,5 @@
 ---
 title: Install Extensions in extensions Schema
-impact: MEDIUM
-impactDescription: Keeps public schema clean and simplifies migrations
 tags: extensions, schema-design, best-practices
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Database Access with supabase-js
-impact: HIGH
-impactDescription: Primary method for database operations with RLS support
 tags: edge-functions, database, supabase-js, queries
 ---
 

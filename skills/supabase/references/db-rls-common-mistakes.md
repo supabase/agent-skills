@@ -1,7 +1,5 @@
 ---
 title: Avoid Common RLS Policy Mistakes
-impact: CRITICAL
-impactDescription: Prevents security vulnerabilities and unintended data exposure
 tags: rls, security, auth.uid, policies, common-mistakes
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Optimize RLS Policy Performance
-impact: CRITICAL
-impactDescription: Achieve 100x-99,000x query performance improvements
 tags: rls, performance, optimization, indexes, auth.uid
 ---
 

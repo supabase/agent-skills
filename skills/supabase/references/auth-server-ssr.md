@@ -1,7 +1,5 @@
 ---
 title: Implement SSR Authentication
-impact: CRITICAL
-impactDescription: SSR auth mistakes cause auth failures, security issues, and hydration mismatches
 tags: auth, ssr, server, nextjs, sveltekit, nuxt, cookies
 ---
 

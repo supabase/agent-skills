@@ -1,7 +1,5 @@
 ---
 title: Next.js App Router Integration
-impact: HIGH
-impactDescription: Enables proper SSR auth with session refresh and type-safe queries
 tags: nextjs, app-router, server-components, proxy, ssr
 ---
 

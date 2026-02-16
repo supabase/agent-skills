@@ -1,7 +1,5 @@
 ---
 title: Enable RLS on All Exposed Schemas
-impact: CRITICAL
-impactDescription: Prevents unauthorized data access at the database level
 tags: rls, security, auth, policies
 ---
 

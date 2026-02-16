@@ -1,7 +1,5 @@
 ---
 title: Optimize Queries for PostgREST
-impact: HIGH
-impactDescription: Faster API responses and reduced database load
 tags: postgrest, queries, performance, optimization, supabase-js
 ---
 

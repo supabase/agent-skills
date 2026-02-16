@@ -1,7 +1,5 @@
 ---
 title: MCP Tool Reference
-impact: CRITICAL
-impactDescription: Complete reference for all Supabase MCP tools used to interact with remote projects
 tags: mcp, execute_sql, apply_migration, get_logs, get_advisors, deploy_edge_function, branching, storage, remote, tools
 ---
 

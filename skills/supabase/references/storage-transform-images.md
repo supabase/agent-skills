@@ -1,7 +1,5 @@
 ---
 title: Transform Images On-the-Fly
-impact: MEDIUM
-impactDescription: Reduces bandwidth with server-side image transformations
 tags: storage, images, transform, resize, webp, optimization
 ---
 

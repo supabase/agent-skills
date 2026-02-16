@@ -1,7 +1,5 @@
 ---
 title: Limits and Troubleshooting
-impact: HIGH
-impactDescription: Prevents production failures and debugging bottlenecks
 tags: edge-functions, limits, debugging, troubleshooting
 ---
 

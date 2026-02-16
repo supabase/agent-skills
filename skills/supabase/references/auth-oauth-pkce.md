@@ -1,7 +1,5 @@
 ---
 title: Implement PKCE Flow for OAuth
-impact: HIGH
-impactDescription: PKCE prevents authorization code interception attacks in SPAs
 tags: auth, oauth, pkce, spa, code-exchange, security
 ---
 

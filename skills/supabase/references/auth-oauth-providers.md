@@ -1,7 +1,5 @@
 ---
 title: Configure OAuth Social Providers
-impact: HIGH
-impactDescription: Social login increases conversion - misconfiguration breaks authentication
 tags: auth, oauth, social-login, google, github, apple, azure
 ---
 

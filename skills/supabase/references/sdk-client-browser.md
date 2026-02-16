@@ -1,7 +1,5 @@
 ---
 title: Browser Client Setup
-impact: CRITICAL
-impactDescription: Prevents session conflicts and memory leaks from multiple client instances
 tags: createBrowserClient, singleton, client-side, ssr, supabase-js
 ---
 

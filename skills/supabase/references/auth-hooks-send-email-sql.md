@@ -1,7 +1,5 @@
 ---
 title: Send Email Hook via SQL (PostgreSQL Function)
-impact: MEDIUM
-impactDescription: Queue-based email sending with PostgreSQL for batch processing and reliability
 tags: auth, hooks, email, postgresql, pg_cron, sql, queue
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Use security_invoker for Views with RLS
-impact: HIGH
-impactDescription: Ensures views respect RLS policies instead of bypassing them
 tags: rls, views, security_invoker, security
 ---
 

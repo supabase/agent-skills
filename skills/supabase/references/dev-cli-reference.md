@@ -1,7 +1,5 @@
 ---
 title: CLI Command Reference
-impact: CRITICAL
-impactDescription: Best practices and pitfalls for every CLI command group
 tags: cli, commands, push, pull, diff, reset, migration, functions, secrets, types
 ---
 

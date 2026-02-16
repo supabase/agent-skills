@@ -1,7 +1,5 @@
 ---
 title: Realtime Requires Primary Keys
-impact: MEDIUM-HIGH
-impactDescription: Prevents Realtime subscription failures and data sync issues
 tags: realtime, primary-keys, subscriptions
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Use Standard Uploads for Small Files
-impact: HIGH
-impactDescription: Ensures reliable uploads for files under 6MB
 tags: storage, upload, small-files, upsert, signed-upload
 ---
 

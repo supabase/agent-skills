@@ -1,7 +1,5 @@
 ---
 title: JWT Verification and Authentication
-impact: CRITICAL
-impactDescription: Prevents unauthorized access and security vulnerabilities
 tags: edge-functions, jwt, authentication, jose, security
 ---
 

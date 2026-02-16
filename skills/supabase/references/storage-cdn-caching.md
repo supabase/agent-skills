@@ -1,7 +1,5 @@
 ---
 title: Understand CDN Caching and Stale Content
-impact: HIGH
-impactDescription: Prevents serving outdated files after updates
 tags: storage, cdn, caching, cache-control, stale-content, smart-cdn
 ---
 

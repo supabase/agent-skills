@@ -1,7 +1,5 @@
 ---
 title: Using TypeScript Types
-impact: HIGH
-impactDescription: Provides type-safe access to tables, enums, and complex query results
 tags: typescript, Tables, Enums, QueryData, type-helpers
 ---
 

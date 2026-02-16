@@ -1,7 +1,5 @@
 ---
 title: Filters and Modifiers
-impact: HIGH
-impactDescription: Enables precise data retrieval with proper filter ordering
 tags: filters, eq, neq, in, like, order, limit, range, modifiers
 ---
 

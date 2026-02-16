@@ -1,7 +1,5 @@
 ---
 title: Test Migrations with supabase db reset
-impact: MEDIUM-HIGH
-impactDescription: Catch migration errors before production deployment
 tags: migrations, testing, supabase-cli, local-development
 ---
 

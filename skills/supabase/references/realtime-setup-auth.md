@@ -1,7 +1,5 @@
 ---
 title: Configure Private Channels with Authentication
-impact: CRITICAL
-impactDescription: Prevents unauthorized access to real-time messages
 tags: realtime, auth, private, rls, security, setAuth
 ---
 

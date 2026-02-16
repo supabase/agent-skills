@@ -1,7 +1,5 @@
 ---
 title: Send Email Hook via HTTP (Edge Function)
-impact: MEDIUM
-impactDescription: Custom email hooks enable branded templates and third-party email providers
 tags: auth, hooks, email, templates, resend, edge-functions, http
 ---
 

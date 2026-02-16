@@ -1,7 +1,5 @@
 ---
 title: Use npx supabase db diff for Dashboard Changes
-impact: HIGH
-impactDescription: Captures manual changes into version-controlled migrations
 tags: migrations, supabase-cli, db-diff, dashboard
 ---
 

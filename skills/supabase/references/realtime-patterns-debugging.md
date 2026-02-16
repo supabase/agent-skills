@@ -1,7 +1,5 @@
 ---
 title: Debug Realtime Connections
-impact: MEDIUM
-impactDescription: Enables visibility into connection and message flow issues
 tags: realtime, debugging, logging, troubleshooting
 ---
 

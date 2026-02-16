@@ -1,7 +1,5 @@
 ---
 title: Error Handling Patterns
-impact: MEDIUM
-impactDescription: Improves reliability and debugging experience
 tags: edge-functions, errors, debugging, client-errors
 ---
 

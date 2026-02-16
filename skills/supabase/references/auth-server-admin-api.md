@@ -1,7 +1,5 @@
 ---
 title: Use Admin Auth API Securely
-impact: CRITICAL
-impactDescription: Admin API bypasses RLS - misuse exposes all data and enables account takeover
 tags: auth, admin, service-role, server, security, user-management
 ---
 

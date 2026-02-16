@@ -1,7 +1,5 @@
 ---
 title: Write Idempotent Migrations
-impact: HIGH
-impactDescription: Safe to run multiple times, prevents migration failures
 tags: migrations, idempotent, supabase-cli
 ---
 

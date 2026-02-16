@@ -1,7 +1,5 @@
 ---
 title: Configure SAML 2.0 SSO
-impact: MEDIUM
-impactDescription: Enterprise SSO enables organizations to use their identity providers
 tags: auth, sso, saml, enterprise, okta, azure-ad, identity-provider
 ---
 

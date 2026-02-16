@@ -1,7 +1,5 @@
 ---
 title: Supabase Remote MCP Server Setup
-impact: CRITICAL
-impactDescription: Required configuration for remote database interaction, debugging, and advisors via MCP
 tags: mcp, setup, configuration, oauth, security, remote, cursor, claude-code, vscode, windsurf, codex, gemini, goose, factory, opencode, kiro
 ---
 

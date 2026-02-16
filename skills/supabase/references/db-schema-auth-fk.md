@@ -1,7 +1,5 @@
 ---
 title: Add CASCADE to auth.users Foreign Keys
-impact: HIGH
-impactDescription: Prevents orphaned records and user deletion failures
 tags: foreign-keys, auth.users, cascade, schema-design
 ---
 
