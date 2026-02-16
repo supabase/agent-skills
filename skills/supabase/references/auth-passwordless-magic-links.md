@@ -1,7 +1,5 @@
 ---
 title: Implement Magic Link Authentication
-impact: MEDIUM-HIGH
-impactDescription: Passwordless login improves UX and security - magic links are the most common approach
 tags: auth, passwordless, magic-link, email, otp
 ---
 

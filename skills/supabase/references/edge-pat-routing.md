@@ -1,7 +1,5 @@
 ---
 title: Routing and Multi-Route Functions
-impact: MEDIUM-HIGH
-impactDescription: Reduces cold starts and simplifies API architecture
 tags: edge-functions, routing, hono, url-pattern
 ---
 

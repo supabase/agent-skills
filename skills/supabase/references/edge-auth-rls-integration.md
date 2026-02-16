@@ -1,7 +1,5 @@
 ---
 title: RLS Integration in Edge Functions
-impact: HIGH
-impactDescription: Ensures proper data isolation and security enforcement
 tags: edge-functions, rls, row-level-security, auth-context
 ---
 

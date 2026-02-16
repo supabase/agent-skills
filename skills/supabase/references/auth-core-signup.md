@@ -1,7 +1,5 @@
 ---
 title: Implement Secure User Sign-Up
-impact: CRITICAL
-impactDescription: Foundation of user registration - mistakes lead to security vulnerabilities or broken flows
 tags: auth, signup, registration, email-confirmation, user-metadata
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Testing Edge Functions
-impact: MEDIUM
-impactDescription: Ensures reliability before production deployment
 tags: edge-functions, testing, deno, unit-tests
 ---
 

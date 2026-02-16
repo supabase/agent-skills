@@ -1,7 +1,5 @@
 ---
 title: Track User Presence and Online Status
-impact: MEDIUM
-impactDescription: Enables features like online indicators and typing status
 tags: realtime, presence, track, online, state
 ---
 

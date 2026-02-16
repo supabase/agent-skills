@@ -1,7 +1,5 @@
 ---
 title: Implement TOTP Multi-Factor Authentication
-impact: HIGH
-impactDescription: MFA significantly reduces account compromise risk
 tags: auth, mfa, totp, 2fa, security, authenticator
 ---
 

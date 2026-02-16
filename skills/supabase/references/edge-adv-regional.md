@@ -1,7 +1,5 @@
 ---
 title: Regional Invocations
-impact: LOW-MEDIUM
-impactDescription: Optimizes latency for region-specific workloads
 tags: edge-functions, regions, latency, performance
 ---
 

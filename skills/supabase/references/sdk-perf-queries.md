@@ -1,7 +1,5 @@
 ---
 title: Query Performance Optimization
-impact: HIGH
-impactDescription: Reduces data transfer and improves response times
 tags: performance, optimization, select, parallel, Promise.all, explain
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Use security_definer Functions in Private Schema
-impact: HIGH
-impactDescription: Controlled privilege escalation without exposing service role
 tags: functions, security_definer, security, private-schema
 ---
 

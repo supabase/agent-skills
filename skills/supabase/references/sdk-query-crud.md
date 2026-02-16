@@ -1,7 +1,5 @@
 ---
 title: CRUD Operations
-impact: HIGH
-impactDescription: Core database operations with proper return handling
 tags: select, insert, update, delete, upsert, crud
 ---
 

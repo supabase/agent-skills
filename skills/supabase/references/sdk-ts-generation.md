@@ -1,7 +1,5 @@
 ---
 title: Generate TypeScript Types
-impact: HIGH
-impactDescription: Enables compile-time type safety for all database operations
 tags: typescript, types, codegen, supabase-cli, database.types.ts
 ---
 

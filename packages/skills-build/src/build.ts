@@ -100,7 +100,7 @@ function parseSectionsFromFile(filePath: string): Section[] {
 	const sections: Section[] = [];
 
 	const sectionMatches = content.matchAll(
-		/##\s+(\d+)\.\s+([^\n(]+)\s*\((\w+)\)\s*\n\*\*Impact:\*\*\s*(\w+(?:-\w+)?)\s*\n\*\*Description:\*\*\s*([^\n]+)/g,
+		/##\s+(\d+)\.\s+([^\n(]+)\s*\((\w+)\)\s*\n(?:\*\*Impact:\*\*\s*(\w+(?:-\w+)?)\s*\n)?\*\*Description:\*\*\s*([^\n]+)/g,
 	);
 
 	for (const match of sectionMatches) {
@@ -108,7 +108,7 @@ function parseSectionsFromFile(filePath: string): Section[] {
 			number: parseInt(match[1], 10),
 			title: match[2].trim(),
 			prefix: match[3].trim(),
-			impact: match[4].trim() as Section["impact"],
+			impact: match[4]?.trim() as Section["impact"],
 			description: match[5].trim(),
 		});
 	}

@@ -1,7 +1,5 @@
 ---
 title: Implement Sign-In and Password Reset
-impact: CRITICAL
-impactDescription: Core authentication flows - mistakes lead to security issues or locked-out users
 tags: auth, signin, login, password-reset, email
 ---
 

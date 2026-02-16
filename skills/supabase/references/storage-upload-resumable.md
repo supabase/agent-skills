@@ -1,7 +1,5 @@
 ---
 title: Use Resumable Uploads for Large Files
-impact: HIGH
-impactDescription: Enables reliable upload of large files with progress and resume
 tags: storage, upload, large-files, tus, resumable, multipart
 ---
 

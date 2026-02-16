@@ -1,7 +1,5 @@
 ---
 title: Direct Postgres Connections
-impact: MEDIUM
-impactDescription: Enables complex queries and ORM usage
 tags: edge-functions, postgres, drizzle, connection-pooling
 ---
 

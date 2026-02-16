@@ -1,7 +1,5 @@
 ---
 title: Configure Storage Access Control
-impact: CRITICAL
-impactDescription: Prevents unauthorized file access and upload failures
 tags: storage, buckets, public, private, rls, policies, security
 ---
 

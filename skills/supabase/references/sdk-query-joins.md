@@ -1,7 +1,5 @@
 ---
 title: Joins and Relations
-impact: HIGH
-impactDescription: Enables efficient data fetching with related tables in a single query
 tags: joins, relations, foreign-tables, nested-select, inner-join
 ---
 

@@ -1,7 +1,5 @@
 ---
 title: Background Tasks
-impact: MEDIUM-HIGH
-impactDescription: Enables fast responses for long-running operations
 tags: edge-functions, background, waituntil, async
 ---
 

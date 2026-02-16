@@ -1,7 +1,5 @@
 ---
 title: Server Client and Proxy Setup
-impact: CRITICAL
-impactDescription: Prevents auth bypass and ensures session refresh works correctly
 tags: createServerClient, proxy, cookies, ssr, server-components
 ---
 

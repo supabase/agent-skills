@@ -1,7 +1,5 @@
 ---
 title: Manage Auth Sessions Correctly
-impact: CRITICAL
-impactDescription: Session mismanagement causes auth failures, security issues, and poor UX
 tags: auth, sessions, tokens, refresh, onAuthStateChange, jwt
 ---
 

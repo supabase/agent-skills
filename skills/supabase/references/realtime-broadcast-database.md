@@ -1,7 +1,5 @@
 ---
 title: Broadcast from Database Triggers
-impact: CRITICAL
-impactDescription: Scalable pattern for notifying clients of database changes
 tags: realtime, broadcast, database, triggers, realtime.send, realtime.broadcast_changes
 ---
 
