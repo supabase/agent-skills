@@ -12,6 +12,16 @@ To ensure a positive and inclusive environment, please read our
 [code of conduct](https://github.com/supabase/.github/blob/main/CODE_OF_CONDUCT.md)
 before contributing.
 
+### Setup
+
+This project uses [mise](https://mise.jdx.dev/) to manage tool versions.
+Install mise, then run from the repository root:
+
+```bash
+mise install        # Install Node.js (version defined in mise.toml)
+npm install         # Install root dependencies
+```
+
 ## Issues
 
 If you find a typo, have a suggestion for a new skill/reference, or want to improve
@@ -39,14 +49,17 @@ We actively welcome your Pull Requests! Here's what to keep in mind:
 
 ### Pre-Flight Checks
 
-Before submitting your PR, please run these checks:
+Before submitting your PR, make sure you have the right tooling and run these
+checks:
 
 ```bash
-npm run validate  # Check reference format and structure
-npm run build     # Generate AGENTS.md from references
+mise install       # Ensure correct Node.js version
+npm run check      # Format and lint (auto-fix)
+npm run validate   # Check reference format and structure
+npm run build      # Generate AGENTS.md from references
 ```
 
-Both commands must complete successfully.
+All commands must complete successfully.
 
 ## Contributing New References
 

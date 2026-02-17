@@ -4,6 +4,12 @@ Guidance for AI coding agents working with this repository.
 
 > **Note:** `CLAUDE.md` is a symlink to this file.
 
+## Prerequisites
+
+This project uses [mise](https://mise.jdx.dev/) to manage tool versions
+(Node.js, etc.). Run `mise install` to install the correct versions from
+`mise.toml`.
+
 ## Repository Structure
 
 ```
@@ -23,6 +29,7 @@ packages/
 ## Commands
 
 ```bash
+mise install                     # Install tool versions (Node.js)
 npm run build                    # Build all skills
 npm run build -- {skill-name}    # Build specific skill
 npm run validate                 # Validate all skills
