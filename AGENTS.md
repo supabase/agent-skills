@@ -6,9 +6,9 @@ Guidance for AI coding agents working with this repository.
 
 ## Prerequisites
 
-This project uses [mise](https://mise.jdx.dev/) to manage tool versions
-(Node.js, etc.). Run `mise install` to install the correct versions from
-`mise.toml`.
+This project uses [mise](https://mise.jdx.dev/) to manage tool versions,
+environment variables, and project tasks. Run `mise install` to set up the
+correct tool versions from `mise.toml`.
 
 ## Repository Structure
 
@@ -24,20 +24,30 @@ skills/
 
 packages/
   skills-build/           # Generic build system for all skills
+  evals/                  # LLM evaluation system for skills
 ```
 
 ## Commands
 
+All tasks are defined in `mise.toml` and can be run with `mise run` (or via
+`npm run` which delegates to the same commands).
+
 ```bash
 mise install                     # Install tool versions (Node.js)
-npm run build                    # Build all skills
-npm run build -- {skill-name}    # Build specific skill
-npm run validate                 # Validate all skills
-npm run validate -- {skill-name} # Validate specific skill
-npm run check                    # Format and lint (auto-fix)
+mise run install                 # Install all npm dependencies
+mise run build                   # Build all skills
+mise run validate                # Validate all skills
+mise run check                   # Format and lint (auto-fix)
+mise run test                    # Run tests
+mise run eval                    # Run all LLM evals
+mise run eval:code-fix           # Run code-fix evals only
+mise run eval:workflow            # Run workflow evals only
 ```
 
-**Before completing any task**, run `npm run check` and `npm run build` to
+Tasks with `sources`/`outputs` defined in `mise.toml` skip automatically when
+nothing has changed.
+
+**Before completing any task**, run `mise run check` and `mise run build` to
 ensure CI passes.
 
 ## Creating a New Skill
@@ -48,7 +58,7 @@ Skills follow the [Agent Skills Open Standard](https://agentskills.io/).
 2. Create `SKILL.md` following the format below
 3. Add `references/_sections.md` defining sections
 4. Add reference files: `{prefix}-{reference-name}.md`
-5. Run `npm run build`
+5. Run `mise run build`
 
 ---
 

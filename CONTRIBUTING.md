@@ -14,13 +14,23 @@ before contributing.
 
 ### Setup
 
-This project uses [mise](https://mise.jdx.dev/) to manage tool versions.
-Install mise, then run from the repository root:
+This project uses [mise](https://mise.jdx.dev/) to manage tool versions,
+environment variables, and project tasks. Install mise, then run from the
+repository root:
 
 ```bash
 mise install        # Install Node.js (version defined in mise.toml)
-npm install         # Install root dependencies
+mise run install    # Install all npm dependencies
 ```
+
+For LLM evals, copy the env example and add your API keys:
+
+```bash
+cp packages/evals/.env.example packages/evals/.env
+# Edit packages/evals/.env with your ANTHROPIC_API_KEY and OPENAI_API_KEY
+```
+
+mise automatically loads `.env` files defined in `mise.toml`.
 
 ## Issues
 
@@ -54,9 +64,9 @@ checks:
 
 ```bash
 mise install       # Ensure correct Node.js version
-npm run check      # Format and lint (auto-fix)
-npm run validate   # Check reference format and structure
-npm run build      # Generate AGENTS.md from references
+mise run check     # Format and lint (auto-fix)
+mise run validate  # Check reference format and structure
+mise run build     # Generate AGENTS.md from references
 ```
 
 All commands must complete successfully.
@@ -72,8 +82,8 @@ To add a reference to an existing skill:
 5. Run validation and build:
 
 ```bash
-npm run validate
-npm run build
+mise run validate
+mise run build
 ```
 
 ## Creating a New Skill
@@ -131,7 +141,7 @@ Example: `first-example-reference.md` for section "First Category"
 ### 5. Build
 
 ```bash
-npm run build
+mise run build
 ```
 
 The build system auto-discovers skills by looking for `SKILL.md` files.
