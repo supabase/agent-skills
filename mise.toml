@@ -46,16 +46,11 @@ sources = ["test/**", "skills/**"]
 # ── Eval tasks ────────────────────────────────────────────────────────
 
 [tasks.eval]
-description = "Run all evals"
-run = "tsx packages/evals/src/cli.ts"
+description = "Run code-fix evals (local, no upload)"
+run = "npm --prefix packages/evals run eval"
 sources = ["packages/evals/src/**", "skills/**/references/**"]
 
-[tasks."eval:code-fix"]
-description = "Run code-fix evals"
-run = "tsx packages/evals/src/cli.ts --type code-fix"
-sources = ["packages/evals/src/**", "skills/**/references/**"]
-
-[tasks."eval:workflow"]
-description = "Run workflow evals"
-run = "tsx packages/evals/src/cli.ts --type workflow"
+[tasks."eval:upload"]
+description = "Run code-fix evals and upload to Braintrust"
+run = "npm --prefix packages/evals run eval:upload"
 sources = ["packages/evals/src/**", "skills/**/references/**"]

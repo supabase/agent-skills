@@ -25,6 +25,16 @@ skills/
 packages/
   skills-build/           # Generic build system for all skills
   evals/                  # LLM evaluation system for skills
+    AGENTS.md             # Agent guide for developing evals
+    CLAUDE.md             # Symlink to AGENTS.md
+    scenarios/
+      workflow-scenarios.json  # Handwritten workflow test scenarios
+    src/
+      cli.ts              # Entry point
+      prompts/            # Eval and judge prompts
+      scorer/             # Zod schemas and judge execution
+      dataset/            # Test case extraction from skill references
+      runner/             # Eval orchestrator and runners
 ```
 
 ## Commands
