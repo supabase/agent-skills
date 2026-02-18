@@ -124,3 +124,64 @@ Score 1 if the fix follows best practices, 0.5 if it mostly follows best practic
 		metadata: { reasoning: result.reasoning },
 	};
 };
+
+export const regressionSafetyScorer: EvalScorer<
+	Input,
+	TaskOutput,
+	Expected
+> = async ({ input, output }) => {
+	const context = buildContext(input.testCase, output.llmOutput);
+	const result = await judge(`${context}
+
+## Task
+
+Evaluate **regression safety**: Does the LLM's fix avoid introducing new problems?
+
+Carefully check whether the fix:
+- Breaks existing functionality that was working in the original code
+- Removes security measures (RLS policies, auth checks, input validation) that were already present
+- Changes function signatures, return types, or column names in ways that would break callers
+- Introduces SQL injection, XSS, or other security vulnerabilities not present in the original
+- Drops data, removes columns, or alters schemas destructively without necessity
+- Changes behavior beyond the scope of the identified issue
+
+The fix should repair the identified problem WITHOUT creating new ones. A fix that solves the original issue but breaks something else is dangerous in production.
+
+Score 1 if the fix introduces no new problems. Score 0.5 if the fix introduces minor issues (e.g., slightly different naming that could confuse but not break). Score 0 if the fix introduces a new bug, security vulnerability, or breaking change.`);
+
+	return {
+		name: "Regression Safety",
+		score: result.score,
+		metadata: { reasoning: result.reasoning },
+	};
+};
+
+export const minimalityScorer: EvalScorer<
+	Input,
+	TaskOutput,
+	Expected
+> = async ({ input, output }) => {
+	const context = buildContext(input.testCase, output.llmOutput);
+	const result = await judge(`${context}
+
+## Task
+
+Evaluate **minimality**: Does the LLM's fix make only the changes necessary to address the identified issue?
+
+Check whether the fix:
+- Rewrites or restructures code beyond what is needed to fix the problem
+- Adds features, abstractions, or utilities not present in the reference solution
+- Changes formatting, variable names, or style in unrelated parts of the code
+- Adds excessive comments, logging, or error handling not required by the fix
+- Over-engineers the solution (e.g., adding configuration options, generalization, or layers of abstraction when a simple targeted fix suffices)
+
+Compare the scope of changes in the LLM's fix against the reference. The reference represents the ideal minimal fix. The LLM's fix should be similarly focused.
+
+Score 1 if the fix is tightly scoped to the identified issue (similar scope to the reference). Score 0.5 if the fix includes some unnecessary changes but the core fix is present. Score 0 if the fix significantly over-reaches — rewriting large portions of code, adding unrelated features, or restructuring beyond what is needed.`);
+
+	return {
+		name: "Minimality",
+		score: result.score,
+		metadata: { reasoning: result.reasoning },
+	};
+};

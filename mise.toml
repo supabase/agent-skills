@@ -46,11 +46,15 @@ sources = ["test/**", "skills/**"]
 # ── Eval tasks ────────────────────────────────────────────────────────
 
 [tasks.eval]
-description = "Run code-fix evals (local, no upload)"
+description = "Run code-fix evals for all configured models (local, no upload)"
 run = "npm --prefix packages/evals run eval"
 sources = ["packages/evals/src/**", "skills/**/references/**"]
 
+[tasks."eval:model"]
+description = "Run code-fix eval for a single model (local, no upload)"
+run = "EVAL_MODEL={{arg(name='model')}} npm --prefix packages/evals run eval"
+
 [tasks."eval:upload"]
-description = "Run code-fix evals and upload to Braintrust"
+description = "Run code-fix evals for all models and upload to Braintrust"
 run = "npm --prefix packages/evals run eval:upload"
 sources = ["packages/evals/src/**", "skills/**/references/**"]

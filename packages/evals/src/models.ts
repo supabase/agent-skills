@@ -1,48 +1,49 @@
 import type { AnthropicProvider } from "@ai-sdk/anthropic";
 import { anthropic } from "@ai-sdk/anthropic";
-import type { OpenAIProvider } from "@ai-sdk/openai";
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import type { LanguageModel } from "ai";
 
 /** Model ID accepted by the Anthropic provider (string literal union + string). */
 export type AnthropicModelId = Parameters<AnthropicProvider["chat"]>[0];
 
-/** Model ID accepted by the OpenAI provider (string literal union + string). */
-export type OpenAIModelId = Parameters<OpenAIProvider["chat"]>[0];
+/**
+ * Braintrust AI proxy — routes to any provider (Anthropic, OpenAI, Google)
+ * via a single OpenAI-compatible endpoint.
+ *
+ * Provider API keys are configured in the Braintrust dashboard at
+ * project or org level. The x-bt-parent header scopes the request to
+ * the project so project-level keys are resolved.
+ */
+const braintrustProxy = createOpenAI({
+	baseURL: "https://api.braintrust.dev/v1/proxy",
+	apiKey: process.env.BRAINTRUST_API_KEY ?? "",
+	headers: process.env.BRAINTRUST_PROJECT_ID
+		? { "x-bt-parent": `project_id:${process.env.BRAINTRUST_PROJECT_ID}` }
+		: undefined,
+});
 
-/** Any model ID accepted by the eval harness. */
-export type SupportedModelId = AnthropicModelId | OpenAIModelId;
-
-const MODEL_MAP: Record<string, () => LanguageModel> = {
-	"claude-opus-4-6": () => anthropic("claude-opus-4-6"),
-	"claude-sonnet-4-5-20250929": () => anthropic("claude-sonnet-4-5-20250929"),
-	"claude-haiku-4-5-20251001": () => anthropic("claude-haiku-4-5-20251001"),
-	"claude-opus-4-5-20251101": () => anthropic("claude-opus-4-5-20251101"),
-	"claude-sonnet-4-20250514": () => anthropic("claude-sonnet-4-20250514"),
-	"gpt-4o": () => openai("gpt-4o"),
-	"gpt-4o-mini": () => openai("gpt-4o-mini"),
-	"o3-mini": () => openai("o3-mini"),
-};
-
-export function getModel(modelId: SupportedModelId): LanguageModel {
-	const factory = MODEL_MAP[modelId];
-	if (factory) return factory();
-
-	// Fall back to provider detection from model ID prefix
+/**
+ * Get a model for the eval task. Claude models use the Anthropic SDK
+ * directly (via ANTHROPIC_API_KEY). All other models route through the
+ * Braintrust proxy (keys configured at the org level in Braintrust).
+ */
+export function getProxyModel(modelId: string): LanguageModel {
 	if (modelId.startsWith("claude")) {
 		return anthropic(modelId as AnthropicModelId);
 	}
-	if (
-		modelId.startsWith("gpt") ||
-		modelId.startsWith("o1") ||
-		modelId.startsWith("o3")
-	) {
-		return openai(modelId as OpenAIModelId);
+	return braintrustProxy(modelId);
+}
+
+/**
+ * Get a model using direct provider SDKs. Used for the judge model which
+ * is always Claude and uses ANTHROPIC_API_KEY directly (no proxy).
+ */
+export function getModel(modelId: string): LanguageModel {
+	if (modelId.startsWith("claude")) {
+		return anthropic(modelId as AnthropicModelId);
 	}
 
-	throw new Error(
-		`Unknown model: ${modelId}. Available: ${Object.keys(MODEL_MAP).join(", ")}`,
-	);
+	return getProxyModel(modelId);
 }
 
 export function getJudgeModel(): LanguageModel {
