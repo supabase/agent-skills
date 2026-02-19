@@ -1,171 +1,108 @@
 # Evals — Agent Guide
 
-This package evaluates whether LLMs correctly apply Supabase best practices
-using skill documentation as context. It uses
-[Braintrust](https://www.braintrust.dev/) for eval orchestration and the
-[Vercel AI SDK](https://sdk.vercel.ai/) for LLM calls.
+This package evaluates whether AI agents correctly implement Supabase tasks
+when using skill documentation. Modeled after
+[Vercel's next-evals-oss](https://github.com/vercel-labs/next-evals-oss): each
+eval is a self-contained project with a task prompt, the agent works on it, and
+hidden tests check the result. Binary pass/fail.
 
 ## Architecture
 
-Two-step **LLM-as-judge** pattern powered by Braintrust's `Eval()`:
-
-1. The **eval model** receives a prompt with skill context and produces a code
-   fix. All eval model calls go through the **Braintrust AI proxy** — a single
-   OpenAI-compatible endpoint that routes to any provider (Anthropic, OpenAI,
-   Google, etc.).
-2. Five independent **judge scorers** (`claude-opus-4-6` via direct Anthropic
-   API) evaluate the fix via structured output (Zod schemas via AI SDK's
-   `Output.object()`).
-
-The eval runs once per model in the model matrix, creating a separate Braintrust
-experiment per model for side-by-side comparison.
-
-Key files:
-
 ```
-src/
-  code-fix.eval.ts        # Braintrust Eval() entry point (loops over models)
-  dataset.ts              # Maps extracted test cases to EvalCase format
-  scorer.ts               # Five AI SDK-based scorers (quality, safety, minimality)
-  models.ts               # Braintrust proxy + direct Anthropic provider
-  models.config.ts        # Model matrix (add/remove models here)
-  dataset/
-    types.ts              # CodeFixTestCase interface
-    extract.ts            # Auto-extracts test cases from skill references
-  prompts/
-    code-fix.ts           # System + user prompts for the eval model
+1. Create temp dir with project skeleton (PROMPT.md, supabase/ dir)
+2. Symlink supabase skill into workspace (or skip for baseline)
+3. Run: claude -p "prompt" --cwd /tmp/eval-xxx
+4. Agent reads skill, creates migrations/code in the workspace
+5. Copy hidden EVAL.ts into workspace, run vitest
+6. Capture pass/fail
 ```
 
-## How It Works
+The agent is **Claude Code** invoked via `claude -p` (print mode). It operates
+on a real filesystem in a temp directory and can read/write files freely.
 
-**Test cases are auto-extracted** from `skills/*/references/*.md`. The extractor
-(`dataset/extract.ts`) finds consecutive `**Incorrect:**` / `**Correct:**` code
-block pairs under `##` sections. Each pair becomes one test case.
+## Eval Structure
 
-Five independent scorers evaluate each fix (0–1 scale):
+Each eval lives in `evals/{scenario-name}/`:
 
-- **Correctness** — does the fix address the core issue?
-- **Completeness** — does the fix include all necessary changes?
-- **Best Practice** — does the fix follow Supabase conventions?
-- **Regression Safety** — does the fix avoid introducing new problems (broken
-  functionality, removed security measures, new vulnerabilities)?
-- **Minimality** — is the fix tightly scoped to the identified issue without
-  unnecessary rewrites or over-engineering?
-
-Each model in the matrix generates a separate Braintrust experiment. The
-dashboard supports side-by-side comparison of experiments.
-
-## Adding Test Cases
-
-No code changes needed. Add paired Incorrect/Correct blocks to any skill
-reference file. The extractor picks them up automatically.
-
-Required format in a reference `.md` file:
-
-```markdown
-## Section Title
-
-Explanation of the issue.
-
-**Incorrect:**
-
-\```sql
--- bad code
-\```
-
-**Correct:**
-
-\```sql
--- good code
-\```
+```
+evals/auth-rls-new-project/
+  PROMPT.md          # Task description (visible to agent)
+  EVAL.ts            # Vitest assertions (hidden from agent during run)
+  package.json       # Minimal project manifest
+  supabase/
+    config.toml      # Pre-initialized supabase config
+    migrations/      # Empty — agent creates files here
 ```
 
-Rules:
-
-- Pairs must be consecutive — an Incorrect block immediately followed by a
-  Correct block
-- Labels are matched case-insensitively. Bad labels: `Incorrect`, `Wrong`, `Bad`.
-  Good labels: `Correct`, `Good`, `Usage`, `Implementation`, `Example`,
-  `Recommended`
-- The optional parenthetical in the label becomes the `description` field:
-  `**Incorrect (missing RLS):**`
-- Files prefixed with `_` (like `_sections.md`, `_template.md`) are skipped
-- Each pair gets an ID like `supabase/db-rls-mandatory#0` (skill/filename#index)
-
-## Adding/Removing Models
-
-Edit the `EVAL_MODELS` array in `src/models.config.ts`:
-
-```typescript
-export const EVAL_MODELS: EvalModelConfig[] = [
-  { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5", provider: "anthropic", ci: true },
-  { id: "gpt-5.3", label: "GPT 5.3", provider: "openai", ci: true },
-  // Add new models here
-];
-```
-
-Provider API keys must be configured in the Braintrust dashboard under
-Settings → AI providers.
+**EVAL.ts** is never copied to the workspace until after the agent finishes.
+This prevents the agent from "teaching to the test."
 
 ## Running Evals
 
 ```bash
-# Run all models locally (no Braintrust upload)
+# Run all scenarios with Claude Sonnet 4.5 (default)
 mise run eval
 
-# Run a single model
-mise run eval:model model=claude-sonnet-4-5-20250929
+# Run a specific scenario
+EVAL_SCENARIO=auth-rls-new-project mise run eval
 
-# Run and upload to Braintrust dashboard
-mise run eval:upload
+# Override model
+EVAL_MODEL=claude-opus-4-6 mise run eval
+
+# Run with baseline comparison (with-skill vs without-skill)
+EVAL_BASELINE=true mise run eval
 ```
 
 Or directly:
 
 ```bash
 cd packages/evals
+npx tsx src/runner.ts
 
-# Local run (all models)
-npx braintrust eval --no-send-logs src/code-fix.eval.ts
-
-# Single model
-EVAL_MODEL=claude-sonnet-4-5-20250929 npx braintrust eval --no-send-logs src/code-fix.eval.ts
-
-# Filter to one test case (across all models)
-npx braintrust eval --no-send-logs src/code-fix.eval.ts --filter 'input.testCase.id=db-migrations-idempotent'
+# Single scenario with baseline
+EVAL_SCENARIO=auth-rls-new-project EVAL_BASELINE=true npx tsx src/runner.ts
 ```
+
+## Baseline Comparison
+
+Set `EVAL_BASELINE=true` to run each scenario twice:
+
+- **With skill**: The supabase skill is symlinked into the workspace. Claude
+  Code discovers it and uses reference files for guidance.
+- **Baseline**: No skill available. The agent relies on innate knowledge.
+
+Compare pass rates to measure how much the skill improves agent output.
+
+## Adding Scenarios
+
+1. Create `evals/{scenario-name}/` with `PROMPT.md`, `EVAL.ts`, `package.json`
+2. Add any starter files the agent should see (e.g., `supabase/config.toml`)
+3. Write vitest assertions in `EVAL.ts` that check the agent's output files
+4. Document the scenario in `scenarios/SCENARIOS.md`
 
 ## Environment
 
-API keys are loaded by mise from `packages/evals/.env` (configured in root
-`mise.toml`). Copy `.env.example` to `.env` and fill in the keys.
-
 ```
-BRAINTRUST_API_KEY=...         # Required: proxy routing + dashboard upload
-BRAINTRUST_PROJECT_ID=...      # Required: Braintrust project identifier
-ANTHROPIC_API_KEY=sk-ant-...   # Required: judge model (Claude Opus 4.6)
-```
-
-Optional overrides:
-
-```
-EVAL_MODEL=claude-sonnet-4-5-20250929  # Run only this model (skips matrix)
-EVAL_JUDGE_MODEL=claude-opus-4-6       # Judge model for scorers
+ANTHROPIC_API_KEY=sk-ant-...    # Required: Claude Code authentication
+EVAL_MODEL=...                  # Optional: override model (default: claude-sonnet-4-5-20250929)
+EVAL_SCENARIO=...               # Optional: run single scenario
+EVAL_BASELINE=true              # Optional: run baseline comparison
+BRAINTRUST_UPLOAD=true          # Optional: upload results to Braintrust
 ```
 
-## Modifying Prompts
+## Key Files
 
-- `src/prompts/code-fix.ts` — what the eval model sees
-- `src/scorer.ts` — judge prompts for each scorer dimension
-
-Temperature settings:
-
-- Eval model: `0.2` (in `code-fix.eval.ts`)
-- Judge model: `0.1` (in `scorer.ts`)
-
-## Modifying Scoring
-
-Each scorer in `src/scorer.ts` is independent. To add a new dimension:
-
-1. Create a new `EvalScorer` function in `scorer.ts`
-2. Add it to the `scores` array in `code-fix.eval.ts`
+```
+src/
+  runner.ts              # Main orchestrator
+  types.ts               # Core interfaces
+  runner/
+    scaffold.ts          # Creates temp workspace from eval template
+    agent.ts             # Invokes claude -p as subprocess
+    test.ts              # Runs vitest EVAL.ts against workspace
+    results.ts           # Collects results and prints summary
+evals/
+  auth-rls-new-project/  # Scenario 1
+scenarios/
+  SCENARIOS.md           # Scenario descriptions
+```
