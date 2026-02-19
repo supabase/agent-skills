@@ -10,7 +10,7 @@
 		"eval:upload": "BRAINTRUST_UPLOAD=true tsx src/runner.ts"
 	},
 	"dependencies": {
-		"braintrust": "^1.0.2"
+		"braintrust": "^3.0.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20.10.0",
