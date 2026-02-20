@@ -90,28 +90,39 @@ test("storage policy uses foldername or path for user isolation", () => {
 
 test("storage policy uses TO authenticated", () => {
 	const sql = getMigrationSQL().toLowerCase();
-	// Storage upload/delete/update policies should use TO authenticated
+	// Storage upload/delete/update policies should target authenticated users.
+	// Accepted forms:
+	//   1. Explicit TO authenticated
+	//   2. auth.uid() in USING/WITH CHECK (implicitly restricts to authenticated)
 	const policyBlocks = sql.match(/create\s+policy[\s\S]*?;/gi) ?? [];
 	const storagePolicies = policyBlocks.filter((p) =>
 		p.toLowerCase().includes("storage.objects"),
 	);
-	// At least one storage policy should have TO authenticated
-	const hasAuthenticatedPolicy = storagePolicies.some((p) =>
-		/to\s+(authenticated|public)/.test(p.toLowerCase()),
+	// At least one storage policy should restrict to authenticated users
+	const hasAuthenticatedPolicy = storagePolicies.some(
+		(p) =>
+			/to\s+(authenticated|public)/.test(p.toLowerCase()) ||
+			/auth\.uid\(\)/.test(p.toLowerCase()),
 	);
 	expect(hasAuthenticatedPolicy).toBe(true);
-	// Specifically, upload/insert policies should be TO authenticated (not public)
+	// Insert policies must restrict to authenticated users (explicit TO or auth.uid() check)
 	const insertPolicies = storagePolicies.filter((p) =>
 		/for\s+insert/.test(p.toLowerCase()),
 	);
 	for (const policy of insertPolicies) {
-		expect(policy.toLowerCase()).toMatch(/to\s+authenticated/);
+		const hasExplicitTo = /to\s+authenticated/.test(policy.toLowerCase());
+		const hasAuthUidCheck = /auth\.uid\(\)/.test(policy.toLowerCase());
+		expect(hasExplicitTo || hasAuthUidCheck).toBe(true);
 	}
 });
 
 test("public read policy for avatars", () => {
 	const sql = getMigrationSQL().toLowerCase();
-	// A SELECT policy on storage.objects for avatars bucket should allow public/anon access
+	// A SELECT policy on storage.objects for avatars bucket should allow public/anon access.
+	// Accepted forms:
+	//   1. Explicit TO public / TO anon
+	//   2. No TO clause (defaults to public role, granting all access)
+	//   3. No auth.uid() restriction in USING (open to everyone)
 	const policyBlocks = sql.match(/create\s+policy[\s\S]*?;/gi) ?? [];
 	const avatarSelectPolicies = policyBlocks.filter(
 		(p) =>
@@ -120,17 +131,25 @@ test("public read policy for avatars", () => {
 			p.toLowerCase().includes("avatars"),
 	);
 	expect(avatarSelectPolicies.length).toBeGreaterThan(0);
-	// Should use TO public (or TO anon) for public read access
-	const hasPublicAccess = avatarSelectPolicies.some(
-		(p) =>
-			/to\s+public/.test(p.toLowerCase()) || /to\s+anon/.test(p.toLowerCase()),
-	);
+	// Should allow public access: explicit TO public/anon, or no TO clause without auth.uid() restriction
+	const hasPublicAccess = avatarSelectPolicies.some((p) => {
+		const lower = p.toLowerCase();
+		const hasExplicitPublic =
+			/to\s+public/.test(lower) || /to\s+anon/.test(lower);
+		// No TO clause and no auth.uid() restriction means open to all
+		const hasNoToClause = !/\bto\s+\w+/.test(lower);
+		const hasNoAuthRestriction = !/auth\.uid\(\)/.test(lower);
+		return hasExplicitPublic || (hasNoToClause && hasNoAuthRestriction);
+	});
 	expect(hasPublicAccess).toBe(true);
 });
 
 test("documents bucket is fully private", () => {
 	const sql = getMigrationSQL().toLowerCase();
-	// All policies for documents bucket should restrict to authenticated owner
+	// All policies for documents bucket should restrict to authenticated owner.
+	// Accepted forms:
+	//   1. Explicit TO authenticated
+	//   2. auth.uid() in USING/WITH CHECK (implicitly restricts to authenticated)
 	const policyBlocks = sql.match(/create\s+policy[\s\S]*?;/gi) ?? [];
 	const documentPolicies = policyBlocks.filter(
 		(p) =>
@@ -143,9 +162,11 @@ test("documents bucket is fully private", () => {
 		expect(policy).not.toMatch(/to\s+public/);
 		expect(policy).not.toMatch(/to\s+anon/);
 	}
-	// All should be scoped to authenticated
+	// All should be scoped to authenticated (explicit TO or auth.uid() check)
 	for (const policy of documentPolicies) {
-		expect(policy).toMatch(/to\s+authenticated/);
+		const hasExplicitTo = /to\s+authenticated/.test(policy);
+		const hasAuthUidCheck = /auth\.uid\(\)/.test(policy);
+		expect(hasExplicitTo || hasAuthUidCheck).toBe(true);
 	}
 });
 
@@ -186,15 +207,24 @@ test("file_metadata policies use (select auth.uid())", () => {
 
 test("uses timestamptz for time columns", () => {
 	const sql = getMigrationSQL().toLowerCase();
-	// Match "timestamp" that is NOT followed by "tz" or "with time zone"
-	const hasPlainTimestamp = /\btimestamp\b(?!\s*tz)(?!\s+with\s+time\s+zone)/;
 	// Only check if the migration defines time-related columns
 	if (
 		sql.includes("created_at") ||
 		sql.includes("updated_at") ||
 		sql.includes("uploaded_at")
 	) {
-		expect(sql).not.toMatch(hasPlainTimestamp);
+		// Check column definitions for plain "timestamp" (not timestamptz / timestamp with time zone).
+		// Only match timestamp as a column type — look for column_name followed by timestamp.
+		// Exclude matches inside trigger/function bodies and RETURNS TRIGGER.
+		const columnDefs = sql.match(
+			/(?:created_at|updated_at|uploaded_at)\s+timestamp\b/g,
+		);
+		if (columnDefs) {
+			for (const def of columnDefs) {
+				// Each match should use timestamptz or "timestamp with time zone"
+				expect(def).toMatch(/timestamptz|timestamp\s+with\s+time\s+zone/);
+			}
+		}
 	}
 });
 
