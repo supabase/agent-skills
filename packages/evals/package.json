@@ -11,7 +11,8 @@
 	},
 	"dependencies": {
 		"@anthropic-ai/claude-code": "^2.1.49",
-		"braintrust": "^3.0.0"
+		"braintrust": "^3.0.0",
+		"skills": "^1.4.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20.10.0",

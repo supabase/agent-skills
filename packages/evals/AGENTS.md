@@ -10,7 +10,7 @@ hidden tests check the result. Binary pass/fail.
 
 ```
 1. Create temp dir with project skeleton (PROMPT.md, supabase/ dir)
-2. Symlink supabase skill into workspace (or skip for baseline)
+2. Install skills via `skills add` CLI (or skip for baseline)
 3. Run: claude -p "prompt" --cwd /tmp/eval-xxx
 4. Agent reads skill, creates migrations/code in the workspace
 5. Copy hidden EVAL.ts into workspace, run vitest
@@ -46,7 +46,7 @@ This prevents the agent from "teaching to the test."
 ## Running Evals
 
 ```bash
-# Run all scenarios with Claude Sonnet 4.5 (default)
+# Run all scenarios with skills (default)
 mise run eval
 
 # Run a specific scenario
@@ -55,8 +55,14 @@ EVAL_SCENARIO=auth-rls-new-project mise run eval
 # Override model
 EVAL_MODEL=claude-opus-4-6 mise run eval
 
-# Run with baseline comparison (with-skill vs without-skill)
+# Run without skills (baseline)
 EVAL_BASELINE=true mise run eval
+
+# Install only a specific skill
+EVAL_SKILL=supabase mise run eval
+
+# Upload results to Braintrust
+mise run eval:upload
 ```
 
 Or directly:
@@ -65,19 +71,23 @@ Or directly:
 cd packages/evals
 npx tsx src/runner.ts
 
-# Single scenario with baseline
-EVAL_SCENARIO=auth-rls-new-project EVAL_BASELINE=true npx tsx src/runner.ts
+# Single scenario, baseline mode
+EVAL_BASELINE=true EVAL_SCENARIO=auth-rls-new-project npx tsx src/runner.ts
 ```
 
-## Baseline Comparison
+## Baseline Mode
 
-Set `EVAL_BASELINE=true` to run each scenario twice:
+Set `EVAL_BASELINE=true` to run scenarios **without** skills. By default,
+scenarios run with skills installed via the `skills` CLI.
 
-- **With skill**: The supabase skill is symlinked into the workspace. Claude
-  Code discovers it and uses reference files for guidance.
-- **Baseline**: No skill available. The agent relies on innate knowledge.
+To compare with-skill vs baseline, run evals twice:
 
-Compare pass rates to measure how much the skill improves agent output.
+```bash
+mise run eval                        # with skills
+EVAL_BASELINE=true mise run eval     # without skills (baseline)
+```
+
+Compare the results to measure how much skills improve agent output.
 
 ## Adding Scenarios
 
@@ -92,7 +102,8 @@ Compare pass rates to measure how much the skill improves agent output.
 ANTHROPIC_API_KEY=sk-ant-...    # Required: Claude Code authentication
 EVAL_MODEL=...                  # Optional: override model (default: claude-sonnet-4-5-20250929)
 EVAL_SCENARIO=...               # Optional: run single scenario
-EVAL_BASELINE=true              # Optional: run baseline comparison
+EVAL_SKILL=...                  # Optional: install only this skill (e.g., "supabase")
+EVAL_BASELINE=true              # Optional: run without skills (baseline mode)
 BRAINTRUST_UPLOAD=true          # Optional: upload results to Braintrust
 ```
 

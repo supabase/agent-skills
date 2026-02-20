@@ -17,7 +17,8 @@ export function listModifiedFiles(
 		for (const entry of entries) {
 			if (
 				entry.name === "node_modules" ||
-				entry.name === "skills" ||
+				entry.name === ".agents" ||
+				entry.name === ".claude" ||
 				entry.name === "EVAL.ts" ||
 				entry.name === "EVAL.tsx"
 			)

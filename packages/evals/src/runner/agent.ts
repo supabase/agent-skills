@@ -23,8 +23,8 @@ export interface AgentRunResult {
  * including tool calls, results, and reasoning steps.
  *
  * The agent operates in the workspace directory and can read/write files.
- * When the skill is installed (symlinked into workspace), Claude Code
- * discovers it automatically and uses it for guidance.
+ * When skills are installed (via the `skills` CLI), Claude Code
+ * discovers them automatically and uses them for guidance.
  */
 export async function runAgent(opts: {
 	cwd: string;

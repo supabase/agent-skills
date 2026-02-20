@@ -19,7 +19,8 @@ const AGENT_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 const model = process.env.EVAL_MODEL ?? DEFAULT_MODEL;
 const scenarioFilter = process.env.EVAL_SCENARIO;
-const runBaseline = process.env.EVAL_BASELINE === "true";
+const isBaseline = process.env.EVAL_BASELINE === "true";
+const skillEnabled = !isBaseline;
 
 // Run-level timestamp shared across all scenarios in a single invocation
 const runTimestamp = new Date()
@@ -172,7 +173,7 @@ async function main() {
 
 	console.log("Supabase Skills Evals");
 	console.log(`Model: ${model}`);
-	console.log(`Baseline: ${runBaseline}`);
+	console.log(`Mode: ${isBaseline ? "baseline (no skills)" : "with skills"}`);
 
 	let scenarios = discoverScenarios();
 
@@ -189,15 +190,8 @@ async function main() {
 	const results: EvalRunResult[] = [];
 
 	for (const scenario of scenarios) {
-		// Run with skill enabled
-		const withSkill = await runEval(scenario, true);
-		results.push(withSkill);
-
-		// Optionally run baseline (no skill)
-		if (runBaseline) {
-			const baseline = await runEval(scenario, false);
-			results.push(baseline);
-		}
+		const result = await runEval(scenario, skillEnabled);
+		results.push(result);
 	}
 
 	// Use the results dir from the first result (all share the same timestamp)
