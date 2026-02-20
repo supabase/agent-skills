@@ -46,7 +46,10 @@ export function listModifiedFiles(
 }
 
 /** Print a summary table of eval results. */
-export function printSummary(results: EvalRunResult[]): void {
+export function printSummary(
+	results: EvalRunResult[],
+	resultsDir?: string,
+): void {
 	console.log("\n=== Eval Results ===\n");
 
 	for (const r of results) {
@@ -65,4 +68,8 @@ export function printSummary(results: EvalRunResult[]): void {
 
 	const passed = results.filter((r) => r.status === "passed").length;
 	console.log(`\nTotal: ${passed}/${results.length} passed`);
+
+	if (resultsDir) {
+		console.log(`\nResults saved to: ${resultsDir}`);
+	}
 }

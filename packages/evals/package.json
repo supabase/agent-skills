@@ -10,6 +10,7 @@
 		"eval:upload": "BRAINTRUST_UPLOAD=true tsx src/runner.ts"
 	},
 	"dependencies": {
+		"@anthropic-ai/claude-code": "^2.1.49",
 		"braintrust": "^3.0.0"
 	},
 	"devDependencies": {

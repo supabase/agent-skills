@@ -78,17 +78,24 @@ export async function runTests(opts: {
 
 function parseTestOutput(output: string): TestResult {
 	// Parse vitest output for pass/fail counts
-	// Format: "Tests  N passed (M)" or "Tests  N failed | M passed (T)"
-	const testsLine = output.match(
+	// Vitest formats:
+	//   All passing:  "Tests  N passed (N)"
+	//   Mixed:        "Tests  N failed | M passed (T)"
+	//   All failing:  "Tests  N failed (N)"
+	const mixedOrPassing = output.match(
 		/Tests\s+(?:(\d+)\s+failed\s+\|\s+)?(\d+)\s+passed\s+\((\d+)\)/,
 	);
+	const allFailing = output.match(/Tests\s+(\d+)\s+failed\s+\((\d+)\)/);
 
 	let passedCount = 0;
 	let totalCount = 0;
 
-	if (testsLine) {
-		passedCount = Number.parseInt(testsLine[2], 10);
-		totalCount = Number.parseInt(testsLine[3], 10);
+	if (mixedOrPassing) {
+		passedCount = Number.parseInt(mixedOrPassing[2], 10);
+		totalCount = Number.parseInt(mixedOrPassing[3], 10);
+	} else if (allFailing) {
+		passedCount = 0;
+		totalCount = Number.parseInt(allFailing[2], 10);
 	}
 
 	const passed = totalCount > 0 && passedCount === totalCount;

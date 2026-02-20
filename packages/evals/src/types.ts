@@ -32,4 +32,10 @@ export interface EvalRunResult {
 	/** Files the agent created or modified in the workspace */
 	filesModified: string[];
 	error?: string;
+	/** Path to the persisted results directory for this run */
+	resultsDir?: string;
+	/** Number of tool calls the agent made */
+	toolCallCount?: number;
+	/** Total cost in USD (from stream-json result event) */
+	costUsd?: number;
 }

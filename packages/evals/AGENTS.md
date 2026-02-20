@@ -20,6 +20,12 @@ hidden tests check the result. Binary pass/fail.
 The agent is **Claude Code** invoked via `claude -p` (print mode). It operates
 on a real filesystem in a temp directory and can read/write files freely.
 
+**Important**: MCP servers are disabled via `--strict-mcp-config` with an empty
+config. This ensures the agent uses only local tools (Bash, Edit, Write, Read,
+Glob, Grep) and cannot access remote services like Supabase MCP or Neon. All
+work must happen on the local filesystem — e.g., creating migration files in
+`supabase/migrations/`, not applying them to a remote project.
+
 ## Eval Structure
 
 Each eval lives in `evals/{scenario-name}/`:

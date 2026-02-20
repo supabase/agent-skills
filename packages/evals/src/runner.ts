@@ -2,10 +2,12 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { runAgent } from "./runner/agent.js";
 import { uploadToBraintrust } from "./runner/braintrust.js";
+import { createResultDir, saveRunArtifacts } from "./runner/persist.js";
 import { preflight } from "./runner/preflight.js";
 import { listModifiedFiles, printSummary } from "./runner/results.js";
 import { createWorkspace } from "./runner/scaffold.js";
 import { runTests } from "./runner/test.js";
+import { buildTranscriptSummary } from "./runner/transcript.js";
 import type { EvalRunResult, EvalScenario } from "./types.js";
 
 // ---------------------------------------------------------------------------
@@ -18,6 +20,12 @@ const AGENT_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 const model = process.env.EVAL_MODEL ?? DEFAULT_MODEL;
 const scenarioFilter = process.env.EVAL_SCENARIO;
 const runBaseline = process.env.EVAL_BASELINE === "true";
+
+// Run-level timestamp shared across all scenarios in a single invocation
+const runTimestamp = new Date()
+	.toISOString()
+	.replace(/[:.]/g, "-")
+	.replace("Z", "");
 
 // ---------------------------------------------------------------------------
 // Discover scenarios
@@ -58,10 +66,9 @@ async function runEval(
 ): Promise<EvalRunResult> {
 	const evalsDir = findEvalsDir();
 	const evalDir = join(evalsDir, scenario.id);
+	const variant = skillEnabled ? "with-skill" : "baseline";
 
-	console.log(
-		`\n--- ${scenario.id} (${skillEnabled ? "with-skill" : "baseline"}) ---`,
-	);
+	console.log(`\n--- ${scenario.id} (${variant}) ---`);
 
 	// 1. Create isolated workspace
 	const { workspacePath, cleanup } = createWorkspace({
@@ -104,7 +111,10 @@ async function runEval(
 		// 5. Collect modified files
 		const filesModified = listModifiedFiles(workspacePath, evalDir);
 
-		return {
+		// 6. Build transcript summary
+		const summary = buildTranscriptSummary(agentResult.events);
+
+		const result: EvalRunResult = {
 			scenario: scenario.id,
 			agent: "claude-code",
 			model,
@@ -116,7 +126,22 @@ async function runEval(
 			testsPassed: testResult.passedCount,
 			testsTotal: testResult.totalCount,
 			filesModified,
+			toolCallCount: summary.toolCalls.length,
+			costUsd: summary.totalCostUsd ?? undefined,
 		};
+
+		// 7. Persist results
+		const resultDir = createResultDir(runTimestamp, scenario.id, variant);
+		result.resultsDir = resultDir;
+		saveRunArtifacts({
+			resultDir,
+			rawTranscript: agentResult.rawTranscript,
+			testOutput: testResult.output,
+			result,
+			transcriptSummary: summary,
+		});
+
+		return result;
 	} catch (error) {
 		const err = error as Error;
 		return {
@@ -175,7 +200,9 @@ async function main() {
 		}
 	}
 
-	printSummary(results);
+	// Use the results dir from the first result (all share the same timestamp)
+	const resultsDir = results.find((r) => r.resultsDir)?.resultsDir;
+	printSummary(results, resultsDir);
 
 	if (process.env.BRAINTRUST_UPLOAD === "true") {
 		console.log("\nUploading to Braintrust...");

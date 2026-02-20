@@ -22,3 +22,6 @@ dist/
 # Generated skills in any dot directory
 .*/skills/
 .claude/
+
+# Eval results (local debugging artifacts)
+packages/evals/results/

@@ -1,12 +1,26 @@
 import { spawn } from "node:child_process";
+import { resolveClaudeBin } from "./preflight.js";
+import {
+	extractFinalOutput,
+	parseStreamJsonOutput,
+	type TranscriptEvent,
+} from "./transcript.js";
 
 export interface AgentRunResult {
+	/** Extracted final text output (backward-compatible). */
 	output: string;
 	duration: number;
+	/** Raw NDJSON transcript string from stream-json. */
+	rawTranscript: string;
+	/** Parsed transcript events. */
+	events: TranscriptEvent[];
 }
 
 /**
  * Invoke Claude Code in print mode as a subprocess.
+ *
+ * Uses --output-format stream-json to capture structured NDJSON events
+ * including tool calls, results, and reasoning steps.
  *
  * The agent operates in the workspace directory and can read/write files.
  * When the skill is installed (symlinked into workspace), Claude Code
@@ -23,14 +37,22 @@ export async function runAgent(opts: {
 
 	const args = [
 		"-p", // Print mode (non-interactive)
+		"--verbose",
 		"--output-format",
-		"text",
+		"stream-json",
 		"--model",
 		opts.model,
 		"--no-session-persistence",
 		"--dangerously-skip-permissions",
 		"--tools",
 		"Edit,Write,Bash,Read,Glob,Grep",
+		// Disable all MCP servers so the agent uses only local filesystem tools.
+		// Without this, MCP tools from the parent env (e.g. Supabase, Neon)
+		// leak in and the agent may apply migrations to a remote project
+		// instead of creating local files.
+		"--mcp-config",
+		'{"mcpServers":{}}',
+		"--strict-mcp-config",
 	];
 
 	// Disable skills for baseline runs so the agent relies on innate knowledge
@@ -46,8 +68,10 @@ export async function runAgent(opts: {
 		}
 	}
 
+	const claudeBin = resolveClaudeBin();
+
 	return new Promise<AgentRunResult>((resolve) => {
-		const child = spawn("claude", args, {
+		const child = spawn(claudeBin, args, {
 			cwd: opts.cwd,
 			env,
 			stdio: ["pipe", "pipe", "pipe"],
@@ -73,9 +97,15 @@ export async function runAgent(opts: {
 
 		child.on("close", () => {
 			clearTimeout(timer);
+			const rawTranscript = stdout || stderr;
+			const events = parseStreamJsonOutput(rawTranscript);
+			const output = extractFinalOutput(events) || rawTranscript;
+
 			resolve({
-				output: stdout || stderr,
+				output,
 				duration: Date.now() - start,
+				rawTranscript,
+				events,
 			});
 		});
 	});
