@@ -36,13 +36,28 @@ export async function runTests(opts: {
 	const destPath = join(opts.workspacePath, evalFileName);
 	copyFileSync(opts.evalFilePath, destPath);
 
+	// Copy shared eval-utils.ts if it exists alongside the eval scenarios
+	const evalUtilsSrc = join(
+		dirname(dirname(opts.evalFilePath)),
+		"eval-utils.ts",
+	);
+	if (existsSync(evalUtilsSrc)) {
+		copyFileSync(evalUtilsSrc, join(opts.workspacePath, "eval-utils.ts"));
+	}
+
 	// Write a minimal vitest config that overrides the default include pattern
 	// so EVAL.ts (without .test. or .spec.) is picked up.
 	const vitestConfigPath = join(opts.workspacePath, "vitest.config.mjs");
 	if (!existsSync(vitestConfigPath)) {
+		// Alias ../eval-utils.ts → ./eval-utils.ts so the import resolves in
+		// the flat workspace (source tree has EVAL.ts one level deeper).
+		const evalUtilsDest = join(opts.workspacePath, "eval-utils.ts");
+		const aliasBlock = existsSync(evalUtilsDest)
+			? `resolve: { alias: { "../eval-utils.ts": "./eval-utils.ts" } },`
+			: "";
 		writeFileSync(
 			vitestConfigPath,
-			`export default { test: { include: ["EVAL.{ts,tsx}"] } };\n`,
+			`export default { ${aliasBlock} test: { include: ["EVAL.{ts,tsx}"] } };\n`,
 		);
 	}
 

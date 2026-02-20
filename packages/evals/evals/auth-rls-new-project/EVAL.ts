@@ -1,29 +1,19 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
 
-const supabaseDir = join(process.cwd(), "supabase");
-const migrationsDir = join(supabaseDir, "migrations");
-
-/** Find the first .sql migration file (agent may name it differently). */
-function findMigrationFile(): string | null {
-	if (!existsSync(migrationsDir)) return null;
-	const files = readdirSync(migrationsDir).filter((f) => f.endsWith(".sql"));
-	return files.length > 0 ? join(migrationsDir, files[0]) : null;
-}
-
-function getMigrationSQL(): string {
-	const file = findMigrationFile();
-	if (!file) throw new Error("No migration file found in supabase/migrations/");
-	return readFileSync(file, "utf-8");
-}
+import {
+	findMigrationFiles,
+	getMigrationSQL,
+	supabaseDir,
+} from "../eval-utils.ts";
 
 test("supabase project initialized (config.toml exists)", () => {
 	expect(existsSync(join(supabaseDir, "config.toml"))).toBe(true);
 });
 
 test("migration file exists in supabase/migrations/", () => {
-	expect(findMigrationFile()).not.toBeNull();
+	expect(findMigrationFiles().length).toBeGreaterThan(0);
 });
 
 test("creates tasks table", () => {

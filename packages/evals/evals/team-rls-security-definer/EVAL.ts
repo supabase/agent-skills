@@ -1,25 +1,6 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { expect, test } from "vitest";
 
-const supabaseDir = join(process.cwd(), "supabase");
-const migrationsDir = join(supabaseDir, "migrations");
-
-/** Find all .sql migration files (agent may create one or multiple). */
-function findMigrationFiles(): string[] {
-	if (!existsSync(migrationsDir)) return [];
-	return readdirSync(migrationsDir)
-		.filter((f) => f.endsWith(".sql"))
-		.map((f) => join(migrationsDir, f));
-}
-
-/** Concatenate all migration SQL into a single string for assertions. */
-function getMigrationSQL(): string {
-	const files = findMigrationFiles();
-	if (files.length === 0)
-		throw new Error("No migration file found in supabase/migrations/");
-	return files.map((f) => readFileSync(f, "utf-8")).join("\n");
-}
+import { findMigrationFiles, getMigrationSQL } from "../eval-utils.ts";
 
 test("migration file exists", () => {
 	expect(findMigrationFiles().length).toBeGreaterThan(0);
