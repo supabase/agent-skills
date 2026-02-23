@@ -7,3 +7,4 @@
 | 3 | [storage-rls-user-folders](storage-rls-user-folders.md) | Storage buckets with RLS policies for user-isolated folders |
 | 4 | [edge-function-hello-world](edge-function-hello-world.md) | Hello-world Edge Function with CORS and shared utilities |
 | 5 | edge-function-stripe-webhook | Stripe webhook Edge Function with signature verification and orders migration |
+| 6 | [collaborative-rooms-realtime](collaborative-rooms-realtime.md) | Collaborative rooms with role-based RLS, broadcast triggers, and Realtime authorization |

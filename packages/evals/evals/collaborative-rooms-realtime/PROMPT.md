@@ -1,0 +1,1 @@
+Build a collaborative app where users can create rooms (shared spaces for group work), invite other users to join their rooms, and share content within them. Users should only see rooms they've been invited to or created. Room owners can manage members, editors can create and modify content, and viewers can only read. All changes should appear in real-time.
