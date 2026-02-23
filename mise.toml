@@ -54,3 +54,38 @@ sources = ["packages/evals/src/**", "packages/evals/evals/**"]
 description = "Run workflow evals and upload to Braintrust"
 run = "npm --prefix packages/evals run eval:upload"
 sources = ["packages/evals/src/**", "packages/evals/evals/**"]
+
+# ── Docker eval tasks ────────────────────────────────────────────────
+
+[tasks."eval:docker:build"]
+description = "Build the eval Docker image"
+run = "docker build -t supabase-evals:local -f packages/evals/Dockerfile ."
+
+[tasks."eval:docker"]
+description = "Run evals in Docker"
+depends = ["eval:docker:build"]
+run = """
+docker run --rm \
+  -e ANTHROPIC_API_KEY \
+  -e EVAL_MODEL \
+  -e EVAL_SCENARIO \
+  -e EVAL_BASELINE \
+  -e EVAL_SKILL \
+  -e BRAINTRUST_UPLOAD \
+  -e BRAINTRUST_API_KEY \
+  -e BRAINTRUST_PROJECT_ID \
+  -e EVAL_RESULTS_DIR=/app/results \
+  -v "$(pwd)/packages/evals/results:/app/results" \
+  supabase-evals:local
+"""
+
+[tasks."eval:docker:shell"]
+description = "Open a debug shell in the eval container"
+depends = ["eval:docker:build"]
+run = """
+docker run --rm -it \
+  -e ANTHROPIC_API_KEY \
+  -e IN_DOCKER=true \
+  -v "$(pwd)/packages/evals/results:/app/results" \
+  supabase-evals:local /bin/bash
+"""

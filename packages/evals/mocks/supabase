@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+# Mock Supabase CLI for eval environments.
+# Returns realistic output so the agent doesn't retry, and creates real
+# migration files when asked.
+set -euo pipefail
+
+CMD="${1:-}"
+shift || true
+
+case "$CMD" in
+  init)
+    mkdir -p supabase/migrations supabase/functions
+    cat > supabase/config.toml << 'TOML'
+[project]
+id = "mock-project-ref"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+TOML
+    echo "Finished supabase init."
+    ;;
+
+  start)
+    echo "Applying migration 00000000000000_init.sql..."
+    echo "Started supabase local development setup."
+    echo ""
+    echo "         API URL: http://127.0.0.1:54321"
+    echo "     GraphQL URL: http://127.0.0.1:54321/graphql/v1"
+    echo "  S3 Storage URL: http://127.0.0.1:54321/storage/v1/s3"
+    echo "          DB URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+    echo "      Studio URL: http://127.0.0.1:54323"
+    echo "    Inbucket URL: http://127.0.0.1:54324"
+    echo "      JWT secret: super-secret-jwt-token-with-at-least-32-characters-long"
+    echo "        anon key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+    echo "service_role key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU"
+    echo "   S3 Access Key: 625729a08b95bf1b7ff351a663f3a23c"
+    echo "   S3 Secret Key: 850181e4652dd023b7a98c58ae0d2d34bd487ee0cc3254aed6eda37307425907"
+    echo "       S3 Region: local"
+    ;;
+
+  stop)
+    echo "Stopped supabase local development setup."
+    ;;
+
+  status)
+    if [[ "${1:-}" == "-o" && "${2:-}" == "env" ]]; then
+      echo "ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+      echo "SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU"
+      echo "API_URL=http://127.0.0.1:54321"
+      echo "DB_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+      echo "STUDIO_URL=http://127.0.0.1:54323"
+    else
+      echo "         API URL: http://127.0.0.1:54321"
+      echo "          DB URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+      echo "      Studio URL: http://127.0.0.1:54323"
+      echo "        DB: running"
+      echo "      Auth: running"
+      echo "      REST: running"
+      echo "   Realtime: running"
+      echo "   Storage: running"
+    fi
+    ;;
+
+  migration)
+    SUBCMD="${1:-}"
+    shift || true
+    case "$SUBCMD" in
+      new)
+        NAME="${1:-migration}"
+        TIMESTAMP=$(date -u +"%Y%m%d%H%M%S")
+        mkdir -p supabase/migrations
+        MIGRATION_FILE="supabase/migrations/${TIMESTAMP}_${NAME}.sql"
+        touch "$MIGRATION_FILE"
+        echo "Created new migration at $MIGRATION_FILE"
+        ;;
+      list)
+        echo "No migrations found."
+        ;;
+      *)
+        echo "supabase migration $SUBCMD: ok"
+        ;;
+    esac
+    ;;
+
+  db)
+    SUBCMD="${1:-}"
+    shift || true
+    case "$SUBCMD" in
+      push)
+        echo "Applying unapplied migrations..."
+        echo "Applied migration(s) successfully."
+        ;;
+      reset)
+        echo "Resetting local database..."
+        echo "Database reset successfully."
+        ;;
+      diff)
+        echo "No schema changes detected."
+        ;;
+      *)
+        echo "supabase db $SUBCMD: ok"
+        ;;
+    esac
+    ;;
+
+  functions)
+    SUBCMD="${1:-}"
+    shift || true
+    case "$SUBCMD" in
+      new)
+        FUNC_NAME="${1:-my-function}"
+        mkdir -p "supabase/functions/$FUNC_NAME"
+        cat > "supabase/functions/$FUNC_NAME/index.ts" << 'TS'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+
+serve(async (req) => {
+  return new Response(JSON.stringify({ message: "Hello from Edge Functions!" }), {
+    headers: { "Content-Type": "application/json" },
+  })
+})
+TS
+        echo "Created new Function at supabase/functions/$FUNC_NAME"
+        ;;
+      serve)
+        echo "Serving functions on http://127.0.0.1:54321/functions/v1/<function-name>"
+        ;;
+      deploy)
+        echo "Deployed function successfully."
+        ;;
+      *)
+        echo "supabase functions $SUBCMD: ok"
+        ;;
+    esac
+    ;;
+
+  gen)
+    echo "Generated types successfully."
+    ;;
+
+  link)
+    echo "Linked project: mock-project-ref"
+    ;;
+
+  login)
+    echo "Already logged in."
+    ;;
+
+  *)
+    echo "supabase $CMD: ok"
+    ;;
+esac

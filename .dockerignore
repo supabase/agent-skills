@@ -1,0 +1,9 @@
+.git
+.env
+.env.*
+node_modules
+packages/evals/results
+packages/evals/node_modules
+packages/skills-build/node_modules
+reports
+*.log

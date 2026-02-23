@@ -34,16 +34,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: jdx/mise-action@v3
-        with:
-          install: true
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Install dependencies
-        run: npm install && npm --prefix packages/evals install
+      - name: Build eval image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packages/evals/Dockerfile
+          tags: supabase-evals:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Run Evals
-        uses: braintrustdata/eval-action@v1
+        run: |
+          docker run --rm \
+            -e ANTHROPIC_API_KEY \
+            -e BRAINTRUST_PROJECT_ID \
+            -e BRAINTRUST_API_KEY=${{ secrets.BRAINTRUST_API_KEY }} \
+            -e BRAINTRUST_UPLOAD=true \
+            -e EVAL_RESULTS_DIR=/app/results \
+            -v "${{ github.workspace }}/results:/app/results" \
+            supabase-evals:ci
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          api_key: ${{ secrets.BRAINTRUST_API_KEY }}
-          runtime: node
-          root: packages/evals
+          name: eval-results
+          path: results/
+          if-no-files-found: ignore

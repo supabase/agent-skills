@@ -1,0 +1,17 @@
+services:
+  evals:
+    build:
+      context: ../..
+      dockerfile: packages/evals/Dockerfile
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - EVAL_MODEL=${EVAL_MODEL:-}
+      - EVAL_SCENARIO=${EVAL_SCENARIO:-}
+      - EVAL_BASELINE=${EVAL_BASELINE:-}
+      - EVAL_SKILL=${EVAL_SKILL:-}
+      - BRAINTRUST_UPLOAD=${BRAINTRUST_UPLOAD:-}
+      - BRAINTRUST_API_KEY=${BRAINTRUST_API_KEY:-}
+      - BRAINTRUST_PROJECT_ID=${BRAINTRUST_PROJECT_ID:-}
+      - EVAL_RESULTS_DIR=/app/results
+    volumes:
+      - ./results:/app/results

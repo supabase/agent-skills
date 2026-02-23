@@ -1,7 +1,18 @@
 import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { accessSync, constants, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+/** Detect if we're running inside the eval Docker container. */
+export function isRunningInDocker(): boolean {
+	if (process.env.IN_DOCKER === "true") return true;
+	try {
+		accessSync("/.dockerenv", constants.F_OK);
+		return true;
+	} catch {
+		return false;
+	}
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -66,11 +77,13 @@ export function preflight(): void {
 		errors.push(`Node.js >= 20 required (found ${process.versions.node})`);
 	}
 
-	// Docker daemon running
-	try {
-		execFileSync("docker", ["info"], { stdio: "ignore", timeout: 10_000 });
-	} catch {
-		errors.push("Docker is not running (required by supabase CLI)");
+	// Docker daemon running (skip when inside the eval container — mocks handle it)
+	if (!isRunningInDocker()) {
+		try {
+			execFileSync("docker", ["info"], { stdio: "ignore", timeout: 10_000 });
+		} catch {
+			errors.push("Docker is not running (required by supabase CLI)");
+		}
 	}
 
 	// Claude CLI available

@@ -7,10 +7,14 @@ import type { TranscriptSummary } from "./transcript.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-/** Resolve the evals package root (packages/evals). */
-function evalsRoot(): string {
-	// __dirname is packages/evals/src/runner
-	return join(__dirname, "..", "..");
+/** Resolve the base directory for storing results.
+ *  Supports EVAL_RESULTS_DIR override for Docker volume mounts. */
+function resultsBase(): string {
+	if (process.env.EVAL_RESULTS_DIR) {
+		return process.env.EVAL_RESULTS_DIR;
+	}
+	// Default: packages/evals/results (__dirname is packages/evals/src/runner)
+	return join(__dirname, "..", "..", "results");
 }
 
 /** Create the results directory for a single scenario run. Returns the path. */
@@ -19,7 +23,7 @@ export function createResultDir(
 	scenarioId: string,
 	variant: "with-skill" | "baseline",
 ): string {
-	const dir = join(evalsRoot(), "results", runTimestamp, scenarioId, variant);
+	const dir = join(resultsBase(), runTimestamp, scenarioId, variant);
 	mkdirSync(dir, { recursive: true });
 	return dir;
 }
