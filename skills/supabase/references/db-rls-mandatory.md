@@ -14,7 +14,7 @@ RLS, any user with the anon key can read and write all data.
 -- Table without RLS - anyone can read/write everything
 create table profiles (
   id uuid primary key,
-  user_id uuid,
+  user_id uuid references auth.users(id) on delete cascade,
   bio text
 );
 ```
@@ -22,9 +22,9 @@ create table profiles (
 **Correct:**
 
 ```sql
-create table profiles (
+create table if not exists profiles (
   id uuid primary key,
-  user_id uuid references auth.users(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
   bio text
 );
 

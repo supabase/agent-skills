@@ -39,7 +39,9 @@ Private channels require RLS policies on the `realtime.messages` table.
 create policy "authenticated_users_can_receive"
 on realtime.messages for select
 to authenticated
-using (true);
+using (
+  realtime.messages.extension in ('broadcast', 'presence')
+);
 ```
 
 **Write access (send to channel):**
@@ -48,8 +50,12 @@ using (true);
 create policy "authenticated_users_can_send"
 on realtime.messages for insert
 to authenticated
-with check (true);
+with check (
+  realtime.messages.extension in ('broadcast', 'presence')
+);
 ```
+
+Always filter on `extension in ('broadcast', 'presence')` to restrict which Realtime features are permitted.
 
 **Topic-specific access:**
 
@@ -59,11 +65,11 @@ create policy "room_members_can_read"
 on realtime.messages for select
 to authenticated
 using (
-  exists (
+  realtime.messages.extension in ('broadcast', 'presence')
+  and exists (
     select 1 from room_members
     where user_id = (select auth.uid())
-    and topic = (select realtime.topic())
-    and realtime.messages.extension in ('broadcast', 'presence')
+    and room_id::text = realtime.topic()
   )
 );
 ```

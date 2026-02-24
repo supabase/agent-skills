@@ -38,7 +38,8 @@ values (
   true,
   5242880,  -- 5MB
   array['image/jpeg', 'image/png', 'image/webp']
-);
+)
+on conflict (id) do nothing;
 ```
 
 ## Storage Helper Functions
@@ -60,11 +61,11 @@ create policy "User folder access"
 on storage.objects for all to authenticated
 using (
   bucket_id = 'user-files' and
-  (storage.foldername(name))[1] = auth.uid()::text
+  (storage.foldername(name))[1] = (select auth.uid())::text
 )
 with check (
   bucket_id = 'user-files' and
-  (storage.foldername(name))[1] = auth.uid()::text
+  (storage.foldername(name))[1] = (select auth.uid())::text
 );
 ```
 

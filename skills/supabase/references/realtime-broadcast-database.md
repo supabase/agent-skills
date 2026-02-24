@@ -12,7 +12,10 @@ Use database triggers with `realtime.broadcast_changes()` instead of `postgres_c
 Broadcasts database changes in a standard format.
 
 ```sql
-create or replace function room_messages_broadcast()
+-- Private schema for security definer functions
+create schema if not exists private;
+
+create or replace function private.room_messages_broadcast()
 returns trigger
 security definer
 set search_path = ''
@@ -34,8 +37,10 @@ $$;
 
 create trigger messages_broadcast_trigger
   after insert or update or delete on messages
-  for each row execute function room_messages_broadcast();
+  for each row execute function private.room_messages_broadcast();
 ```
+
+**Private channels require RLS on `realtime.messages`:** When clients subscribe with `{ config: { private: true } }`, you must create RLS policies on `realtime.messages` to control who can listen. See [setup-auth.md](setup-auth.md) for the required policies.
 
 **Client subscription:**
 

@@ -23,7 +23,7 @@ create policy "Users see own data" on profiles
 -- Only runs for authenticated users
 create policy "Users see own data" on profiles
   to authenticated
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 ```
 
 ## 2. Using user_metadata for Authorization
@@ -59,7 +59,9 @@ using (auth.uid() = user_id)
 
 ```sql
 -- Explicit NULL check
-using (auth.uid() is not null and auth.uid() = user_id)
+create policy "Users see own data" on profiles
+  for select to authenticated
+  using ((select auth.uid()) is not null and (select auth.uid()) = user_id);
 ```
 
 ## 4. Missing SELECT Policy for UPDATE
@@ -81,13 +83,34 @@ create policy "Users can update" on profiles
 -- Need both SELECT and UPDATE policies
 create policy "Users can view" on profiles
   for select to authenticated
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 
 create policy "Users can update" on profiles
   for update to authenticated
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
 ```
+
+## 5. Bare auth.uid() Instead of Subselect
+
+Bare `auth.uid()` is re-evaluated for every row. Wrap in a subselect so
+Postgres evaluates it once per query.
+
+**Incorrect:**
+
+```sql
+-- Re-evaluated per row, prevents index usage
+using (auth.uid() = user_id)
+```
+
+**Correct:**
+
+```sql
+-- Evaluated once, allows index scans
+using ((select auth.uid()) = user_id)
+```
+
+See [db-rls-performance.md](db-rls-performance.md) for details.
 
 ## Related
 

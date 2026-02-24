@@ -23,7 +23,7 @@ create table profiles (
 
 ```sql
 -- Profile deleted automatically when user is deleted
-create table profiles (
+create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   username text,
   avatar_url text
@@ -43,7 +43,7 @@ create policy "Users can view own profile"
 Use `ON DELETE SET NULL` when the record should persist without the user:
 
 ```sql
-create table comments (
+create table if not exists comments (
   id bigint primary key generated always as identity,
   author_id uuid references auth.users(id) on delete set null,
   content text not null,

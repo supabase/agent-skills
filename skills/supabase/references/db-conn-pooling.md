@@ -102,6 +102,25 @@ DATABASE_URL="...pooler.supabase.com:6543/postgres"
 DATABASE_URL="...pooler.supabase.com:6543/postgres?pgbouncer=true"
 ```
 
+## Prisma Configuration
+
+Prisma requires `connection_limit=1` in the pooled URL and a `directUrl` for
+migrations (which use prepared statements unsupported by transaction mode).
+
+```prisma
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")      // Pooled (port 6543)
+  directUrl = env("DIRECT_URL")        // Direct (port 5432) — used for migrations
+}
+```
+
+```bash
+# .env
+DATABASE_URL="postgres://postgres.[ref]:[pw]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+DIRECT_URL="postgres://postgres:[pw]@db.[ref].supabase.co:5432/postgres"
+```
+
 ## Connection Limits by Compute Size
 
 | Compute | Direct Connections | Pooler Clients |
