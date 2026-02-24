@@ -1,5 +1,5 @@
-import { mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import type { EvalRunResult } from "../types.js";
 
 /**

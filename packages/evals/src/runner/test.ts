@@ -16,6 +16,8 @@ export interface TestResult {
 	passedCount: number;
 	/** Total number of tests */
 	totalCount: number;
+	/** Per-test pass/fail extracted from vitest verbose output */
+	individualTests: Record<string, boolean>;
 }
 
 /**
@@ -91,6 +93,24 @@ export async function runTests(opts: {
 	}
 }
 
+/**
+ * Extract per-test pass/fail from vitest verbose output.
+ *
+ * Vitest verbose format:
+ *   ✓ EVAL.ts > test name here 0ms          → passed
+ *   × EVAL.ts > test name here 2ms          → failed
+ */
+function parseIndividualTests(output: string): Record<string, boolean> {
+	const results: Record<string, boolean> = {};
+	const re = /[✓×]\s+EVAL\.tsx?\s+>\s+(.+?)\s+\d+ms/g;
+	for (const match of output.matchAll(re)) {
+		const testName = match[1].trim();
+		const didPass = output[match.index] === "✓";
+		results[testName] = didPass;
+	}
+	return results;
+}
+
 function parseTestOutput(output: string): TestResult {
 	// Parse vitest output for pass/fail counts
 	// Vitest formats:
@@ -114,6 +134,7 @@ function parseTestOutput(output: string): TestResult {
 	}
 
 	const passed = totalCount > 0 && passedCount === totalCount;
+	const individualTests = parseIndividualTests(output);
 
-	return { passed, output, passedCount, totalCount };
+	return { passed, output, passedCount, totalCount, individualTests };
 }

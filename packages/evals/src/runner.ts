@@ -7,7 +7,10 @@ import { preflight } from "./runner/preflight.js";
 import { listModifiedFiles, printSummary } from "./runner/results.js";
 import { createWorkspace } from "./runner/scaffold.js";
 import { runTests } from "./runner/test.js";
-import { buildTranscriptSummary } from "./runner/transcript.js";
+import {
+	buildTranscriptSummary,
+	type TranscriptSummary,
+} from "./runner/transcript.js";
 import type { EvalRunResult, EvalScenario } from "./types.js";
 
 // ---------------------------------------------------------------------------
@@ -64,7 +67,7 @@ function discoverScenarios(): EvalScenario[] {
 async function runEval(
 	scenario: EvalScenario,
 	skillEnabled: boolean,
-): Promise<EvalRunResult> {
+): Promise<{ result: EvalRunResult; transcript?: TranscriptSummary }> {
 	const evalsDir = findEvalsDir();
 	const evalDir = join(evalsDir, scenario.id);
 	const variant = skillEnabled ? "with-skill" : "baseline";
@@ -129,6 +132,8 @@ async function runEval(
 			filesModified,
 			toolCallCount: summary.toolCalls.length,
 			costUsd: summary.totalCostUsd ?? undefined,
+			prompt,
+			individualTests: testResult.individualTests,
 		};
 
 		// 7. Persist results
@@ -142,22 +147,24 @@ async function runEval(
 			transcriptSummary: summary,
 		});
 
-		return result;
+		return { result, transcript: summary };
 	} catch (error) {
 		const err = error as Error;
 		return {
-			scenario: scenario.id,
-			agent: "claude-code",
-			model,
-			skillEnabled,
-			status: "error",
-			duration: 0,
-			testOutput: "",
-			agentOutput: "",
-			testsPassed: 0,
-			testsTotal: 0,
-			filesModified: [],
-			error: err.message,
+			result: {
+				scenario: scenario.id,
+				agent: "claude-code",
+				model,
+				skillEnabled,
+				status: "error",
+				duration: 0,
+				testOutput: "",
+				agentOutput: "",
+				testsPassed: 0,
+				testsTotal: 0,
+				filesModified: [],
+				error: err.message,
+			},
 		};
 	} finally {
 		cleanup();
@@ -188,10 +195,14 @@ async function main() {
 	console.log(`Scenarios: ${scenarios.map((s) => s.id).join(", ")}`);
 
 	const results: EvalRunResult[] = [];
+	const transcripts = new Map<string, TranscriptSummary>();
 
 	for (const scenario of scenarios) {
-		const result = await runEval(scenario, skillEnabled);
+		const { result, transcript } = await runEval(scenario, skillEnabled);
 		results.push(result);
+		if (transcript) {
+			transcripts.set(result.scenario, transcript);
+		}
 	}
 
 	// Use the results dir from the first result (all share the same timestamp)
@@ -200,7 +211,12 @@ async function main() {
 
 	if (process.env.BRAINTRUST_UPLOAD === "true") {
 		console.log("\nUploading to Braintrust...");
-		await uploadToBraintrust(results);
+		await uploadToBraintrust(results, {
+			model,
+			skillEnabled,
+			runTimestamp,
+			transcripts,
+		});
 	}
 }
 

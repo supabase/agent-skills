@@ -45,9 +45,17 @@ This prevents the agent from "teaching to the test."
 
 ## Running Evals
 
+Eval tasks in `mise.toml` have `sources` defined, so mise skips them when
+source files haven't changed. Use `--force` to bypass caching when you need
+to re-run evals regardless (e.g., after changing environment variables or
+re-running the same scenario):
+
 ```bash
 # Run all scenarios with skills (default)
 mise run eval
+
+# Force re-run (bypass source caching)
+mise run --force eval
 
 # Run a specific scenario
 EVAL_SCENARIO=auth-rls-new-project mise run eval
@@ -63,9 +71,12 @@ EVAL_SKILL=supabase mise run eval
 
 # Upload results to Braintrust
 mise run eval:upload
+
+# Force upload (bypass cache)
+mise run --force eval:upload
 ```
 
-Or directly:
+Or directly (no caching, always runs):
 
 ```bash
 cd packages/evals
@@ -99,12 +110,15 @@ Compare the results to measure how much skills improve agent output.
 ## Environment
 
 ```
-ANTHROPIC_API_KEY=sk-ant-...    # Required: Claude Code authentication
-EVAL_MODEL=...                  # Optional: override model (default: claude-sonnet-4-5-20250929)
-EVAL_SCENARIO=...               # Optional: run single scenario
-EVAL_SKILL=...                  # Optional: install only this skill (e.g., "supabase")
-EVAL_BASELINE=true              # Optional: run without skills (baseline mode)
-BRAINTRUST_UPLOAD=true          # Optional: upload results to Braintrust
+ANTHROPIC_API_KEY=sk-ant-...       # Required: Claude Code authentication
+EVAL_MODEL=...                     # Optional: override model (default: claude-sonnet-4-5-20250929)
+EVAL_SCENARIO=...                  # Optional: run single scenario
+EVAL_SKILL=...                     # Optional: install only this skill (e.g., "supabase")
+EVAL_BASELINE=true                 # Optional: run without skills (baseline mode)
+BRAINTRUST_UPLOAD=true             # Optional: upload results to Braintrust
+BRAINTRUST_API_KEY=...             # Required when BRAINTRUST_UPLOAD=true
+BRAINTRUST_PROJECT_ID=...          # Required when BRAINTRUST_UPLOAD=true
+BRAINTRUST_BASE_EXPERIMENT=...     # Optional: compare against a named experiment
 ```
 
 ## Key Files

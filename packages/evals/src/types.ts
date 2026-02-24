@@ -38,4 +38,8 @@ export interface EvalRunResult {
 	toolCallCount?: number;
 	/** Total cost in USD (from stream-json result event) */
 	costUsd?: number;
+	/** The PROMPT.md content sent to the agent */
+	prompt?: string;
+	/** Per-test pass/fail results from vitest */
+	individualTests?: Record<string, boolean>;
 }
