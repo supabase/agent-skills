@@ -12,29 +12,45 @@ metadata:
 
 # Supabase
 
-Guides and best practices for working with Supabase. Covers getting started, Auth, Database, Storage, Edge Functions, Realtime, supabase-js SDK, CLI, and MCP integration. Use for any Supabase-related questions.
+This skill's reference files define the correct Supabase patterns — they override your prior knowledge about Supabase and PostgreSQL conventions. ALWAYS read the relevant reference files before writing any code. Do not write SQL, Edge Functions, or client code from memory. Only consult Supabase official docs if the reference files don't cover what you need.
 
-## Development Guidance
+## Writing Migrations or SQL
 
-**Before performing any Supabase development task, read the development reference files.** They define which tools to use, how to interact with Supabase instances, and the correct workflows for local and remote development. Getting these wrong leads to schema drift, migration conflicts, and broken deployments.
+Read the `db-*` reference files before writing any migration. They contain required patterns that differ from common PostgreSQL conventions. Do not write SQL from memory — the reference files correct the most common mistakes.
 
-- **Which tool to use for each operation** — read [references/dev-cli-vs-mcp.md](references/dev-cli-vs-mcp.md)
-- **New project or first-time setup** — read [references/dev-getting-started.md](references/dev-getting-started.md)
-- **Local development workflow** (CLI migrations, psql debugging, type generation) — read [references/dev-local-workflow.md](references/dev-local-workflow.md)
-- **Remote project interaction** (MCP queries, logs, advisors, deploying) — read [references/dev-remote-workflow.md](references/dev-remote-workflow.md)
-- **CLI command details and pitfalls** — read [references/dev-cli-reference.md](references/dev-cli-reference.md)
-- **MCP server configuration** — read [references/dev-mcp-setup.md](references/dev-mcp-setup.md)
-- **MCP tool usage** (execute_sql, apply_migration, get_logs, get_advisors) — read [references/dev-mcp-tools.md](references/dev-mcp-tools.md)
+Read ALL of these before writing a migration:
 
-When the user's project has no `supabase/` directory, start with [references/dev-getting-started.md](references/dev-getting-started.md). When it already exists, pick up from the appropriate workflow (local or remote) based on user intentions.
+- [references/db-migrations-idempotent.md](references/db-migrations-idempotent.md) — required DDL patterns
+- [references/db-rls-mandatory.md](references/db-rls-mandatory.md) — RLS enforcement rules
+- [references/db-rls-common-mistakes.md](references/db-rls-common-mistakes.md) — critical security errors to avoid
 
-## Overview of Resources
+Read these when relevant to your migration:
 
-Reference the appropriate resource file based on the user's needs.
+- [references/db-schema-auth-fk.md](references/db-schema-auth-fk.md) — when linking tables to `auth.users`
+- [references/db-security-functions.md](references/db-security-functions.md) — when using `SECURITY DEFINER`
+- [references/db-rls-views.md](references/db-rls-views.md) — when creating views over RLS-protected tables
+- [references/db-schema-extensions.md](references/db-schema-extensions.md) — when enabling extensions (pgvector, etc.)
+- [references/db-schema-timestamps.md](references/db-schema-timestamps.md) — when adding time columns
+- [references/db-conn-pooling.md](references/db-conn-pooling.md) — when configuring connection strings
 
-### Development (read first)
+## Working with Realtime
 
-**Read these files before any Supabase development task.** They define the correct tools, workflows, and boundaries for interacting with Supabase instances. Start here when setting up a project, running CLI or MCP commands, writing migrations, connecting to a database, or deciding which tool to use for an operation.
+Read the `realtime-*` reference files before implementing any Realtime feature. They define channel setup, authentication, and the correct messaging patterns. Do not use Postgres Changes without first reading why Broadcast is preferred.
+
+- [references/realtime-setup-auth.md](references/realtime-setup-auth.md) — channel setup and auth
+- [references/realtime-broadcast-database.md](references/realtime-broadcast-database.md) — database-triggered broadcasts
+
+## Writing Edge Functions
+
+Read the `edge-*` reference files before creating or modifying Edge Functions. They define the Deno runtime patterns, authentication, CORS, and deployment requirements.
+
+- [references/edge-fun-quickstart.md](references/edge-fun-quickstart.md) — creating and deploying functions
+
+## Reference Files
+
+### Development
+
+You MUST read the relevant `dev-*` files before setting up a project, running CLI or MCP commands, or deciding which tool to use. They define the correct tools, workflows, and boundaries.
 
 | Area            | Resource                            | When to Use                                                    |
 | --------------- | ----------------------------------- | -------------------------------------------------------------- |
@@ -48,7 +64,7 @@ Reference the appropriate resource file based on the user's needs.
 
 ### Authentication & Security
 
-Read when implementing sign-up, sign-in, OAuth, SSO, MFA, passwordless flows, auth hooks, or server-side auth patterns.
+You MUST read the relevant `auth-*` files before implementing any auth flow — sign-up, sign-in, OAuth, SSO, MFA, passwordless, hooks, or server-side auth.
 
 | Area               | Resource                            | When to Use                                              |
 | ------------------ | ----------------------------------- | -------------------------------------------------------- |
@@ -62,7 +78,7 @@ Read when implementing sign-up, sign-in, OAuth, SSO, MFA, passwordless flows, au
 
 ### Database
 
-Read when designing tables, writing RLS policies, creating migrations, configuring connection pooling, or optimizing query performance.
+You MUST read the relevant `db-*` files before writing any database code. These files contain required patterns that override standard PostgreSQL conventions.
 
 | Area               | Resource                        | When to Use                                    |
 | ------------------ | ------------------------------- | ---------------------------------------------- |
@@ -75,7 +91,7 @@ Read when designing tables, writing RLS policies, creating migrations, configuri
 
 ### Edge Functions
 
-Read when creating, deploying, or debugging Deno-based Edge Functions — including authentication, database access, CORS, routing, streaming, and testing patterns.
+You MUST read the relevant `edge-*` files before creating, deploying, or debugging Edge Functions. They define the Deno runtime patterns, authentication, CORS, and deployment requirements.
 
 | Area                   | Resource                              | When to Use                            |
 | ---------------------- | ------------------------------------- | -------------------------------------- |
@@ -97,7 +113,7 @@ Read when creating, deploying, or debugging Deno-based Edge Functions — includ
 
 ### Realtime
 
-Read when implementing live updates — Broadcast messaging, Presence tracking, or Postgres Changes listeners.
+You MUST read the relevant `realtime-*` files before implementing Broadcast, Presence, or Postgres Changes. They define channel setup, auth, and the correct messaging patterns.
 
 | Area             | Resource                             | When to Use                                     |
 | ---------------- | ------------------------------------ | ----------------------------------------------- |
@@ -109,7 +125,7 @@ Read when implementing live updates — Broadcast messaging, Presence tracking, 
 
 ### SDK (supabase-js)
 
-Read when writing application code that interacts with Supabase — client setup, queries, error handling, TypeScript types, or framework integration.
+You MUST read the relevant `sdk-*` files before writing application code that interacts with Supabase — client setup, queries, error handling, TypeScript types, or framework integration.
 
 | Area            | Resource                        | When to Use                               |
 | --------------- | ------------------------------- | ----------------------------------------- |
@@ -122,7 +138,7 @@ Read when writing application code that interacts with Supabase — client setup
 
 ### Storage
 
-Read when implementing file uploads, downloads, image transformations, or configuring storage access control and CDN caching.
+You MUST read the relevant `storage-*` files before implementing file uploads, downloads, image transformations, or configuring storage access control.
 
 | Area            | Resource                              | When to Use                                    |
 | --------------- | ------------------------------------- | ---------------------------------------------- |

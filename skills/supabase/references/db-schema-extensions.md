@@ -64,18 +64,16 @@ select * from pg_extension;
 
 ```sql
 -- pgvector example (use extensions. prefix for type)
-create table documents (
+create table if not exists documents (
   id bigint primary key generated always as identity,
+  user_id uuid not null references auth.users(id) on delete cascade,
   content text,
   embedding extensions.vector(1536)  -- OpenAI ada-002 dimensions
 );
 
--- HNSW is recommended over IVFFlat for most use cases
-create index on documents using hnsw (embedding extensions.vector_cosine_ops);
-
--- If using IVFFlat, lists parameter is required
-create index on documents using ivfflat (embedding extensions.vector_cosine_ops)
-  with (lists = 100);
+-- Always use HNSW (not IVFFlat) — better recall, no training step
+create index if not exists documents_embedding_idx
+  on documents using hnsw (embedding extensions.vector_cosine_ops);
 ```
 
 ## Related

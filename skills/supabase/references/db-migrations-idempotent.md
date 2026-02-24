@@ -59,6 +59,13 @@ create policy "Users see own data" on users
   using ((select auth.uid()) = id);
 ```
 
+## Idempotent Schema Creation
+
+```sql
+-- Create private schema for security definer functions
+create schema if not exists private;
+```
+
 ## Migration File Naming
 
 Migrations in `supabase/migrations/` are named with timestamps:

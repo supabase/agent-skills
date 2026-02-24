@@ -59,6 +59,17 @@ create view leaderboard as
 grant select on leaderboard to anon;
 ```
 
+## Reload PostgREST Schema Cache
+
+After creating or altering views (or any DDL in exposed schemas), notify
+PostgREST to reload its schema cache:
+
+```sql
+notify pgrst, 'reload schema';
+```
+
+Without this, PostgREST may return 404 for new views until it auto-refreshes.
+
 ## Related
 
 - [rls-mandatory.md](rls-mandatory.md)

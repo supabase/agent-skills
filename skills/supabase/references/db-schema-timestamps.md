@@ -11,7 +11,7 @@ loses timezone information, causing bugs when users are in different timezones.
 **Incorrect:**
 
 ```sql
-create table events (
+create table if not exists events (
   id bigint primary key generated always as identity,
   name text not null,
   -- Stores time without timezone context
@@ -23,7 +23,7 @@ create table events (
 **Correct:**
 
 ```sql
-create table events (
+create table if not exists events (
   id bigint primary key generated always as identity,
   name text not null,
   -- Stores time in UTC, converts on retrieval
@@ -58,7 +58,7 @@ select starts_at from events;
 ## Auto-Update updated_at Column
 
 ```sql
-create table posts (
+create table if not exists posts (
   id bigint primary key generated always as identity,
   title text not null,
   created_at timestamptz default now(),

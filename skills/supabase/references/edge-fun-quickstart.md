@@ -20,17 +20,36 @@ Deno.serve(async (req) => {
 **Correct:**
 
 ```typescript
-// Handle JSON parsing errors gracefully
+import { corsHeaders } from "../_shared/cors.ts";
+
 Deno.serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   try {
     const { name } = await req.json();
     return new Response(JSON.stringify({ message: `Hello ${name}!` }), {
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch {
-    return new Response("Invalid JSON", { status: 400 });
+    return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
+```
+
+Place shared CORS headers in `supabase/functions/_shared/cors.ts`:
+
+```typescript
+export const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
 ```
 
 CLI workflow: `npx supabase functions new hello-world`, then `npx supabase start && npx supabase functions serve` for local dev, and `npx supabase functions deploy hello-world` for production (after `npx supabase login` and `npx supabase link --project-ref PROJECT_ID`).

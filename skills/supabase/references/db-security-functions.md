@@ -8,6 +8,14 @@ tags: functions, security_definer, security, private-schema
 `security definer` functions run with the privileges of the function owner, not
 the caller. Place them in a private schema to prevent direct API access.
 
+**Rules (all required):**
+
+1. `create schema if not exists private;`
+2. Place ALL security definer functions in `private` schema (never `public`)
+3. `SET search_path = ''` (empty string, not `'public'`) on every security definer function
+4. Mark read-only helpers as `STABLE`
+5. `REVOKE EXECUTE ... FROM public; GRANT EXECUTE ... TO authenticated;`
+
 **Incorrect:**
 
 ```sql
