@@ -2,7 +2,10 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { AssertionResult, EvalAssertion } from "./eval-types.js";
 import { runAgent } from "./runner/agent.js";
-import { uploadToBraintrust } from "./runner/braintrust.js";
+import {
+	seedBraintrustDataset,
+	uploadToBraintrust,
+} from "./runner/braintrust.js";
 import { createResultDir, saveRunArtifacts } from "./runner/persist.js";
 import { preflight } from "./runner/preflight.js";
 import { listModifiedFiles, printSummary } from "./runner/results.js";
@@ -129,7 +132,11 @@ async function runAssertions(
 async function runEval(
 	scenario: EvalScenario,
 	skillEnabled: boolean,
-): Promise<{ result: EvalRunResult; transcript?: TranscriptSummary }> {
+): Promise<{
+	result: EvalRunResult;
+	transcript?: TranscriptSummary;
+	expectedReferenceFiles: string[];
+}> {
 	const evalsDir = findEvalsDir();
 	const evalDir = join(evalsDir, scenario.id);
 	const variant = skillEnabled ? "with-skill" : "baseline";
@@ -263,7 +270,7 @@ async function runEval(
 			transcriptSummary: summary,
 		});
 
-		return { result, transcript: summary };
+		return { result, transcript: summary, expectedReferenceFiles };
 	} catch (error) {
 		const err = error as Error;
 		return {
@@ -280,6 +287,7 @@ async function runEval(
 				filesModified: [],
 				error: err.message,
 			},
+			expectedReferenceFiles: [],
 		};
 	} finally {
 		cleanup();
@@ -321,8 +329,7 @@ async function main() {
 
 	const results: EvalRunResult[] = [];
 	const transcripts = new Map<string, TranscriptSummary>();
-
-	const braintrustUpload = process.env.BRAINTRUST_UPLOAD === "true";
+	const expectedRefFiles = new Map<string, string[]>();
 
 	try {
 		for (const scenario of scenarios) {
@@ -330,11 +337,15 @@ async function main() {
 			console.log(`\n  Resetting DB for ${scenario.id}...`);
 			resetDB(keys.dbUrl);
 
-			const { result, transcript } = await runEval(scenario, skillEnabled);
+			const { result, transcript, expectedReferenceFiles } = await runEval(
+				scenario,
+				skillEnabled,
+			);
 			results.push(result);
 			if (transcript) {
 				transcripts.set(result.scenario, transcript);
 			}
+			expectedRefFiles.set(result.scenario, expectedReferenceFiles);
 		}
 	} finally {
 		stopSupabase();
@@ -344,15 +355,15 @@ async function main() {
 	const resultsDir = results.find((r) => r.resultsDir)?.resultsDir;
 	printSummary(results, resultsDir);
 
-	if (braintrustUpload) {
-		console.log("\nUploading to Braintrust...");
-		await uploadToBraintrust(results, {
-			model,
-			skillEnabled,
-			runTimestamp,
-			transcripts,
-		});
-	}
+	console.log("\nUploading to Braintrust...");
+	await seedBraintrustDataset(results, expectedRefFiles);
+	await uploadToBraintrust(results, {
+		model,
+		skillEnabled,
+		runTimestamp,
+		transcripts,
+		expectedRefFiles,
+	});
 }
 
 main().catch((err) => {

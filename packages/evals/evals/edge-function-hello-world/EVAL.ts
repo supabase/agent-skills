@@ -128,7 +128,9 @@ export const assertions: EvalAssertion[] = [
 	{
 		name: "function uses hyphenated name",
 		check: () => {
-			const dirs = existsSync(getFunctionsDir()) ? readdirSync(getFunctionsDir()) : [];
+			const dirs = existsSync(getFunctionsDir())
+				? readdirSync(getFunctionsDir())
+				: [];
 			const helloDir = dirs.find(
 				(d) => d.includes("hello") && d.includes("world"),
 			);

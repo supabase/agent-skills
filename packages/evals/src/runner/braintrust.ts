@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { init, initLogger, type Logger } from "braintrust";
+import { init, initDataset, initLogger, type Logger } from "braintrust";
 import type { EvalRunResult } from "../types.js";
 import type { TranscriptSummary } from "./transcript.js";
 
@@ -117,6 +117,46 @@ export function logScenarioToLogger(
 }
 
 /**
+ * Seed a Braintrust dataset with one row per scenario.
+ *
+ * Uses scenario.id as the stable row ID so re-seeding is idempotent.
+ * Each row stores the prompt and expected assertions/reference files,
+ * giving Braintrust a stable baseline to track per-scenario score trends
+ * across experiment runs.
+ */
+export async function seedBraintrustDataset(
+	results: EvalRunResult[],
+	expectedRefFiles: Map<string, string[]>,
+): Promise<void> {
+	assert(process.env.BRAINTRUST_API_KEY, "BRAINTRUST_API_KEY is not set");
+	assert(process.env.BRAINTRUST_PROJECT_ID, "BRAINTRUST_PROJECT_ID is not set");
+
+	const dataset = initDataset({
+		projectId: process.env.BRAINTRUST_PROJECT_ID,
+		dataset: "supabase-skill-scenarios",
+	});
+
+	for (const r of results) {
+		dataset.insert({
+			id: r.scenario,
+			input: {
+				scenario: r.scenario,
+				prompt: r.prompt ?? "",
+			},
+			expected: {
+				testsTotal: r.testsTotal,
+				passThreshold: r.passThreshold ?? 1.0,
+				expectedReferenceFiles: expectedRefFiles.get(r.scenario) ?? [],
+			},
+			metadata: { scenario: r.scenario },
+		});
+	}
+
+	await dataset.flush();
+	console.log("Braintrust dataset seeded: supabase-skill-scenarios");
+}
+
+/**
  * Upload eval results to Braintrust as an experiment.
  *
  * Each EvalRunResult becomes a row in the experiment with:
@@ -126,6 +166,7 @@ export function logScenarioToLogger(
  * - scores: skill_usage, reference_files_usage, assertions_passed, final_result
  * - metadata: agent, model, skillEnabled, test counts, tool calls, context window, output tokens, model usage, errors, cost
  * - spans: one child span per agent tool call (when transcript available)
+ * - datasetRecordId: links this row to the dataset row for per-scenario tracking
  */
 export async function uploadToBraintrust(
 	results: EvalRunResult[],
@@ -134,6 +175,7 @@ export async function uploadToBraintrust(
 		skillEnabled: boolean;
 		runTimestamp: string;
 		transcripts: Map<string, TranscriptSummary>;
+		expectedRefFiles: Map<string, string[]>;
 	},
 ): Promise<void> {
 	assert(process.env.BRAINTRUST_API_KEY, "BRAINTRUST_API_KEY is not set");
@@ -207,7 +249,14 @@ export async function uploadToBraintrust(
 
 		if (transcript && transcript.toolCalls.length > 0) {
 			experiment.traced((span) => {
-				span.log({ input, output, expected, scores, metadata });
+				span.log({
+					input,
+					output,
+					expected,
+					scores,
+					metadata,
+					datasetRecordId: r.scenario,
+				});
 
 				for (const tc of transcript.toolCalls) {
 					span.traced(
@@ -228,7 +277,14 @@ export async function uploadToBraintrust(
 			}, spanOptions);
 		} else {
 			experiment.traced((span) => {
-				span.log({ input, output, expected, scores, metadata });
+				span.log({
+					input,
+					output,
+					expected,
+					scores,
+					metadata,
+					datasetRecordId: r.scenario,
+				});
 			}, spanOptions);
 		}
 	}
