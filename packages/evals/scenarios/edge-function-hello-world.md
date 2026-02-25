@@ -127,3 +127,4 @@ Step-by-step reasoning for why this scenario is well-designed:
 
 - Without skill: ~45-60% of assertions expected to pass
 - With skill: ~90-100% of assertions expected to pass
+- **pass_threshold:** 13

@@ -63,7 +63,7 @@ export function referenceFilesUsageScorer(
 }
 
 /**
- * assertionsPassedScorer — ratio of vitest assertions passed vs total.
+ * assertionsPassedScorer — ratio of assertions passed vs total.
  */
 export function assertionsPassedScorer(result: EvalRunResult): ScoreResult {
 	const score =

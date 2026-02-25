@@ -1,11 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import type { AssertionResult, EvalAssertion } from "./eval-types.js";
 import { runAgent } from "./runner/agent.js";
-import {
-	initBraintrustLogger,
-	logScenarioToLogger,
-	uploadToBraintrust,
-} from "./runner/braintrust.js";
+import { uploadToBraintrust } from "./runner/braintrust.js";
 import { createResultDir, saveRunArtifacts } from "./runner/persist.js";
 import { preflight } from "./runner/preflight.js";
 import { listModifiedFiles, printSummary } from "./runner/results.js";
@@ -22,7 +19,6 @@ import {
 	startSupabase,
 	stopSupabase,
 } from "./runner/supabase-setup.js";
-import { runTests } from "./runner/test.js";
 import {
 	buildTranscriptSummary,
 	type TranscriptSummary,
@@ -93,6 +89,40 @@ function getPassThreshold(scenarioId: string): number | null {
 }
 
 // ---------------------------------------------------------------------------
+// In-process assertion runner (replaces vitest subprocess)
+// ---------------------------------------------------------------------------
+
+async function runAssertions(
+	assertions: EvalAssertion[],
+): Promise<AssertionResult[]> {
+	return Promise.all(
+		assertions.map(async (a) => {
+			try {
+				let result: boolean;
+				if (a.timeout) {
+					const timeoutPromise = new Promise<never>((_, reject) =>
+						setTimeout(
+							() =>
+								reject(new Error(`Assertion timed out after ${a.timeout}ms`)),
+							a.timeout,
+						),
+					);
+					result = await Promise.race([
+						Promise.resolve(a.check()),
+						timeoutPromise,
+					]);
+				} else {
+					result = await Promise.resolve(a.check());
+				}
+				return { name: a.name, passed: Boolean(result) };
+			} catch (e) {
+				return { name: a.name, passed: false, error: String(e) };
+			}
+		}),
+	);
+}
+
+// ---------------------------------------------------------------------------
 // Run a single eval
 // ---------------------------------------------------------------------------
 
@@ -106,18 +136,28 @@ async function runEval(
 
 	console.log(`\n--- ${scenario.id} (${variant}) ---`);
 
+	// Load assertions and expected reference files from EVAL.ts
+	const evalFilePath = existsSync(join(evalDir, "EVAL.tsx"))
+		? join(evalDir, "EVAL.tsx")
+		: join(evalDir, "EVAL.ts");
+
+	const {
+		assertions = [] as EvalAssertion[],
+		expectedReferenceFiles = [] as string[],
+	} = await import(evalFilePath).catch(() => ({
+		assertions: [] as EvalAssertion[],
+		expectedReferenceFiles: [] as string[],
+	}));
+
+	const passThreshold = getPassThreshold(scenario.id);
+	const prompt = readFileSync(join(evalDir, "PROMPT.md"), "utf-8").trim();
+
 	// 1. Create isolated workspace
-	const { workspacePath, cleanup } = createWorkspace({
-		evalDir,
-		skillEnabled,
-	});
+	const { workspacePath, cleanup } = createWorkspace({ evalDir, skillEnabled });
 	console.log(`  Workspace: ${workspacePath}`);
 
 	try {
-		// 2. Read the prompt
-		const prompt = readFileSync(join(evalDir, "PROMPT.md"), "utf-8").trim();
-
-		// 3. Run the agent
+		// 2. Run the agent
 		console.log(`  Running agent (${model})...`);
 		const startedAt = Date.now();
 		const agentResult = await runAgent({
@@ -132,54 +172,48 @@ async function runEval(
 			`  Agent finished in ${(agentResult.duration / 1000).toFixed(1)}s`,
 		);
 
-		// 4. Run the hidden tests
-		const evalFilePath = existsSync(join(evalDir, "EVAL.tsx"))
-			? join(evalDir, "EVAL.tsx")
-			: join(evalDir, "EVAL.ts");
-
-		const passThreshold = getPassThreshold(scenario.id);
-
-		console.log("  Running tests...");
-		const testResult = await runTests({
-			workspacePath,
-			evalFilePath,
-			passThreshold: passThreshold ?? undefined,
+		// 3. Run assertions in-process from the workspace directory so that
+		//    eval-utils.ts helpers resolve paths relative to the workspace.
+		console.log("  Running assertions...");
+		const prevCwd = process.cwd();
+		process.chdir(workspacePath);
+		const assertionResults = await runAssertions(assertions).finally(() => {
+			process.chdir(prevCwd);
 		});
+		const passedCount = assertionResults.filter((a) => a.passed).length;
+		const totalCount = assertionResults.length;
+
+		const passed = passThreshold
+			? totalCount > 0 && passedCount >= passThreshold
+			: totalCount > 0 && passedCount === totalCount;
 
 		const pct =
-			testResult.totalCount > 0
-				? ((testResult.passedCount / testResult.totalCount) * 100).toFixed(1)
-				: "0.0";
+			totalCount > 0 ? ((passedCount / totalCount) * 100).toFixed(1) : "0.0";
 		const thresholdInfo = passThreshold
-			? `, threshold: ${((passThreshold / testResult.totalCount) * 100).toFixed(0)}%`
+			? `, threshold: ${((passThreshold / totalCount) * 100).toFixed(0)}%`
 			: "";
 		console.log(
-			`  Tests: ${testResult.passedCount}/${testResult.totalCount} passed (${pct}%${thresholdInfo})`,
+			`  Assertions: ${passedCount}/${totalCount} passed (${pct}%${thresholdInfo})`,
 		);
 
-		// 5. Collect modified files
+		// 4. Collect modified files
 		const filesModified = listModifiedFiles(workspacePath, evalDir);
 
-		// 6. Build transcript summary
+		// 5. Build transcript summary
 		const summary = buildTranscriptSummary(agentResult.events);
 
-		// 7. Load expectedReferenceFiles from EVAL.ts (if declared)
-		const { expectedReferenceFiles = [] } = await import(evalFilePath).catch(
-			() => ({ expectedReferenceFiles: [] as string[] }),
-		);
-
-		// 8. Run scorers
+		// 6. Run scorers
 		const skillScore = skillUsageScorer(summary, skillName);
 		const refScore = referenceFilesUsageScorer(summary, expectedReferenceFiles);
 		const assertScore = assertionsPassedScorer({
-			testsPassed: testResult.passedCount,
-			testsTotal: testResult.totalCount,
-			status: testResult.passed ? "passed" : "failed",
+			testsPassed: passedCount,
+			testsTotal: totalCount,
+			status: passed ? "passed" : "failed",
 		} as EvalRunResult);
 		const finalScore = finalResultScorer({
-			status: testResult.passed ? "passed" : "failed",
-			testsPassed: testResult.passedCount,
-			testsTotal: testResult.totalCount,
+			status: passed ? "passed" : "failed",
+			testsPassed: passedCount,
+			testsTotal: totalCount,
 			passThreshold: passThreshold ?? undefined,
 		} as EvalRunResult);
 
@@ -188,18 +222,17 @@ async function runEval(
 			agent: "claude-code",
 			model,
 			skillEnabled,
-			status: testResult.passed ? "passed" : "failed",
+			status: passed ? "passed" : "failed",
 			duration: agentResult.duration,
-			testOutput: testResult.output,
 			agentOutput: agentResult.output,
-			testsPassed: testResult.passedCount,
-			testsTotal: testResult.totalCount,
+			testsPassed: passedCount,
+			testsTotal: totalCount,
 			passThreshold: passThreshold ?? undefined,
+			assertionResults,
 			filesModified,
 			toolCallCount: summary.toolCalls.length,
 			costUsd: summary.totalCostUsd ?? undefined,
 			prompt,
-			individualTests: testResult.individualTests,
 			startedAt,
 			durationApiMs: summary.totalDurationApiMs,
 			totalInputTokens: summary.totalInputTokens,
@@ -225,7 +258,7 @@ async function runEval(
 		saveRunArtifacts({
 			resultDir,
 			rawTranscript: agentResult.rawTranscript,
-			testOutput: testResult.output,
+			assertionResults,
 			result,
 			transcriptSummary: summary,
 		});
@@ -241,7 +274,6 @@ async function runEval(
 				skillEnabled,
 				status: "error",
 				duration: 0,
-				testOutput: "",
 				agentOutput: "",
 				testsPassed: 0,
 				testsTotal: 0,
@@ -281,7 +313,7 @@ async function main() {
 	startSupabase();
 	const keys = getKeys();
 
-	// Inject keys into process.env so EVAL.ts tests can connect to the real DB.
+	// Inject keys into process.env so assertions can connect to the real DB.
 	process.env.SUPABASE_URL = keys.apiUrl;
 	process.env.SUPABASE_ANON_KEY = keys.anonKey;
 	process.env.SUPABASE_SERVICE_ROLE_KEY = keys.serviceRoleKey;
@@ -291,7 +323,6 @@ async function main() {
 	const transcripts = new Map<string, TranscriptSummary>();
 
 	const braintrustUpload = process.env.BRAINTRUST_UPLOAD === "true";
-	const logger = braintrustUpload ? initBraintrustLogger() : undefined;
 
 	try {
 		for (const scenario of scenarios) {
@@ -304,15 +335,9 @@ async function main() {
 			if (transcript) {
 				transcripts.set(result.scenario, transcript);
 			}
-
-			// Log immediately after each scenario for real-time visibility.
-			if (logger) {
-				logScenarioToLogger(logger, result, transcript);
-			}
 		}
 	} finally {
 		stopSupabase();
-		await logger?.flush();
 	}
 
 	// Use the results dir from the first result (all share the same timestamp)

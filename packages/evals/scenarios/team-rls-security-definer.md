@@ -100,8 +100,9 @@ specific quality signal:
 | 12 | index on membership lookup columns | `CREATE INDEX` on user_id and/or org_id in memberships | performance |
 | 13 | uses timestamptz | No plain `timestamp` for time columns | correctness |
 | 14 | idempotent DDL | Uses `IF NOT EXISTS` or `DROP ... IF EXISTS` patterns | idempotency |
-| 15 | delete policy restricted to owner role | A delete policy on projects checks for owner/admin role | security |
-| 16 | overall quality score | At least 10/14 best-practice signals present | overall |
+| 15 | stable or immutable on helper function | Helper function marked STABLE or IMMUTABLE for performance | performance |
+| 16 | delete policy restricted to owner role | A delete policy on projects checks for owner/admin role | security |
+| 17 | overall quality score | At least 11/15 best-practice signals present | overall |
 
 ## Reasoning
 
@@ -137,3 +138,4 @@ Step-by-step reasoning for why this scenario is well-designed:
 
 - Without skill: ~35-50% of assertions expected to pass
 - With skill: ~85-95% of assertions expected to pass
+- **pass_threshold:** 13

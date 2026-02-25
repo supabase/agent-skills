@@ -70,7 +70,7 @@ export function logScenarioToLogger(
 					status: r.status,
 					agentOutput: r.agentOutput,
 					filesModified: r.filesModified,
-					testOutput: r.testOutput,
+					assertionResults: r.assertionResults,
 				},
 				expected: { testsTotal: r.testsTotal },
 				scores,
@@ -106,7 +106,7 @@ export function logScenarioToLogger(
 					status: r.status,
 					agentOutput: r.agentOutput,
 					filesModified: r.filesModified,
-					testOutput: r.testOutput,
+					assertionResults: r.assertionResults,
 				},
 				expected: { testsTotal: r.testsTotal },
 				scores,
@@ -121,7 +121,7 @@ export function logScenarioToLogger(
  *
  * Each EvalRunResult becomes a row in the experiment with:
  * - input: scenario ID, prompt content, skillEnabled flag
- * - output: status, agent output, files modified, test output
+ * - output: status, agent output, files modified, assertion results
  * - expected: total tests, pass threshold
  * - scores: skill_usage, reference_files_usage, assertions_passed, final_result
  * - metadata: agent, model, skillEnabled, test counts, tool calls, context window, output tokens, model usage, errors, cost
@@ -172,7 +172,7 @@ export async function uploadToBraintrust(
 			status: r.status,
 			agentOutput: r.agentOutput,
 			filesModified: r.filesModified,
-			testOutput: r.testOutput,
+			assertionResults: r.assertionResults,
 		};
 
 		const expected = {

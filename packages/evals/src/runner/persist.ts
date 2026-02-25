@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { AssertionResult } from "../eval-types.js";
 import type { EvalRunResult } from "../types.js";
 import type { TranscriptSummary } from "./transcript.js";
 
@@ -32,7 +33,7 @@ export function createResultDir(
 export function saveRunArtifacts(opts: {
 	resultDir: string;
 	rawTranscript: string;
-	testOutput: string;
+	assertionResults: AssertionResult[];
 	result: EvalRunResult;
 	transcriptSummary: TranscriptSummary;
 }): void {
@@ -43,8 +44,8 @@ export function saveRunArtifacts(opts: {
 	);
 
 	writeFileSync(
-		join(opts.resultDir, "test-output.txt"),
-		opts.testOutput,
+		join(opts.resultDir, "assertions.json"),
+		JSON.stringify(opts.assertionResults, null, 2),
 		"utf-8",
 	);
 

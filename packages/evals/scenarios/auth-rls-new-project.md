@@ -85,8 +85,9 @@ specific quality signal:
 | 8 | TO authenticated | Policies scoped to authenticated role | security |
 | 9 | timestamptz | No plain `timestamp` for time columns | correctness |
 | 10 | index on user_id | `CREATE INDEX` on the FK column | performance |
-| 11 | IF NOT EXISTS | Idempotent migration | idempotency |
-| 12 | overall quality | At least 4/5 best-practice signals present | overall |
+| 11 | no SERIAL/BIGSERIAL | PK does not use error-prone serial type | correctness |
+| 12 | IF NOT EXISTS | Idempotent migration | idempotency |
+| 13 | overall quality | At least 4/5 best-practice signals present | overall |
 
 ## Reasoning
 
@@ -122,3 +123,4 @@ Step-by-step reasoning for why this scenario is well-designed:
 
 - Without skill: ~50-65% of assertions expected to pass
 - With skill: ~90-100% of assertions expected to pass
+- **pass_threshold:** 10

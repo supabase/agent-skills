@@ -1,0 +1,5 @@
+{
+	"name": "connection-pooling-prisma",
+	"private": true,
+	"type": "module"
+}

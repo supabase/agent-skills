@@ -1,3 +1,5 @@
+import type { AssertionResult } from "./eval-types.js";
+
 export interface EvalScenario {
 	/** Directory name under evals/ */
 	id: string;
@@ -23,14 +25,17 @@ export interface EvalRunResult {
 	skillEnabled: boolean;
 	status: "passed" | "failed" | "error";
 	duration: number;
-	testOutput: string;
+	/** Raw test runner output (for debugging) */
+	testOutput?: string;
 	agentOutput: string;
-	/** Number of vitest tests that passed */
+	/** Number of assertions that passed */
 	testsPassed: number;
-	/** Total number of vitest tests */
+	/** Total number of assertions */
 	testsTotal: number;
 	/** Minimum tests required to pass (from scenario config) */
 	passThreshold?: number;
+	/** Per-assertion pass/fail results */
+	assertionResults?: AssertionResult[];
 	/** Files the agent created or modified in the workspace */
 	filesModified: string[];
 	error?: string;
@@ -42,8 +47,6 @@ export interface EvalRunResult {
 	costUsd?: number;
 	/** The PROMPT.md content sent to the agent */
 	prompt?: string;
-	/** Per-test pass/fail results from vitest */
-	individualTests?: Record<string, boolean>;
 	/** Epoch ms when the agent run started (for Braintrust span timing) */
 	startedAt?: number;
 	/** API-only latency in ms (excludes local processing overhead) */

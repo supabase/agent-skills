@@ -1,0 +1,5 @@
+{
+	"name": "auth-fk-cascade-delete",
+	"private": true,
+	"type": "module"
+}

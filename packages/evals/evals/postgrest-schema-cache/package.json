@@ -1,0 +1,5 @@
+{
+	"name": "postgrest-schema-cache",
+	"private": true,
+	"type": "module"
+}

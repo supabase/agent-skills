@@ -1,0 +1,5 @@
+{
+	"name": "service-role-edge-function",
+	"private": true,
+	"type": "module"
+}
