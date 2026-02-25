@@ -26,6 +26,12 @@ export interface AgentRunResult {
  * and has access to the local Supabase MCP server so it can apply migrations
  * and query the real database. --strict-mcp-config ensures only the local
  * Supabase instance is reachable — no host MCP servers leak in.
+ *
+ * --setting-sources project,local prevents skills from the user's global
+ * ~/.agents/skills/ from leaking into the eval environment.
+ *
+ * When skillEnabled, --agents injects the target skill directly into the
+ * agent's context, guaranteeing it is present (not just discoverable).
  */
 export async function runAgent(opts: {
 	cwd: string;
@@ -33,6 +39,8 @@ export async function runAgent(opts: {
 	model: string;
 	timeout: number;
 	skillEnabled: boolean;
+	/** Skill name to inject via --agents (e.g. "supabase"). Used when skillEnabled. */
+	skillName?: string;
 }): Promise<AgentRunResult> {
 	const start = Date.now();
 
@@ -62,10 +70,26 @@ export async function runAgent(opts: {
 		"--mcp-config",
 		mcpConfig,
 		"--strict-mcp-config",
+		// Prevent skills from the user's global ~/.agents/skills/ from leaking
+		// into the eval environment. Only workspace (project) and local sources
+		// are loaded, so the eval sees only what was explicitly installed.
+		"--setting-sources",
+		"project,local",
 	];
 
-	// Disable skills for baseline runs so the agent relies on innate knowledge
-	if (!opts.skillEnabled) {
+	if (opts.skillEnabled && opts.skillName) {
+		// Inject the target skill directly into the agent context via --agents.
+		// This guarantees the skill is embedded in the subagent's context at
+		// startup (not just available as a slash command).
+		const agentsDef = JSON.stringify({
+			main: {
+				description: `Supabase developer agent with ${opts.skillName} skill`,
+				skills: [opts.skillName],
+			},
+		});
+		args.push("--agents", agentsDef);
+	} else if (!opts.skillEnabled) {
+		// Baseline runs: disable all skills so the agent relies on innate knowledge
 		args.push("--disable-slash-commands");
 	}
 

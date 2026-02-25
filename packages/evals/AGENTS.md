@@ -76,16 +76,6 @@ mise run eval:upload
 mise run --force eval:upload
 ```
 
-Or directly (no caching, always runs):
-
-```bash
-cd packages/evals
-npx tsx src/runner.ts
-
-# Single scenario, baseline mode
-EVAL_BASELINE=true EVAL_SCENARIO=auth-rls-new-project npx tsx src/runner.ts
-```
-
 ## Baseline Mode
 
 Set `EVAL_BASELINE=true` to run scenarios **without** skills. By default,

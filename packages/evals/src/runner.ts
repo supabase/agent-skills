@@ -1,11 +1,21 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { runAgent } from "./runner/agent.js";
-import { uploadToBraintrust } from "./runner/braintrust.js";
+import {
+	initBraintrustLogger,
+	logScenarioToLogger,
+	uploadToBraintrust,
+} from "./runner/braintrust.js";
 import { createResultDir, saveRunArtifacts } from "./runner/persist.js";
 import { preflight } from "./runner/preflight.js";
 import { listModifiedFiles, printSummary } from "./runner/results.js";
 import { createWorkspace } from "./runner/scaffold.js";
+import {
+	assertionsPassedScorer,
+	finalResultScorer,
+	referenceFilesUsageScorer,
+	skillUsageScorer,
+} from "./runner/scorers.js";
 import {
 	getKeys,
 	resetDB,
@@ -24,9 +34,11 @@ import type { EvalRunResult, EvalScenario } from "./types.js";
 // ---------------------------------------------------------------------------
 
 const DEFAULT_MODEL = "claude-sonnet-4-5-20250929";
+const DEFAULT_SKILL = "supabase";
 const AGENT_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 const model = process.env.EVAL_MODEL ?? DEFAULT_MODEL;
+const skillName = process.env.EVAL_SKILL ?? DEFAULT_SKILL;
 const scenarioFilter = process.env.EVAL_SCENARIO;
 const isBaseline = process.env.EVAL_BASELINE === "true";
 const skillEnabled = !isBaseline;
@@ -107,12 +119,14 @@ async function runEval(
 
 		// 3. Run the agent
 		console.log(`  Running agent (${model})...`);
+		const startedAt = Date.now();
 		const agentResult = await runAgent({
 			cwd: workspacePath,
 			prompt,
 			model,
 			timeout: AGENT_TIMEOUT,
 			skillEnabled,
+			skillName: skillEnabled ? skillName : undefined,
 		});
 		console.log(
 			`  Agent finished in ${(agentResult.duration / 1000).toFixed(1)}s`,
@@ -149,6 +163,26 @@ async function runEval(
 		// 6. Build transcript summary
 		const summary = buildTranscriptSummary(agentResult.events);
 
+		// 7. Load expectedReferenceFiles from EVAL.ts (if declared)
+		const { expectedReferenceFiles = [] } = await import(evalFilePath).catch(
+			() => ({ expectedReferenceFiles: [] as string[] }),
+		);
+
+		// 8. Run scorers
+		const skillScore = skillUsageScorer(summary, skillName);
+		const refScore = referenceFilesUsageScorer(summary, expectedReferenceFiles);
+		const assertScore = assertionsPassedScorer({
+			testsPassed: testResult.passedCount,
+			testsTotal: testResult.totalCount,
+			status: testResult.passed ? "passed" : "failed",
+		} as EvalRunResult);
+		const finalScore = finalResultScorer({
+			status: testResult.passed ? "passed" : "failed",
+			testsPassed: testResult.passedCount,
+			testsTotal: testResult.totalCount,
+			passThreshold: passThreshold ?? undefined,
+		} as EvalRunResult);
+
 		const result: EvalRunResult = {
 			scenario: scenario.id,
 			agent: "claude-code",
@@ -166,6 +200,23 @@ async function runEval(
 			costUsd: summary.totalCostUsd ?? undefined,
 			prompt,
 			individualTests: testResult.individualTests,
+			startedAt,
+			durationApiMs: summary.totalDurationApiMs,
+			totalInputTokens: summary.totalInputTokens,
+			totalOutputTokens: summary.totalOutputTokens,
+			totalCacheReadTokens: summary.totalCacheReadTokens,
+			totalCacheCreationTokens: summary.totalCacheCreationTokens,
+			modelUsage: summary.modelUsage,
+			toolErrorCount: summary.toolErrorCount,
+			permissionDenialCount: summary.permissionDenialCount,
+			loadedSkills: summary.skills,
+			referenceFilesRead: summary.referenceFilesRead,
+			scores: {
+				skillUsage: skillScore.score,
+				referenceFilesUsage: refScore.score,
+				assertionsPassed: assertScore.score,
+				finalResult: finalScore.score,
+			},
 		};
 
 		// 7. Persist results
@@ -239,6 +290,9 @@ async function main() {
 	const results: EvalRunResult[] = [];
 	const transcripts = new Map<string, TranscriptSummary>();
 
+	const braintrustUpload = process.env.BRAINTRUST_UPLOAD === "true";
+	const logger = braintrustUpload ? initBraintrustLogger() : undefined;
+
 	try {
 		for (const scenario of scenarios) {
 			// Reset the database before each scenario for a clean slate.
@@ -250,16 +304,22 @@ async function main() {
 			if (transcript) {
 				transcripts.set(result.scenario, transcript);
 			}
+
+			// Log immediately after each scenario for real-time visibility.
+			if (logger) {
+				logScenarioToLogger(logger, result, transcript);
+			}
 		}
 	} finally {
 		stopSupabase();
+		await logger?.flush();
 	}
 
 	// Use the results dir from the first result (all share the same timestamp)
 	const resultsDir = results.find((r) => r.resultsDir)?.resultsDir;
 	printSummary(results, resultsDir);
 
-	if (process.env.BRAINTRUST_UPLOAD === "true") {
+	if (braintrustUpload) {
 		console.log("\nUploading to Braintrust...");
 		await uploadToBraintrust(results, {
 			model,

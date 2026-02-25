@@ -44,4 +44,39 @@ export interface EvalRunResult {
 	prompt?: string;
 	/** Per-test pass/fail results from vitest */
 	individualTests?: Record<string, boolean>;
+	/** Epoch ms when the agent run started (for Braintrust span timing) */
+	startedAt?: number;
+	/** API-only latency in ms (excludes local processing overhead) */
+	durationApiMs?: number;
+	/** Aggregate token counts from the result event */
+	totalInputTokens?: number;
+	totalOutputTokens?: number;
+	totalCacheReadTokens?: number;
+	totalCacheCreationTokens?: number;
+	/** Per-model token usage and cost breakdown */
+	modelUsage?: Record<
+		string,
+		{
+			inputTokens: number;
+			outputTokens: number;
+			cacheReadInputTokens: number;
+			cacheCreationInputTokens: number;
+			costUSD: number;
+		}
+	>;
+	/** Count of tool calls that returned is_error === true */
+	toolErrorCount?: number;
+	/** Count of permission_denials in the result event */
+	permissionDenialCount?: number;
+	/** Skills that were in the agent's context (from system init event) */
+	loadedSkills?: string[];
+	/** Basenames of skill reference files the agent read */
+	referenceFilesRead?: string[];
+	/** Computed scorer results */
+	scores?: {
+		skillUsage: number;
+		referenceFilesUsage: number;
+		assertionsPassed: number;
+		finalResult: number;
+	};
 }

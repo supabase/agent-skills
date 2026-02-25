@@ -76,6 +76,10 @@ docker run --rm \
   -e BRAINTRUST_PROJECT_ID \
   -e EVAL_RESULTS_DIR=/app/results \
   -v "$(pwd)/packages/evals/results:/app/results" \
+  -v "$(pwd)/packages/evals/project:/app/packages/evals/project" \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --group-add 0 \
+  --network host \
   supabase-evals:local
 """
 

@@ -29,12 +29,13 @@ RUN npm --prefix packages/skills-build run build
 # ---------- Stage 2: runtime ----------
 FROM node:22-slim
 
-# Install Docker CLI and curl (needed for supabase CLI install)
+# Install Docker CLI, psql client, and curl (needed for supabase CLI install)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     ca-certificates \
     docker.io \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Install supabase CLI binary (pinned version)
