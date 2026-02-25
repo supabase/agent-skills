@@ -29,6 +29,8 @@ export interface EvalRunResult {
 	testsPassed: number;
 	/** Total number of vitest tests */
 	testsTotal: number;
+	/** Minimum tests required to pass (from scenario config) */
+	passThreshold?: number;
 	/** Files the agent created or modified in the workspace */
 	filesModified: string[];
 	error?: string;

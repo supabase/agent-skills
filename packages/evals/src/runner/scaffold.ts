@@ -1,8 +1,16 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import {
+	cpSync,
+	existsSync,
+	mkdirSync,
+	mkdtempSync,
+	readdirSync,
+	rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { EVAL_PROJECT_DIR } from "./supabase-setup.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -52,6 +60,16 @@ export function createWorkspace(opts: {
 		const src = join(opts.evalDir, entry.name);
 		const dest = join(workspacePath, entry.name);
 		cpSync(src, dest, { recursive: true });
+	}
+
+	// Seed the workspace with the eval project's supabase/config.toml so the
+	// agent can run `supabase db push` against the shared local instance without
+	// needing to run `supabase init` or `supabase start` first.
+	const projectConfigSrc = join(EVAL_PROJECT_DIR, "supabase", "config.toml");
+	if (existsSync(projectConfigSrc)) {
+		const destSupabaseDir = join(workspacePath, "supabase");
+		mkdirSync(join(destSupabaseDir, "migrations"), { recursive: true });
+		cpSync(projectConfigSrc, join(destSupabaseDir, "config.toml"));
 	}
 
 	// Install skills into the workspace via the `skills` CLI

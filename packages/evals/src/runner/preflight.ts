@@ -66,7 +66,7 @@ export function resolveClaudeBin(): string {
  * Verify the host environment has everything needed before spending
  * API credits on an eval run.
  *
- * Checks: Node >= 20, Docker running, claude CLI available, API key set.
+ * Checks: Node >= 20, Docker running, supabase CLI available, claude CLI available, API key set.
  */
 export function preflight(): void {
 	const errors: string[] = [];
@@ -77,13 +77,28 @@ export function preflight(): void {
 		errors.push(`Node.js >= 20 required (found ${process.versions.node})`);
 	}
 
-	// Docker daemon running (skip when inside the eval container — mocks handle it)
-	if (!isRunningInDocker()) {
-		try {
-			execFileSync("docker", ["info"], { stdio: "ignore", timeout: 10_000 });
-		} catch {
-			errors.push("Docker is not running (required by supabase CLI)");
-		}
+	// Docker daemon must be running — needed by the supabase CLI to manage containers.
+	// Required whether running locally or inside the eval container (socket-mounted).
+	try {
+		execFileSync("docker", ["info"], { stdio: "ignore", timeout: 10_000 });
+	} catch {
+		errors.push(
+			isRunningInDocker()
+				? "Docker daemon not reachable inside container. Mount the socket: -v /var/run/docker.sock:/var/run/docker.sock"
+				: "Docker is not running (required by supabase CLI)",
+		);
+	}
+
+	// Supabase CLI available
+	try {
+		execFileSync("supabase", ["--version"], {
+			stdio: "ignore",
+			timeout: 10_000,
+		});
+	} catch {
+		errors.push(
+			"supabase CLI not found. Install it: https://supabase.com/docs/guides/cli/getting-started",
+		);
 	}
 
 	// Claude CLI available

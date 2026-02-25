@@ -56,8 +56,16 @@ export function printSummary(
 	for (const r of results) {
 		const icon = r.status === "passed" ? "PASS" : "FAIL";
 		const skill = r.skillEnabled ? "with-skill" : "baseline";
+		const pct =
+			r.testsTotal > 0
+				? ((r.testsPassed / r.testsTotal) * 100).toFixed(1)
+				: "0.0";
+		const thresholdInfo =
+			r.passThreshold && r.testsTotal > 0
+				? `, threshold: ${((r.passThreshold / r.testsTotal) * 100).toFixed(0)}%`
+				: "";
 		console.log(
-			`[${icon}] ${r.scenario} | ${r.model} | ${skill} | ${(r.duration / 1000).toFixed(1)}s`,
+			`[${icon}] ${r.scenario} | ${r.model} | ${skill} | ${(r.duration / 1000).toFixed(1)}s | ${pct}% (${r.testsPassed}/${r.testsTotal}${thresholdInfo})`,
 		);
 		if (r.filesModified.length > 0) {
 			console.log(`       Files: ${r.filesModified.join(", ")}`);

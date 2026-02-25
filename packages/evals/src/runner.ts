@@ -6,6 +6,12 @@ import { createResultDir, saveRunArtifacts } from "./runner/persist.js";
 import { preflight } from "./runner/preflight.js";
 import { listModifiedFiles, printSummary } from "./runner/results.js";
 import { createWorkspace } from "./runner/scaffold.js";
+import {
+	getKeys,
+	resetDB,
+	startSupabase,
+	stopSupabase,
+} from "./runner/supabase-setup.js";
 import { runTests } from "./runner/test.js";
 import {
 	buildTranscriptSummary,
@@ -61,6 +67,20 @@ function discoverScenarios(): EvalScenario[] {
 }
 
 // ---------------------------------------------------------------------------
+// Scenario threshold
+// ---------------------------------------------------------------------------
+
+function getPassThreshold(scenarioId: string): number | null {
+	const scenariosDir = join(findEvalsDir(), "..", "scenarios");
+	const scenarioFile = join(scenariosDir, `${scenarioId}.md`);
+	if (!existsSync(scenarioFile)) return null;
+
+	const content = readFileSync(scenarioFile, "utf-8");
+	const match = content.match(/\*\*pass_threshold:\*\*\s*(\d+)/);
+	return match ? Number.parseInt(match[1], 10) : null;
+}
+
+// ---------------------------------------------------------------------------
 // Run a single eval
 // ---------------------------------------------------------------------------
 
@@ -103,13 +123,24 @@ async function runEval(
 			? join(evalDir, "EVAL.tsx")
 			: join(evalDir, "EVAL.ts");
 
+		const passThreshold = getPassThreshold(scenario.id);
+
 		console.log("  Running tests...");
 		const testResult = await runTests({
 			workspacePath,
 			evalFilePath,
+			passThreshold: passThreshold ?? undefined,
 		});
+
+		const pct =
+			testResult.totalCount > 0
+				? ((testResult.passedCount / testResult.totalCount) * 100).toFixed(1)
+				: "0.0";
+		const thresholdInfo = passThreshold
+			? `, threshold: ${((passThreshold / testResult.totalCount) * 100).toFixed(0)}%`
+			: "";
 		console.log(
-			`  Tests: ${testResult.passedCount}/${testResult.totalCount} passed`,
+			`  Tests: ${testResult.passedCount}/${testResult.totalCount} passed (${pct}%${thresholdInfo})`,
 		);
 
 		// 5. Collect modified files
@@ -129,6 +160,7 @@ async function runEval(
 			agentOutput: agentResult.output,
 			testsPassed: testResult.passedCount,
 			testsTotal: testResult.totalCount,
+			passThreshold: passThreshold ?? undefined,
 			filesModified,
 			toolCallCount: summary.toolCalls.length,
 			costUsd: summary.totalCostUsd ?? undefined,
@@ -194,15 +226,33 @@ async function main() {
 
 	console.log(`Scenarios: ${scenarios.map((s) => s.id).join(", ")}`);
 
+	// Start the shared Supabase instance once for all scenarios.
+	startSupabase();
+	const keys = getKeys();
+
+	// Inject keys into process.env so EVAL.ts tests can connect to the real DB.
+	process.env.SUPABASE_URL = keys.apiUrl;
+	process.env.SUPABASE_ANON_KEY = keys.anonKey;
+	process.env.SUPABASE_SERVICE_ROLE_KEY = keys.serviceRoleKey;
+	process.env.SUPABASE_DB_URL = keys.dbUrl;
+
 	const results: EvalRunResult[] = [];
 	const transcripts = new Map<string, TranscriptSummary>();
 
-	for (const scenario of scenarios) {
-		const { result, transcript } = await runEval(scenario, skillEnabled);
-		results.push(result);
-		if (transcript) {
-			transcripts.set(result.scenario, transcript);
+	try {
+		for (const scenario of scenarios) {
+			// Reset the database before each scenario for a clean slate.
+			console.log(`\n  Resetting DB for ${scenario.id}...`);
+			resetDB(keys.dbUrl);
+
+			const { result, transcript } = await runEval(scenario, skillEnabled);
+			results.push(result);
+			if (transcript) {
+				transcripts.set(result.scenario, transcript);
+			}
 		}
+	} finally {
+		stopSupabase();
 	}
 
 	// Use the results dir from the first result (all share the same timestamp)

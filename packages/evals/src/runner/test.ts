@@ -30,6 +30,7 @@ export interface TestResult {
 export async function runTests(opts: {
 	workspacePath: string;
 	evalFilePath: string;
+	passThreshold?: number;
 }): Promise<TestResult> {
 	// Copy the hidden test file into the workspace
 	const evalFileName = opts.evalFilePath.endsWith(".tsx")
@@ -85,11 +86,11 @@ export async function runTests(opts: {
 		});
 
 		const output = `${stdout}\n${stderr}`;
-		return parseTestOutput(output);
+		return parseTestOutput(output, opts.passThreshold);
 	} catch (error) {
 		const err = error as Error & { stdout?: string; stderr?: string };
 		const output = `${err.stdout ?? ""}\n${err.stderr ?? ""}`;
-		return parseTestOutput(output);
+		return parseTestOutput(output, opts.passThreshold);
 	}
 }
 
@@ -111,7 +112,7 @@ function parseIndividualTests(output: string): Record<string, boolean> {
 	return results;
 }
 
-function parseTestOutput(output: string): TestResult {
+function parseTestOutput(output: string, passThreshold?: number): TestResult {
 	// Parse vitest output for pass/fail counts
 	// Vitest formats:
 	//   All passing:  "Tests  N passed (N)"
@@ -133,7 +134,9 @@ function parseTestOutput(output: string): TestResult {
 		totalCount = Number.parseInt(allFailing[2], 10);
 	}
 
-	const passed = totalCount > 0 && passedCount === totalCount;
+	const passed = passThreshold
+		? totalCount > 0 && passedCount >= passThreshold
+		: totalCount > 0 && passedCount === totalCount;
 	const individualTests = parseIndividualTests(output);
 
 	return { passed, output, passedCount, totalCount, individualTests };

@@ -3,6 +3,10 @@ services:
     build:
       context: ../..
       dockerfile: packages/evals/Dockerfile
+      args:
+        # Match the host's docker group GID so the node user can reach the socket.
+        # Override with: DOCKER_GID=$(getent group docker | cut -d: -f3) docker compose up
+        DOCKER_GID: "${DOCKER_GID:-999}"
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - EVAL_MODEL=${EVAL_MODEL:-}
@@ -15,3 +19,5 @@ services:
       - EVAL_RESULTS_DIR=/app/results
     volumes:
       - ./results:/app/results
+      # Mount the host Docker socket so the supabase CLI can manage containers.
+      - /var/run/docker.sock:/var/run/docker.sock

@@ -22,9 +22,10 @@ export interface AgentRunResult {
  * Uses --output-format stream-json to capture structured NDJSON events
  * including tool calls, results, and reasoning steps.
  *
- * The agent operates in the workspace directory and can read/write files.
- * When skills are installed (via the `skills` CLI), Claude Code
- * discovers them automatically and uses them for guidance.
+ * The agent operates in the workspace directory and can read/write files,
+ * and has access to the local Supabase MCP server so it can apply migrations
+ * and query the real database. --strict-mcp-config ensures only the local
+ * Supabase instance is reachable — no host MCP servers leak in.
  */
 export async function runAgent(opts: {
 	cwd: string;
@@ -34,6 +35,18 @@ export async function runAgent(opts: {
 	skillEnabled: boolean;
 }): Promise<AgentRunResult> {
 	const start = Date.now();
+
+	// Point the agent's MCP config at the shared local Supabase instance.
+	// --strict-mcp-config ensures host .mcp.json is ignored entirely.
+	const supabaseUrl = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
+	const mcpConfig = JSON.stringify({
+		mcpServers: {
+			supabase: {
+				type: "http",
+				url: `${supabaseUrl}/mcp`,
+			},
+		},
+	});
 
 	const args = [
 		"-p", // Print mode (non-interactive)
@@ -46,12 +59,8 @@ export async function runAgent(opts: {
 		"--dangerously-skip-permissions",
 		"--tools",
 		"Edit,Write,Bash,Read,Glob,Grep",
-		// Disable all MCP servers so the agent uses only local filesystem tools.
-		// Without this, MCP tools from the parent env (e.g. Supabase, Neon)
-		// leak in and the agent may apply migrations to a remote project
-		// instead of creating local files.
 		"--mcp-config",
-		'{"mcpServers":{}}',
+		mcpConfig,
 		"--strict-mcp-config",
 	];
 
