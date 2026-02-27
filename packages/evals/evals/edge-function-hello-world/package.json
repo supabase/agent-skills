@@ -1,5 +1,8 @@
 {
 	"name": "edge-function-hello-world",
 	"private": true,
-	"type": "module"
+	"type": "module",
+	"devDependencies": {
+		"vitest": "^2.0.0"
+	}
 }

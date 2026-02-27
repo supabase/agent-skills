@@ -1,57 +1,56 @@
 # Evals — Agent Guide
 
 This package evaluates whether AI agents correctly implement Supabase tasks
-when using skill documentation. Modeled after
-[Vercel's next-evals-oss](https://github.com/vercel-labs/next-evals-oss): each
-eval is a self-contained project with a task prompt, the agent works on it, and
-hidden tests check the result. Binary pass/fail.
+when using skill documentation. Built on
+[@vercel/agent-eval](https://github.com/vercel/agent-eval): each eval is a
+self-contained scenario with a task prompt, the agent works in a Docker sandbox,
+and hidden vitest assertions check the result. Binary pass/fail.
 
 ## Architecture
 
 ```
-1. Create temp dir with project skeleton (PROMPT.md, supabase/ dir)
-2. Install skills via `skills add` CLI (or skip for baseline)
-3. Run: claude -p "prompt" --cwd /tmp/eval-xxx
-4. Agent reads skill, creates migrations/code in the workspace
-5. Copy hidden EVAL.ts into workspace, run vitest
-6. Capture pass/fail
+1. eval.sh starts Supabase, exports keys
+2. agent-eval reads experiments/experiment.ts
+3. For each scenario:
+   a. setup() resets DB, writes config + skills into Docker sandbox
+   b. Agent (Claude Code) runs PROMPT.md in the sandbox
+   c. EVAL.ts (vitest) asserts against agent output
+4. Results saved to results/experiment/{timestamp}/{scenario}/run-{N}/
+5. Optional: upload.ts pushes results to Braintrust
 ```
 
-The agent is **Claude Code** invoked via `claude -p` (print mode). It operates
-on a real filesystem in a temp directory and can read/write files freely.
+The agent is **Claude Code** running inside a Docker sandbox managed by
+`@vercel/agent-eval`. It operates on a real filesystem and can read/write files
+freely.
 
-**Important**: MCP servers are disabled via `--strict-mcp-config` with an empty
-config. This ensures the agent uses only local tools (Bash, Edit, Write, Read,
-Glob, Grep) and cannot access remote services like Supabase MCP or Neon. All
-work must happen on the local filesystem — e.g., creating migration files in
-`supabase/migrations/`, not applying them to a remote project.
-
-## Eval Structure
-
-Each eval lives in `evals/{scenario-name}/`:
+## File Structure
 
 ```
-evals/auth-rls-new-project/
-  PROMPT.md          # Task description (visible to agent)
-  EVAL.ts            # Vitest assertions (hidden from agent during run)
-  package.json       # Minimal project manifest
-  supabase/
-    config.toml      # Pre-initialized supabase config
-    migrations/      # Empty — agent creates files here
+packages/evals/
+  experiments/
+    experiment.ts        # ExperimentConfig — agent, sandbox, setup() hook
+  scripts/
+    eval.sh              # Supabase lifecycle wrapper (start → eval → stop)
+  src/
+    upload.ts            # Standalone Braintrust result uploader
+  evals/
+    eval-utils.ts        # Shared helpers (findMigrationFiles, getMigrationSQL, etc.)
+    {scenario}/
+      PROMPT.md          # Task description (visible to agent)
+      EVAL.ts            # Vitest assertions (hidden from agent during run)
+      meta.ts            # expectedReferenceFiles for scoring
+      package.json       # Minimal manifest with vitest devDep
+  project/
+    supabase/
+      config.toml        # Shared Supabase config seeded into each sandbox
+  scenarios/             # Workflow scenario proposals
+  results/               # Output from eval runs (gitignored)
 ```
-
-**EVAL.ts** is never copied to the workspace until after the agent finishes.
-This prevents the agent from "teaching to the test."
 
 ## Running Evals
 
-Eval tasks in `mise.toml` have `sources` defined, so mise skips them when
-source files haven't changed. Use `--force` to bypass caching when you need
-to re-run evals regardless (e.g., after changing environment variables or
-re-running the same scenario):
-
 ```bash
-# Run all scenarios with skills (default)
+# Run all scenarios with skills
 mise run eval
 
 # Force re-run (bypass source caching)
@@ -66,64 +65,52 @@ EVAL_MODEL=claude-opus-4-6 mise run eval
 # Run without skills (baseline)
 EVAL_BASELINE=true mise run eval
 
-# Install only a specific skill
-EVAL_SKILL=supabase mise run eval
+# Dry run (no API calls)
+mise run eval:dry
 
 # Upload results to Braintrust
 mise run eval:upload
-
-# Force upload (bypass cache)
-mise run --force eval:upload
 ```
 
 ## Baseline Mode
 
-Set `EVAL_BASELINE=true` to run scenarios **without** skills. By default,
-scenarios run with skills installed via the `skills` CLI.
+Set `EVAL_BASELINE=true` to run scenarios **without** skills injected. By
+default, skill files from `skills/supabase/` are written into the sandbox.
 
-To compare with-skill vs baseline, run evals twice:
+Compare with-skill vs baseline:
 
 ```bash
 mise run eval                        # with skills
 EVAL_BASELINE=true mise run eval     # without skills (baseline)
 ```
 
-Compare the results to measure how much skills improve agent output.
-
 ## Adding Scenarios
 
-1. Create `evals/{scenario-name}/` with `PROMPT.md`, `EVAL.ts`, `package.json`
-2. Add any starter files the agent should see (e.g., `supabase/config.toml`)
-3. Write vitest assertions in `EVAL.ts` that check the agent's output files
-4. Document the scenario in `scenarios/SCENARIOS.md`
+1. Create `evals/{scenario-name}/` with:
+   - `PROMPT.md` — task description for the agent
+   - `EVAL.ts` — vitest assertions checking agent output
+   - `meta.ts` — export `expectedReferenceFiles` array for scoring
+   - `package.json` — `{ "private": true, "type": "module", "devDependencies": { "vitest": "^2.0.0" } }`
+2. Add any starter files the agent should see (they get copied via `setup()`)
+3. Assertions use helpers from `../eval-utils.ts` (e.g., `findMigrationFiles`, `getMigrationSQL`)
 
 ## Environment
 
 ```
-ANTHROPIC_API_KEY=sk-ant-...       # Required: Claude Code authentication
-EVAL_MODEL=...                     # Optional: override model (default: claude-sonnet-4-5-20250929)
-EVAL_SCENARIO=...                  # Optional: run single scenario
-EVAL_SKILL=...                     # Optional: install only this skill (e.g., "supabase")
-EVAL_BASELINE=true                 # Optional: run without skills (baseline mode)
-BRAINTRUST_UPLOAD=true             # Optional: upload results to Braintrust
-BRAINTRUST_API_KEY=...             # Required when BRAINTRUST_UPLOAD=true
-BRAINTRUST_PROJECT_ID=...          # Required when BRAINTRUST_UPLOAD=true
-BRAINTRUST_BASE_EXPERIMENT=...     # Optional: compare against a named experiment
+ANTHROPIC_API_KEY=sk-ant-...         # Required: Claude Code authentication
+EVAL_MODEL=...                       # Optional: override model (default: claude-sonnet-4-6)
+EVAL_SCENARIO=...                    # Optional: run single scenario
+EVAL_BASELINE=true                   # Optional: run without skills
+BRAINTRUST_API_KEY=...               # Required for eval:upload
+BRAINTRUST_PROJECT_ID=...            # Required for eval:upload
 ```
 
-## Key Files
+## Docker Evals
 
-```
-src/
-  runner.ts              # Main orchestrator
-  types.ts               # Core interfaces
-  runner/
-    scaffold.ts          # Creates temp workspace from eval template
-    agent.ts             # Invokes claude -p as subprocess
-    test.ts              # Runs vitest EVAL.ts against workspace
-    results.ts           # Collects results and prints summary
-evals/
-  auth-rls-new-project/  # Scenario 1
-scenarios/
-  SCENARIOS.md           # Scenario descriptions
+Build and run evals inside Docker (e.g., for CI):
+
+```bash
+mise run eval:docker:build           # Build the eval Docker image
+mise run eval:docker                 # Run evals in Docker
+mise run eval:docker:shell           # Debug shell in eval container
 ```

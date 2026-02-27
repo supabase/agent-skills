@@ -1,5 +1,8 @@
 {
 	"name": "auth-rls-new-project",
 	"private": true,
-	"type": "module"
+	"type": "module",
+	"devDependencies": {
+		"vitest": "^2.0.0"
+	}
 }

@@ -6,17 +6,19 @@
 	"license": "MIT",
 	"description": "Agent evaluation system for Supabase skills",
 	"scripts": {
-		"eval": "tsx src/runner.ts",
-		"eval:upload": "BRAINTRUST_UPLOAD=true tsx src/runner.ts"
+		"eval": "agent-eval",
+		"eval:dry": "agent-eval --dry",
+		"eval:smoke": "agent-eval --smoke",
+		"eval:upload": "tsx src/upload.ts"
 	},
 	"dependencies": {
-		"@anthropic-ai/claude-code": "^2.1.49",
-		"braintrust": "^3.0.0",
-		"skills": "^1.4.0"
+		"@vercel/agent-eval": "^0.9.2",
+		"braintrust": "^3.0.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20.10.0",
 		"tsx": "^4.7.0",
-		"typescript": "^5.3.0"
+		"typescript": "^5.3.0",
+		"vitest": "^4.0.18"
 	}
 }

@@ -46,14 +46,19 @@ sources = ["test/**", "skills/**"]
 # ── Eval tasks ────────────────────────────────────────────────────────
 
 [tasks.eval]
-description = "Run workflow evals"
-run = "npm --prefix packages/evals run eval"
-sources = ["packages/evals/src/**", "packages/evals/evals/**"]
+description = "Run workflow evals (use -- to pass args, e.g. mise run eval -- --skill supabase --scenario rls-update-needs-select)"
+run = "bash packages/evals/scripts/eval.sh"
+sources = ["packages/evals/evals/**", "packages/evals/experiments/**"]
+
+[tasks."eval:dry"]
+description = "Dry run workflow evals (no API calls)"
+run = "npm --prefix packages/evals run eval:dry"
+sources = ["packages/evals/evals/**", "packages/evals/experiments/**"]
 
 [tasks."eval:upload"]
-description = "Run workflow evals and upload to Braintrust"
+description = "Upload eval results to Braintrust"
 run = "npm --prefix packages/evals run eval:upload"
-sources = ["packages/evals/src/**", "packages/evals/evals/**"]
+sources = ["packages/evals/results/**"]
 
 # ── Docker eval tasks ────────────────────────────────────────────────
 
@@ -71,7 +76,6 @@ docker run --rm \
   -e EVAL_SCENARIO \
   -e EVAL_BASELINE \
   -e EVAL_SKILL \
-  -e BRAINTRUST_UPLOAD \
   -e BRAINTRUST_API_KEY \
   -e BRAINTRUST_PROJECT_ID \
   -e EVAL_RESULTS_DIR=/app/results \

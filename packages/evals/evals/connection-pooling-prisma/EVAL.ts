@@ -1,12 +1,6 @@
-export const expectedReferenceFiles = [
-	"db-conn-pooling.md",
-	"db-migrations-idempotent.md",
-	"db-schema-auth-fk.md",
-];
-
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { EvalAssertion } from "../../src/eval-types.js";
+import { expect, test } from "vitest";
 
 const cwd = process.cwd();
 
@@ -65,70 +59,60 @@ function getAllOutputContent(): string {
 	return parts.join("\n");
 }
 
-export const assertions: EvalAssertion[] = [
-	{
-		name: "prisma schema file exists",
-		check: () => findPrismaSchema() !== null,
-	},
-	{
-		name: "prisma schema references pooler port 6543",
-		check: () => /6543/.test(getAllOutputContent()),
-	},
-	{
-		name: "pgbouncer=true param present",
-		check: () =>
-			/pgbouncer\s*=\s*true/.test(getAllOutputContent().toLowerCase()),
-	},
-	{
-		name: "DIRECT_URL provided for migrations",
-		check: () => {
-			const allContent = `${getPrismaSchema().toLowerCase()}\n${getAllEnvContent().toLowerCase()}`;
-			return /directurl/.test(allContent) || /direct_url/.test(allContent);
-		},
-	},
-	{
-		name: "datasource block references directUrl or DIRECT_URL env var",
-		check: () => {
-			const schema = getPrismaSchema().toLowerCase();
-			const datasourceBlock =
-				schema.match(/datasource\s+\w+\s*\{[\s\S]*?\}/)?.[0] ?? "";
-			return (
-				/directurl/.test(datasourceBlock) || /direct_url/.test(datasourceBlock)
-			);
-		},
-	},
-	{
-		name: "connection limit set to 1 for serverless",
-		check: () => {
-			const content = getAllOutputContent().toLowerCase();
-			return (
-				/connection_limit\s*=\s*1/.test(content) ||
-				/connection_limit:\s*1/.test(content) ||
-				/connectionlimit\s*=\s*1/.test(content)
-			);
-		},
-	},
-	{
-		name: "explanation distinguishes port 6543 vs 5432",
-		check: () => {
-			const content = getAllOutputContent();
-			return /6543/.test(content) && /5432/.test(content);
-		},
-	},
-	{
-		name: "overall quality: demonstrates correct Prisma + Supabase pooler setup",
-		check: () => {
-			const schema = getPrismaSchema().toLowerCase();
-			const envContent = getAllEnvContent().toLowerCase();
-			const allContent = `${schema}\n${envContent}`;
-			const signals = [
-				/6543/,
-				/pgbouncer\s*=\s*true/,
-				/directurl|direct_url/,
-				/connection_limit\s*=\s*1|connection_limit:\s*1/,
-				/5432/,
-			];
-			return signals.filter((r) => r.test(allContent)).length >= 4;
-		},
-	},
-];
+test("prisma schema file exists", () => {
+	expect(findPrismaSchema() !== null).toBe(true);
+});
+
+test("prisma schema references pooler port 6543", () => {
+	expect(/6543/.test(getAllOutputContent())).toBe(true);
+});
+
+test("pgbouncer=true param present", () => {
+	expect(/pgbouncer\s*=\s*true/.test(getAllOutputContent().toLowerCase())).toBe(
+		true,
+	);
+});
+
+test("DIRECT_URL provided for migrations", () => {
+	const allContent = `${getPrismaSchema().toLowerCase()}\n${getAllEnvContent().toLowerCase()}`;
+	expect(/directurl/.test(allContent) || /direct_url/.test(allContent)).toBe(
+		true,
+	);
+});
+
+test("datasource block references directUrl or DIRECT_URL env var", () => {
+	const schema = getPrismaSchema().toLowerCase();
+	const datasourceBlock =
+		schema.match(/datasource\s+\w+\s*\{[\s\S]*?\}/)?.[0] ?? "";
+	expect(
+		/directurl/.test(datasourceBlock) || /direct_url/.test(datasourceBlock),
+	).toBe(true);
+});
+
+test("connection limit set to 1 for serverless", () => {
+	const content = getAllOutputContent().toLowerCase();
+	expect(
+		/connection_limit\s*=\s*1/.test(content) ||
+			/connection_limit:\s*1/.test(content) ||
+			/connectionlimit\s*=\s*1/.test(content),
+	).toBe(true);
+});
+
+test("explanation distinguishes port 6543 vs 5432", () => {
+	const content = getAllOutputContent();
+	expect(/6543/.test(content) && /5432/.test(content)).toBe(true);
+});
+
+test("overall quality: demonstrates correct Prisma + Supabase pooler setup", () => {
+	const schema = getPrismaSchema().toLowerCase();
+	const envContent = getAllEnvContent().toLowerCase();
+	const allContent = `${schema}\n${envContent}`;
+	const signals = [
+		/6543/,
+		/pgbouncer\s*=\s*true/,
+		/directurl|direct_url/,
+		/connection_limit\s*=\s*1|connection_limit:\s*1/,
+		/5432/,
+	];
+	expect(signals.filter((r) => r.test(allContent)).length >= 4).toBe(true);
+});

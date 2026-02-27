@@ -1,11 +1,6 @@
-export const expectedReferenceFiles = [
-	"dev-getting-started.md",
-	"edge-fun-quickstart.md",
-];
-
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { EvalAssertion } from "../../src/eval-types.js";
+import { expect, test } from "vitest";
 
 const cwd = process.cwd();
 
@@ -27,102 +22,93 @@ function getReferenceContent(): string {
 	return readFileSync(file, "utf-8");
 }
 
-export const assertions: EvalAssertion[] = [
-	{
-		name: "CLI_REFERENCE.md exists in project root",
-		check: () => findReferenceFile() !== null,
-	},
-	{
-		name: "no hallucinated functions log command",
-		check: () => {
-			const content = getReferenceContent();
-			return (
-				!/`supabase\s+functions\s+log`/.test(content) &&
-				!/^\s*npx\s+supabase\s+functions\s+log\b/m.test(content) &&
-				!/^\s*supabase\s+functions\s+log\b/m.test(content)
-			);
-		},
-	},
-	{
-		name: "no hallucinated db query command",
-		check: () => {
-			const content = getReferenceContent();
-			return (
-				!/`supabase\s+db\s+query`/.test(content) &&
-				!/^\s*npx\s+supabase\s+db\s+query\b/m.test(content) &&
-				!/^\s*supabase\s+db\s+query\b/m.test(content)
-			);
-		},
-	},
-	{
-		name: "mentions supabase functions serve for local development",
-		check: () =>
-			/supabase\s+functions\s+serve/.test(getReferenceContent().toLowerCase()),
-	},
-	{
-		name: "mentions supabase functions deploy",
-		check: () =>
-			/supabase\s+functions\s+deploy/.test(getReferenceContent().toLowerCase()),
-	},
-	{
-		name: "mentions psql or SQL Editor or connection string for ad-hoc SQL",
-		check: () => {
-			const content = getReferenceContent().toLowerCase();
-			return (
-				/\bpsql\b/.test(content) ||
-				/sql\s+editor/.test(content) ||
-				/connection\s+string/.test(content) ||
-				/supabase\s+db\s+dump/.test(content)
-			);
-		},
-	},
-	{
-		name: "mentions supabase db push or supabase db reset for migrations",
-		check: () => {
-			const content = getReferenceContent().toLowerCase();
-			return (
-				/supabase\s+db\s+push/.test(content) ||
-				/supabase\s+db\s+reset/.test(content)
-			);
-		},
-	},
-	{
-		name: "mentions supabase start for local stack",
-		check: () => /supabase\s+start/.test(getReferenceContent().toLowerCase()),
-	},
-	{
-		name: "mentions Dashboard or Logs Explorer for production log viewing",
-		check: () => {
-			const content = getReferenceContent().toLowerCase();
-			return /\bdashboard\b/.test(content) || /logs\s+explorer/.test(content);
-		},
-	},
-	{
-		name: "overall quality: uses real CLI commands throughout",
-		check: () => {
-			const content = getReferenceContent().toLowerCase();
-			const signals = [
-				/supabase\s+start/,
-				/supabase\s+stop/,
-				/supabase\s+functions\s+serve/,
-				/supabase\s+functions\s+deploy/,
-				/supabase\s+db\s+(push|reset|diff)/,
-				/\bpsql\b|\bsql\s+editor\b|\bconnection\s+string\b/,
-				/\bdashboard\b|\blogs\s+explorer\b/,
-			];
-			const hallucinations = [
-				/`supabase\s+functions\s+log`/,
-				/^\s*npx\s+supabase\s+functions\s+log\b/m,
-				/^\s*supabase\s+functions\s+log\b/m,
-				/`supabase\s+db\s+query`/,
-				/^\s*npx\s+supabase\s+db\s+query\b/m,
-				/^\s*supabase\s+db\s+query\b/m,
-			];
-			const positiveMatches = signals.filter((r) => r.test(content)).length;
-			const hallucinationMatches = hallucinations.filter((r) =>
-				r.test(content),
-			).length;
-			return positiveMatches >= 5 && hallucinationMatches === 0;
-		},
-	},
-];
+test("CLI_REFERENCE.md exists in project root", () => {
+	expect(findReferenceFile() !== null).toBe(true);
+});
+
+test("no hallucinated functions log command", () => {
+	const content = getReferenceContent();
+	expect(
+		/`supabase\s+functions\s+log`/.test(content) ||
+			/^\s*npx\s+supabase\s+functions\s+log\b/m.test(content) ||
+			/^\s*supabase\s+functions\s+log\b/m.test(content),
+	).toBe(false);
+});
+
+test("no hallucinated db query command", () => {
+	const content = getReferenceContent();
+	expect(
+		/`supabase\s+db\s+query`/.test(content) ||
+			/^\s*npx\s+supabase\s+db\s+query\b/m.test(content) ||
+			/^\s*supabase\s+db\s+query\b/m.test(content),
+	).toBe(false);
+});
+
+test("mentions supabase functions serve for local development", () => {
+	expect(
+		/supabase\s+functions\s+serve/.test(getReferenceContent().toLowerCase()),
+	).toBe(true);
+});
+
+test("mentions supabase functions deploy", () => {
+	expect(
+		/supabase\s+functions\s+deploy/.test(getReferenceContent().toLowerCase()),
+	).toBe(true);
+});
+
+test("mentions psql or SQL Editor or connection string for ad-hoc SQL", () => {
+	const content = getReferenceContent().toLowerCase();
+	expect(
+		/\bpsql\b/.test(content) ||
+			/sql\s+editor/.test(content) ||
+			/connection\s+string/.test(content) ||
+			/supabase\s+db\s+dump/.test(content),
+	).toBe(true);
+});
+
+test("mentions supabase db push or supabase db reset for migrations", () => {
+	const content = getReferenceContent().toLowerCase();
+	expect(
+		/supabase\s+db\s+push/.test(content) ||
+			/supabase\s+db\s+reset/.test(content),
+	).toBe(true);
+});
+
+test("mentions supabase start for local stack", () => {
+	expect(/supabase\s+start/.test(getReferenceContent().toLowerCase())).toBe(
+		true,
+	);
+});
+
+test("mentions Dashboard or Logs Explorer for production log viewing", () => {
+	const content = getReferenceContent().toLowerCase();
+	expect(/\bdashboard\b/.test(content) || /logs\s+explorer/.test(content)).toBe(
+		true,
+	);
+});
+
+test("overall quality: uses real CLI commands throughout", () => {
+	const content = getReferenceContent().toLowerCase();
+	const signals = [
+		/supabase\s+start/,
+		/supabase\s+stop/,
+		/supabase\s+functions\s+serve/,
+		/supabase\s+functions\s+deploy/,
+		/supabase\s+db\s+(push|reset|diff)/,
+		/\bpsql\b|\bsql\s+editor\b|\bconnection\s+string\b/,
+		/\bdashboard\b|\blogs\s+explorer\b/,
+	];
+	const hallucinations = [
+		/`supabase\s+functions\s+log`/,
+		/^\s*npx\s+supabase\s+functions\s+log\b/m,
+		/^\s*supabase\s+functions\s+log\b/m,
+		/`supabase\s+db\s+query`/,
+		/^\s*npx\s+supabase\s+db\s+query\b/m,
+		/^\s*supabase\s+db\s+query\b/m,
+	];
+	const positiveMatches = signals.filter((r) => r.test(content)).length;
+	const hallucinationMatches = hallucinations.filter((r) =>
+		r.test(content),
+	).length;
+	expect(positiveMatches >= 5 && hallucinationMatches === 0).toBe(true);
+});
