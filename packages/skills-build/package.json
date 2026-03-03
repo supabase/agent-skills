@@ -8,7 +8,7 @@
 	"scripts": {
 		"build": "tsx src/build.ts",
 		"validate": "tsx src/validate.ts",
-		"dev": "npm run validate && npm run build"
+		"dev": "pnpm run validate && pnpm run build"
 	},
 	"devDependencies": {
 		"@types/node": "^20.10.0",

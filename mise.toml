@@ -5,6 +5,7 @@ lockfile = true
 [tools]
 claude = "2.1.63"
 node = "lts"
+pnpm = "latest"
 
 [env]
 _.path = ["{{config_root}}/node_modules/.bin"]
@@ -14,18 +15,18 @@ _.file = [".env", "packages/evals/.env"]
 
 [tasks.install]
 description = "Install all dependencies"
-run = "npm install && npm --prefix packages/skills-build install && npm --prefix packages/evals install"
-sources = ["package.json", "packages/skills-build/package.json", "packages/evals/package.json"]
-outputs = ["node_modules/.package-lock.json"]
+run = "pnpm install"
+sources = ["package.json", "packages/skills-build/package.json", "pnpm-workspace.yaml"]
+outputs = ["node_modules/.modules.yaml"]
 
 [tasks.validate]
 description = "Validate all skills"
-run = "npm --prefix packages/skills-build run validate"
+run = "pnpm --filter skills-build run validate"
 sources = ["skills/**/SKILL.md", "skills/**/references/**"]
 
 [tasks.build]
 description = "Build all skills"
-run = "npm --prefix packages/skills-build run build"
+run = "pnpm --filter skills-build run build"
 sources = ["skills/**/SKILL.md", "skills/**/references/**", "packages/skills-build/src/**"]
 outputs = ["skills/**/AGENTS.md"]
 
