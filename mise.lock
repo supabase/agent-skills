@@ -1,3 +1,8 @@
+[[tools.claude]]
+version = "2.1.63"
+backend = "aqua:anthropics/claude-code"
+"platforms.macos-arm64" = { checksum = "blake3:8719d16f09e5368fbbde5352fe1882fa3e70d6e984d77d513bf2230f22e2ddbe", url = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/2.1.63/darwin-arm64/claude"}
+
 [[tools.node]]
 version = "24.13.0"
 backend = "core:node"

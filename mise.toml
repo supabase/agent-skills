@@ -3,6 +3,7 @@ experimental = true
 lockfile = true
 
 [tools]
+claude = "2.1.63"
 node = "lts"
 
 [env]
