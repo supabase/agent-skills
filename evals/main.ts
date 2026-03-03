@@ -1,63 +1,7 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readdirSync, readFileSync } from "node:fs";
-import os from "node:os";
+import { mkdirSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { z } from "zod";
-
-/**
- * Transcript schemas
- */
-
-const TextBlock = z.object({ type: z.literal("text"), text: z.string() });
-
-const ThinkingBlock = z.object({
-	type: z.literal("thinking"),
-	thinking: z.string(),
-});
-
-const ToolUseBlock = z.object({
-	type: z.literal("tool_use"),
-	id: z.string(),
-	name: z.string(),
-	input: z.record(z.string(), z.unknown()),
-});
-
-const ToolResultBlock = z.object({
-	type: z.literal("tool_result"),
-	tool_use_id: z.string(),
-	content: z.unknown(),
-	is_error: z.boolean().optional(),
-});
-
-const ContentBlock = z.union([
-	ToolUseBlock,
-	ThinkingBlock,
-	TextBlock,
-	ToolResultBlock,
-	z.looseObject({ type: z.string() }), // catch-all for unknown block types
-]);
-
-const AssistantEntry = z.object({
-	type: z.literal("assistant"),
-	sessionId: z.string(),
-	timestamp: z.string(),
-	uuid: z.string(),
-	message: z.object({
-		role: z.literal("assistant"),
-		content: z.array(ContentBlock),
-		stop_reason: z.string().nullable().optional(),
-	}),
-});
-
-// Catch-all — user messages, queue-operations, etc.
-const TranscriptLine = z.union([
-	AssistantEntry,
-	z.looseObject({ type: z.string() }),
-]);
-
-/**
- * Config
- */
+import { parseClaudeCodeTranscript } from "./parse-transcript";
 
 const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) throw new Error("ANTHROPIC_API_KEY required");
@@ -75,23 +19,23 @@ SELECT * FROM orders WHERE user_id = 123 AND status = 'pending';
 
 What indexes should I add and why?`;
 
-/**
- * Run the eval
- */
-
-// Mount ~/.claude/projects to capture the built-in session transcript
-const projectsDir = mkdtempSync(path.join(os.tmpdir(), "eval-projects-"));
+// Mount ~/.claude/projects to capture the built-in session transcript.
+// Written to a fixed path so you can inspect it after the run (e.g. in VSCode).
+const projectsDir = path.join(repoRoot, "evals", "output");
+mkdirSync(projectsDir, { recursive: true });
 
 const result = spawnSync(
 	"docker",
 	[
 		"run",
 		"--rm",
-		"-e",
+		"--workdir",
+		"/eval",
+		"--env",
 		`ANTHROPIC_API_KEY=${apiKey}`,
-		"-v",
+		"--volume",
 		`${skillPath}:/home/claude/.claude/skills/supabase-postgres-best-practices:ro`, // :ro = read-only snapshot
-		"-v",
+		"--volume",
 		`${projectsDir}:/home/claude/.claude/projects`,
 		"evals-claude",
 		"claude",
@@ -106,26 +50,14 @@ if (result.status !== 0) {
 	throw new Error(result.stderr || `Exit code ${result.status}`);
 }
 
-/**
- * Parse the transcript
- */
-
-// Container's working dir is /, which becomes `-` in the projects path
-const transcriptDir = path.join(projectsDir, "-");
+// Container's working dir is /eval, which becomes `eval` in the projects path
+const transcriptDir = path.join(projectsDir, "eval");
 const [transcriptFile] = readdirSync(transcriptDir).filter((f) =>
 	f.endsWith(".jsonl"),
 );
 
-// Single typed array — all transcript entries parsed and validated
-const transcript = readFileSync(
-	path.join(transcriptDir, transcriptFile),
-	"utf-8",
-)
-	.split("\n")
-	.filter(Boolean)
-	.flatMap((l) => {
-		const parsed = TranscriptLine.safeParse(JSON.parse(l));
-		return parsed.success ? [parsed.data] : [];
-	});
+const transcript = parseClaudeCodeTranscript(
+	readFileSync(path.join(transcriptDir, transcriptFile), "utf-8"),
+);
 
 console.log(JSON.stringify(transcript, null, 2));
