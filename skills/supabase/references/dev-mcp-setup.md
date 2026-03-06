@@ -3,9 +3,15 @@ title: Supabase Remote MCP Server Setup
 tags: mcp, setup, configuration, oauth, security, remote, cursor, claude-code, vscode, windsurf, codex, gemini, goose, factory, opencode, kiro
 ---
 
-## Supabase Remote MCP Server Setup
+## Supabase MCP Server Setup
 
-The Supabase remote MCP server (`mcp.supabase.com`) provides authenticated access to **remote Supabase projects** for database queries, logs, and advisors. It is only used for remote project interaction — local development uses CLI and `psql` instead.
+### Local MCP Server
+
+The local stack automatically exposes an MCP server at `http://127.0.0.1:54321/mcp` when running `npx supabase start`. No extra configuration is required — configure your AI client with this URL the same way as the remote server. DDL via `execute_sql` is allowed on the local MCP server. See [dev-local-workflow.md](dev-local-workflow.md).
+
+### Remote MCP Server
+
+The Supabase remote MCP server (`mcp.supabase.com`) provides authenticated access to **remote Supabase projects** for schema changes via `apply_migration`, database queries, logs, and advisors.
 
 **Incorrect:**
 
@@ -228,7 +234,7 @@ All tools interact exclusively with remote Supabase projects. See [dev-mcp-tools
 | `list_tables` | Inspect schema |
 | `list_extensions` | Check installed extensions |
 | `list_migrations` | View applied migrations |
-| `apply_migration` | Apply migration (last resort only — see [dev-mcp-tools.md](dev-mcp-tools.md)) |
+| `apply_migration` | Apply schema changes as recorded migration (see [dev-mcp-tools.md](dev-mcp-tools.md)) |
 
 ## URL Parameters
 

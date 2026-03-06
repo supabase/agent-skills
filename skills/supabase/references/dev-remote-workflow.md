@@ -1,31 +1,32 @@
 ---
 title: Remote Development Workflow
-tags: remote, hosted, workflow, deploy, link, mcp
+tags: remote, hosted, workflow, deploy, link, mcp, apply_migration
 ---
 
 ## Remote Development Workflow
 
-Use the **Supabase remote MCP server** to interact with the hosted project (queries, logs, advisors). Use the **CLI** for all deployment and management operations (migrations, functions, secrets, types).
+Use the **Supabase remote MCP server** to apply schema changes via MCP tool `apply_migration` and interact with the hosted project (queries, logs, advisors). Use the **CLI** to sync migrations locally, generate types, and deploy edge functions.
 
 **Incorrect:**
 
 ```bash
-# Using execute_sql to change schema on remote
+# Using execute_sql for DDL on remote — no migration trail
 execute_sql({ project_id: "ref", query: "CREATE TABLE posts (...)" })
-# Wrong — schema changes must go through migration workflow
+# Wrong — DDL via execute_sql leaves no migration record
 ```
 
 **Correct:**
 
-```bash
-# Schema changes go through CLI migrations
-npx supabase migration new create_posts
-# Edit the migration file...
-npx supabase db push --dry-run    # Preview
-npx supabase db push              # Deploy (with user permission)
+```javascript
+// Schema changes via MCP tool apply_migration (creates a recorded migration)
+apply_migration({
+  project_id: "ref",
+  name: "create_posts",
+  query: "CREATE TABLE posts (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, title text NOT NULL, created_at timestamptz DEFAULT now())"
+})
 
-# Use execute_sql only for non-schema queries
-execute_sql({ project_id: "ref", query: "SELECT * FROM posts LIMIT 10" })
+// Then sync migrations locally
+// npx supabase migration fetch --yes
 ```
 
 ## Prerequisites
@@ -54,53 +55,63 @@ If no Supabase MCP tools are available when interacting with a remote project:
 
 | Step | Tool | Command | Purpose |
 | --- | --- | --- | --- |
-| 1 | MCP | `execute_sql` | Query data, explore schema (non-schema-changing SQL only) |
-| 2 | MCP | `get_advisors` | Check security and performance |
-| 3 | CLI | `npx supabase migration new` | Create migration file for schema changes |
-| 4 | CLI | `npx supabase db push --dry-run` | Preview migration deployment |
-| 5 | CLI | `npx supabase db push` | Deploy migrations (with user permission) |
-| 6 | CLI | `npx supabase gen types --linked` | Generate TypeScript types |
-| 7 | CLI | `npx supabase functions deploy` | Deploy edge functions |
+| 1 | MCP | `list_tables` | Explore current schema |
+| 2 | MCP | `apply_migration` | Apply schema changes as a recorded migration |
+| 3 | MCP | `get_advisors` | Check security/performance |
+| 4 | CLI | `npx supabase migration fetch --yes` | Sync remote migrations locally |
+| 5 | CLI | `npx supabase gen types --linked` | Generate TypeScript types |
+| 6 | CLI | `npx supabase functions deploy` | Deploy edge functions |
+
+## Schema Changes: apply_migration Workflow
+
+`apply_migration` is the primary method for schema changes on remote projects. It creates a recorded migration on the remote database.
+
+```javascript
+// 1. Inspect current schema
+list_tables({ project_id: "ref", verbose: true })
+
+// 2. Apply schema changes
+apply_migration({
+  project_id: "ref",
+  name: "create_posts",
+  query: "CREATE TABLE posts (...); ALTER TABLE posts ENABLE ROW LEVEL SECURITY;"
+})
+
+// 3. Check advisors
+get_advisors({ project_id: "ref", type: "security" })
+get_advisors({ project_id: "ref", type: "performance" })
+```
+
+Then sync locally and generate types:
+
+```bash
+npx supabase migration fetch --yes
+npx supabase gen types --linked > types.ts
+```
 
 ## Query with execute_sql (Non-Schema Only)
 
-Use `execute_sql` for read queries, data exploration, and debugging — **not** for DDL (CREATE, ALTER, DROP).
+Use `execute_sql` for read queries, data exploration, and debugging — **not** for DDL (CREATE, ALTER, DROP). Use `apply_migration` for all DDL.
 
 ```javascript
 execute_sql({ project_id: "ref", query: "SELECT * FROM posts LIMIT 10" })
 execute_sql({ project_id: "ref", query: "SELECT * FROM auth.users LIMIT 5" })
 ```
 
-## Schema Changes: Migration Workflow
-
-Schema changes on the remote project always go through the CLI migration workflow:
-
-```bash
-# Option A: Write migration manually
-npx supabase migration new create_posts
-# Edit supabase/migrations/<timestamp>_create_posts.sql
-
-# Option B: If developing locally, capture changes with diff
-npx supabase db diff -f "create_posts"
-
-# Preview and deploy
-npx supabase db push --dry-run
-npx supabase db push              # Always ask user permission first!
-```
-
 ## Sync Remote Changes Locally
 
-When changes were made on the remote project outside of local migrations (e.g., via dashboard):
+After applying migrations via MCP, sync them to the local filesystem:
 
 ```bash
-npx supabase db pull              # Pull schema as migration file
-npx supabase gen types --lang typescript --linked > types.ts
+npx supabase migration fetch --yes
+npx supabase gen types --linked > types.ts
 ```
 
 ## Check Advisors
 
 ```javascript
-get_advisors({ project_id: "ref" })
+get_advisors({ project_id: "ref", type: "security" })
+get_advisors({ project_id: "ref", type: "performance" })
 ```
 
 Run after schema changes — catches missing RLS policies, unused indexes, security issues.
@@ -110,7 +121,7 @@ Run after schema changes — catches missing RLS policies, unused indexes, secur
 ```javascript
 get_logs({ project_id: "ref", service: "postgres" })          // Query errors
 get_logs({ project_id: "ref", service: "api" })               // PostgREST / RLS
-get_logs({ project_id: "ref", service: "edge_functions" })    // Function errors
+get_logs({ project_id: "ref", service: "edge-function" })     // Function errors
 get_logs({ project_id: "ref", service: "auth" })              // Auth issues
 ```
 
@@ -121,15 +132,17 @@ npx supabase functions deploy                    # Deploy all functions
 npx supabase functions deploy hello-world        # Deploy specific function
 ```
 
-## Deploy Migrations
+## Troubleshooting
 
-**Always preferred:** `npx supabase db push` (ask user permission first!)
-
-**Last resort only:** MCP `apply_migration` — only when `db push` fails due to migration mismatch and `migration repair` cannot fix it. Always ask the user for consent first. Always sync after with `npx supabase migration fetch --yes`.
+| Problem | Fix |
+| --- | --- |
+| `Could not find the '<column>' column of '<table>' in the schema cache` | Update types and implementation to match current schema |
+| No project ref | Run `npx supabase link` to link workspace to a hosted project, or check `supabase/.temp/project-ref` |
+| Schema drift (data not appearing in app) | Run `npx supabase db diff --linked` to check. If drift exists, run `npx supabase db pull "name" --yes` to store changes locally and repair history. Then update types. |
 
 ## Related
 
 - [dev-cli-reference.md](dev-cli-reference.md) — CLI command details
 - [dev-mcp-tools.md](dev-mcp-tools.md) — MCP tool reference
-- [dev-cli-vs-mcp.md](dev-cli-vs-mcp.md) — When to use CLI+psql vs MCP
+- [dev-cli-vs-mcp.md](dev-cli-vs-mcp.md) — When to use CLI vs MCP
 - [dev-mcp-setup.md](dev-mcp-setup.md) — MCP server configuration

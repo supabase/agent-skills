@@ -5,7 +5,7 @@ tags: cli, commands, push, pull, diff, reset, migration, functions, secrets, typ
 
 ## CLI Command Reference
 
-Best practices, key flags, and pitfalls for each CLI command group. The CLI is the primary tool for all schema changes, project management, and deployment — both locally and to remote projects. Use `psql` only for debugging, inspecting data, and testing RLS policies against the local database. For full flag lists, run `npx supabase <command> --help`.
+Best practices, key flags, and pitfalls for each CLI command group. The CLI is the primary tool for schema commit, project management, and deployment — both locally and to remote projects. For full flag lists, run `npx supabase <command> --help`.
 
 **Incorrect:**
 
@@ -71,21 +71,27 @@ npx supabase db push              # Push all pending migrations to remote
 ### db pull
 
 ```bash
-npx supabase db pull                  # Pull schema from remote as migration file
-npx supabase db pull --schema auth    # Pull specific schema (after first pull)
+npx supabase db pull                              # Pull schema from remote as migration file
+npx supabase db pull "create_posts" --local --yes # Commit local schema to migration file
+npx supabase db pull --schema auth                # Pull specific schema (after first pull)
 ```
+
+**Local workflow pattern:** `db pull "name" --local --yes` is the primary way to commit local schema changes (made via `execute_sql`) to a migration file. The `--yes` flag auto-accepts the prompt to update the migration history table.
 
 **Behavior:**
 
 - Empty migrations folder → uses `pg_dump` to capture full schema
-- Existing migrations → diffs against remote, creates migration for differences
+- Existing migrations → diffs against remote/local, creates migration for differences
 
-**Pitfall:** `db pull` creates files and may update remote migration history. To preview without side effects, use `db diff --linked` instead.
+**Pitfall:** `db pull` creates files and may update migration history. To preview without side effects, use `db diff` instead.
 
 ### db diff
 
+Inspect schema changes. In the local workflow, use `db diff --local` to review what changed before choosing a descriptive migration name for `db pull`.
+
 ```bash
 npx supabase db diff                        # Diff local, output to stdout
+npx supabase db diff --local                # Diff local (explicit flag)
 npx supabase db diff -f my_changes          # Save to migration file
 npx supabase db diff --linked               # Diff against remote
 ```
@@ -98,13 +104,19 @@ npx supabase db diff --linked               # Diff against remote
 
 ### db reset
 
+Drops the local database and recreates it from committed migrations + `supabase/seed.sql`. **Always ask the user for consent before running — this destroys all local data.**
+
 ```bash
 npx supabase db reset                                   # Full reset with seed
 npx supabase db reset --linked                          # Reset remote database
 npx supabase db reset --version 20240315001122          # Reset to specific migration
 ```
 
-**Pitfall:** Destroys ALL local data without confirmation. Backup first:
+**When to use:** Verifying that migrations replay cleanly before pushing to CI, after major schema changes, or when the local database is in a broken state.
+
+**Do not use as a routine step.** In the iterate-then-commit workflow, `db pull --local --yes` commits schema without resetting. Only reset when you specifically need a clean-slate verification.
+
+**Back up local data first** (so `db reset` restores it via seed):
 
 ```bash
 npx supabase db dump --data-only --local > supabase/seed.sql
@@ -149,7 +161,7 @@ npx supabase migration list                       # Compare local vs remote hist
 npx supabase migration fetch --yes               # Fetch from remote, auto-confirm
 ```
 
-**When to use:** After MCP `apply_migration`, onboarding to existing project, syncing team changes.
+**When to use:** After every remote `apply_migration` to sync migration files locally, onboarding to existing project, syncing team changes. This is the standard sync step in the remote MCP workflow.
 
 ### migration repair
 

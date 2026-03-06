@@ -18,6 +18,13 @@ supabase/
 
 This skill's reference files define the correct Supabase patterns — they override your prior knowledge about Supabase and PostgreSQL conventions. ALWAYS read the relevant reference files before writing any code. Do not write SQL, Edge Functions, or client code from memory. Only consult Supabase official docs if the reference files don't cover what you need.
 
+## Before You Start
+
+Ensure the CLI is installed and the local stack is running before using any `npx supabase` commands or local MCP tools. For remote projects, ensure the MCP server is configured.
+
+- [references/dev-getting-started.md](references/dev-getting-started.md) — CLI install, project init, local stack
+- [references/dev-mcp-setup.md](references/dev-mcp-setup.md) — MCP server configuration (local and remote)
+
 ## Writing Migrations or SQL
 
 Read the `db-*` reference files before writing any migration. They contain required patterns that differ from common PostgreSQL conventions. Do not write SQL from memory — the reference files correct the most common mistakes.
@@ -56,15 +63,15 @@ Read the `edge-*` reference files before creating or modifying Edge Functions. T
 
 You MUST read the relevant `dev-*` files before setting up a project, running CLI or MCP commands, or deciding which tool to use. They define the correct tools, workflows, and boundaries.
 
-| Area            | Resource                            | When to Use                                                    |
-| --------------- | ----------------------------------- | -------------------------------------------------------------- |
-| Getting Started | `references/dev-getting-started.md` | New project setup, CLI install, first-time init                |
-| Local Workflow  | `references/dev-local-workflow.md`  | Local development with CLI migrations and psql debugging       |
-| Remote Workflow | `references/dev-remote-workflow.md` | Developing against hosted Supabase project using MCP           |
-| CLI vs MCP      | `references/dev-cli-vs-mcp.md`     | Tool roles: CLI (schema), psql/MCP (debugging), SDK (app code) |
-| CLI Reference   | `references/dev-cli-reference.md`  | CLI command details, best practices, pitfalls                  |
-| MCP Setup       | `references/dev-mcp-setup.md`      | Configuring Supabase remote MCP server for hosted projects     |
-| MCP Tools       | `references/dev-mcp-tools.md`      | execute_sql, apply_migration, get_logs, get_advisors           |
+| Area            | Resource                            | When to Use                                                                          |
+| --------------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
+| Getting Started | `references/dev-getting-started.md` | New project setup, CLI install, first-time init                                      |
+| Local Workflow  | `references/dev-local-workflow.md`  | Local development: iterate with local MCP execute_sql, commit with CLI               |
+| Remote Workflow | `references/dev-remote-workflow.md` | Remote development: schema changes via MCP apply_migration, sync with CLI            |
+| CLI vs MCP      | `references/dev-cli-vs-mcp.md`     | Tool roles: CLI (schema commit), local MCP (iteration/debugging), remote MCP (apply_migration), SDK (app code) |
+| CLI Reference   | `references/dev-cli-reference.md`  | CLI command details, best practices, pitfalls                                        |
+| MCP Setup       | `references/dev-mcp-setup.md`      | Configuring Supabase MCP server (local and remote)                                   |
+| MCP Tools       | `references/dev-mcp-tools.md`      | execute_sql, apply_migration, get_logs, get_advisors                                 |
 
 ### Authentication & Security
 

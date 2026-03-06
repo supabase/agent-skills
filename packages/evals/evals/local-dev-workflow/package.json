@@ -1,0 +1,8 @@
+{
+	"name": "local-dev-workflow",
+	"private": true,
+	"type": "module",
+	"devDependencies": {
+		"vitest": "^2.0.0"
+	}
+}

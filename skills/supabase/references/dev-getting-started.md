@@ -1,6 +1,6 @@
 ---
 title: Getting Started with Supabase
-tags: setup, init, start, install, docker, link, psql
+tags: setup, init, start, install, docker, link, mcp, git, env
 ---
 
 ## Getting Started with Supabase
@@ -26,7 +26,6 @@ npx supabase start
 
 - **Docker Desktop** installed and running (`docker version` to verify). Required for `supabase start`.
 - **Node.js** >= v20 installed.
-- **psql** (PostgreSQL client) installed. Use `psql` to connect to the local database for debugging, inspecting data, and testing RLS policies. Verify with `psql --version`.
 
 ## Install the CLI
 
@@ -50,6 +49,18 @@ npm install supabase --save-dev
 ```
 
 All CLI commands use the `npx` prefix (e.g., `npx supabase start`).
+
+## Initialize Repository
+
+If not already in a git repo, initialize one and set up `.gitignore`:
+
+```bash
+# If not already in a git repo
+git init
+
+# Generate .gitignore (ensure node_modules/, .env.local, supabase/.temp/ are present)
+npx gitignore node
+```
 
 ## Initialize Project
 
@@ -78,26 +89,18 @@ Requires Docker running with 7GB+ RAM. Outputs:
 - API URL, DB URL, Studio URL
 - `anon` key, `service_role` key
 
+The local stack exposes an MCP server at `http://127.0.0.1:54321/mcp` with database and debugging tools. See [dev-local-workflow.md](dev-local-workflow.md).
+
 Exclude unused services to speed up startup:
 
 ```bash
 npx supabase start -x gotrue,imgproxy
 ```
 
-## Connect to Local Database
-
-After starting the local stack, use `psql` to connect to the local Postgres database for debugging, inspecting data, and testing RLS policies. Do not use `psql` for schema changes — use CLI migrations instead. The DB URL is shown in the `supabase start` output. Default:
-
-```bash
-psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
-```
-
-Always verify the DB URL with `npx supabase status` — the port may differ if customized in `config.toml`.
-
 ## Verify
 
 ```bash
-npx supabase status            # Display status table (includes DB URL)
+npx supabase status            # Display status table (includes MCP URL)
 npx supabase status -o env     # Export credentials as environment variables
 ```
 
@@ -108,6 +111,10 @@ Create `.env.local` with values from `supabase start` output:
 ```bash
 SUPABASE_URL=http://127.0.0.1:54321
 SUPABASE_ANON_KEY=<anon key from start output>
+
+# Framework-specific prefixes may be required:
+# Next.js: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY
+# Vite/SvelteKit: VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
 ```
 
 ## Link to Hosted Project (Optional)
@@ -121,6 +128,13 @@ Find the project ID from the Dashboard URL (`https://supabase.com/dashboard/proj
 
 ```bash
 npx supabase projects list
+```
+
+Retrieve credentials via MCP tools:
+
+```javascript
+get_project_url({ project_id: "<project-ref>" })
+get_publishable_keys({ project_id: "<project-ref>" })
 ```
 
 Verify the link:
@@ -140,3 +154,4 @@ npx supabase projects list
 | CLI not found after install | Use `npx supabase` or check `node_modules/.bin` |
 | `link` fails | Ensure `supabase login` succeeded. `link` does not require Docker. |
 | `pull`/`diff` fail after link | These commands need Docker — start Docker first |
+| Local MCP connection fails | Verify stack is running with `npx supabase status`, restart with `npx supabase stop` then `npx supabase start` |

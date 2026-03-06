@@ -1,20 +1,29 @@
 ---
 title: Local Development Workflow
-tags: local, development, workflow, iteration, docker, psql, cli, sdk
+tags: local, development, workflow, iteration, docker, mcp, cli, sdk, execute_sql
 ---
 
 ## Local Development Workflow
 
-Use the **CLI** to manage the local stack, create migrations, and deploy. Use **`psql`** to connect to the local Postgres database for debugging, inspection, and troubleshooting. Use **supabase-js** in the application code for all client-side database interaction.
+> **IMPORTANT: The local Supabase stack must be running before you can use the MCP server.**
+>
+> The MCP server at `http://localhost:54321/mcp` is only available when the local stack is running. If it is not running, **start it first**:
+>
+> ```bash
+> npx supabase start
+> ```
+>
+> Wait for the command to complete — it will print the local URLs and credentials when ready. Only then will the MCP server be reachable and `execute_sql`, `get_advisors`, and other MCP tools work. Do not skip this step or fall back to writing migration files manually.
+
+Use the **local MCP server** (`execute_sql`) to iterate on schema and debug. Use the **CLI** to commit schema changes to migration files, manage the local stack, and generate types. Use **supabase-js** in the application code for all client-side database interaction.
 
 **Incorrect:**
 
 ```bash
-# Iterating on schema with psql directly — no migration trail
-psql "$DB_URL" -c "CREATE TABLE posts (...)"
-psql "$DB_URL" -c "ALTER TABLE posts ADD COLUMN content text"
-npx supabase db diff -f "create_posts"
-# Problem: schema changes bypass migration workflow, diff can miss things
+# Iterating with execute_sql without committing to a migration
+execute_sql({ query: "CREATE TABLE posts (...)" })
+execute_sql({ query: "ALTER TABLE posts ADD COLUMN content text" })
+# Problem: schema changes exist only in the local database, not in migration files
 ```
 
 **Correct:**
@@ -23,93 +32,95 @@ npx supabase db diff -f "create_posts"
 # 1. Start local stack
 npx supabase start
 
-# 2. Create migration for schema changes
-npx supabase migration new create_posts
+# 2. Iterate on schema with local MCP
+execute_sql({ query: "CREATE TABLE posts (...)" })
+execute_sql({ query: "ALTER TABLE posts ADD COLUMN content text" })
 
-# 3. Edit the migration file with the desired SQL
-# supabase/migrations/<timestamp>_create_posts.sql
+# 3. Inspect diff to inform migration name
+npx supabase db diff --local
 
-# 4. Apply migrations and verify
-npx supabase db reset
+# 4. Commit schema to migration file
+npx supabase db pull "create_posts" --local --yes
 
 # 5. Generate types
-npx supabase gen types --lang typescript --local > types.ts
-
-# 6. Use psql to inspect and debug
-psql "$DB_URL" -c "SELECT * FROM posts LIMIT 10"
-psql "$DB_URL" -c "\d posts"
-
-# 7. Deploy to remote (ask user permission first!)
-npx supabase db push --dry-run
-npx supabase db push
+npx supabase gen types --local > types.ts
 ```
+
+## Local MCP Server
+
+The local stack exposes an MCP server at `http://127.0.0.1:54321/mcp` with database and debugging tools. It starts automatically with `npx supabase start` — no extra configuration required.
+
+- Supports a subset of the remote MCP tools (database, debugging, development tools)
+- DDL via `execute_sql` is allowed locally (unlike remote, where DDL is restricted)
+- Configure your AI client with this URL the same way as the remote MCP server
+
+Verify the URL with `npx supabase status` (the port may differ if customized in `config.toml`).
 
 ## Tool Roles
 
 | Tool | Role | Used For |
 | --- | --- | --- |
-| CLI (`npx supabase`) | Project management, schema changes, deployment | `migration new`, `db diff`, `db reset`, `db push`, `gen types`, `functions serve` |
-| `psql` | Agent database access | Debugging queries, inspecting schema, testing RLS, exploring data |
-| supabase-js SDK | Application database client | All database interaction in the user's app code (queries, inserts, auth, storage) |
+| CLI (`npx supabase`) | Project management, schema commit, deployment | `start`, `db diff`, `db pull`, `gen types` |
+| Local MCP (`execute_sql`) | Agent database access | Schema iteration, debugging, inspection, testing RLS |
+| supabase-js SDK | Application database client | All database interaction in the user's app code |
 
-**Key distinction:** `psql` is the agent's tool for connecting to the local database to inspect and debug. The user's application code connects through the **supabase-js SDK**, not `psql`. Schema changes always go through **CLI migrations**.
+**Key distinction:** Local MCP `execute_sql` is the agent's tool for iterating on schema and inspecting the local database. The user's application code connects through the **supabase-js SDK**. Schema changes are committed to migration files via the **CLI**.
 
 ## Complete Cycle
 
 | Step | Tool | Command | Purpose |
 | --- | --- | --- | --- |
 | 1 | CLI | `npx supabase start` | Start local services |
-| 2 | CLI | `npx supabase status` | Get local DB URL and credentials |
-| 3 | CLI | `npx supabase migration new "name"` | Create migration file for schema changes |
-| 4 | — | Edit migration SQL file | Write the schema change |
-| 5 | CLI | `npx supabase db reset` | Apply migrations from scratch, verify correctness |
-| 6 | CLI | `npx supabase gen types --local` | Generate TypeScript types |
-| 7 | psql | `psql "$DB_URL" -c "..."` | Debug and inspect the database |
-| 8 | CLI | `npx supabase db push` | Deploy to remote (with user permission) |
+| 2 | CLI | `npx supabase status` | Get credentials and local MCP URL |
+| 3 | Local MCP | `execute_sql(...)` | Iterate on schema (DDL allowed locally) |
+| 4 | Local MCP | `execute_sql(...)` / `list_tables(...)` | Inspect data, test RLS, debug |
+| 5 | Local MCP | `get_advisors(...)` | Check security/performance |
+| 6 | CLI | `npx supabase db diff --local` | Inspect changes to inform migration name |
+| 7 | CLI | `npx supabase db pull "name" --local --yes` | Commit schema to migration file |
+| 8 | CLI | `npx supabase gen types --local` | Generate TypeScript types |
 
-When iterating on schema, edit the migration file and run `npx supabase db reset` to re-apply. Use `npx supabase db diff` only to capture changes made outside of migration files (e.g., via the Studio UI).
+## Committing Schema Changes
 
-Remind the user to commit changes at the end of each schema-modifying turn.
+After iterating on schema with `execute_sql`, commit changes to a migration file:
 
-## Using psql for Debugging
+1. Verify schema state via `execute_sql` or `list_tables`
+2. Run `get_advisors` via local MCP to check security and performance
+3. Inspect the diff: `npx supabase db diff --local` (use the output to inform a descriptive migration name)
+4. Commit to migration: `npx supabase db pull "descriptive_name" --local --yes`
+5. Verify sync: `npx supabase migration list --local`
+6. Generate types: `npx supabase gen types --local > types.ts`
+7. Remind the user to commit changes at the end of each schema-modifying turn
 
-The default local database connection string is:
+## Verify Migrations Replay (db reset)
 
-```
-postgresql://postgres:postgres@127.0.0.1:54322/postgres
-```
+`db reset` drops the local database and recreates it from committed migrations + `supabase/seed.sql`. Use it only when you need to verify that migrations replay cleanly (e.g., before pushing to CI or after major schema changes).
 
-Always verify with `npx supabase status` — the port may differ if customized in `config.toml`.
-
-**Common psql operations (agent debugging):**
-
-```bash
-# Inspect data
-psql "$DB_URL" -c "SELECT * FROM posts LIMIT 10"
-
-# Run a seed file
-psql "$DB_URL" -f supabase/seed.sql
-
-# List tables
-psql "$DB_URL" -c "\dt public.*"
-
-# Describe a table
-psql "$DB_URL" -c "\d posts"
-
-# Test RLS policies
-psql "$DB_URL" -c "SET request.jwt.claims = '{\"sub\": \"user-id\"}'; SELECT * FROM posts;"
-
-# Check active connections
-psql "$DB_URL" -c "SELECT * FROM pg_stat_activity WHERE state = 'active'"
-```
-
-## Reset and Retry
+**This destroys all local data.** Always ask the user for consent before running it.
 
 ```bash
-npx supabase db reset    # Drops and recreates from committed migrations + seed
+# 1. Back up local data to seed file (so reset restores it)
+npx supabase db dump --data-only --local > supabase/seed.sql
+
+# 2. Reset (ask user first!)
+npx supabase db reset
+
+# 3. Verify the schema is correct after reset
+npx supabase migration list --local
 ```
+
+If `supabase/seed.sql` exists, `db reset` automatically runs it after applying migrations — so backed-up data is restored. If the schema changed significantly, update or regenerate the seed file to match the new schema.
+
+## Troubleshooting
+
+| Problem | Fix |
+| --- | --- |
+| `Error calling MCP tool: fetch failed` | Check if local stack is running: `npx supabase status` then `npx supabase start` |
+| PostgREST endpoint failures or RLS issues | Review "api" logs via MCP `get_logs` |
+| Slow queries, errors, or connection issues | Review "postgres" logs via MCP `get_logs` |
+| Local MCP not responding | Verify URL with `npx supabase status`, restart with `npx supabase stop` then `npx supabase start` |
 
 ## Related
 
 - [dev-cli-reference.md](dev-cli-reference.md) — CLI command details
-- [dev-cli-vs-mcp.md](dev-cli-vs-mcp.md) — When to use CLI+psql vs MCP
+- [dev-cli-vs-mcp.md](dev-cli-vs-mcp.md) — When to use CLI vs local MCP vs remote MCP
+- [dev-mcp-setup.md](dev-mcp-setup.md) — MCP server configuration
