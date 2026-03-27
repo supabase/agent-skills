@@ -5,19 +5,10 @@
 	"license": "MIT",
 	"description": "Official Supabase agent skills",
 	"scripts": {
-		"build": "npm --prefix packages/skills-build run build",
-		"validate": "npm --prefix packages/skills-build run validate",
-		"format": "biome format --write .",
-		"format:check": "biome format .",
-		"lint": "biome lint --write .",
-		"lint:check": "biome lint .",
-		"check": "biome check --write .",
-		"ci:check": "biome ci .",
 		"test": "vitest run",
 		"test:sanity": "vitest run test/sanity.test.ts"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.3.11",
 		"vitest": "^3.0.0"
 	}
 }

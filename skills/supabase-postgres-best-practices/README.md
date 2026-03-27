@@ -35,30 +35,16 @@ npm run build
 
 3. **Fill in the content** following the template structure
 
-4. **Validate and build**:
-   ```bash
-   npm run validate
-   npm run build
-   ```
-
-5. **Review** the generated `AGENTS.md`
-
 ## Skill Structure
 
 ```
 skills/supabase-postgres-best-practices/
-├── SKILL.md           # Agent-facing skill manifest (Agent Skills spec)
-├── AGENTS.md          # [GENERATED] Compiled references document
 ├── README.md          # This file
 └── references/
     ├── _template.md      # Reference template
     ├── _sections.md      # Section definitions
     ├── _contributing.md  # Writing guidelines
     └── *.md              # Individual references
-
-packages/skills-build/
-├── src/               # Generic build system source
-└── package.json       # NPM scripts
 ```
 
 ## Reference File Structure

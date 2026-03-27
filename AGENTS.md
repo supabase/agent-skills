@@ -15,16 +15,7 @@ correct tool versions from `mise.toml`.
 ```
 skills/
   {skill-name}/
-    SKILL.md              # Required: skill manifest (Agent Skills spec)
-    AGENTS.md             # Generated: SKILL.md body (frontmatter stripped)
-    CLAUDE.md             # Generated: symlink to AGENTS.md
-    references/
-      _sections.md        # Required: section definitions
-      {prefix}-{name}.md  # Reference files
-
-packages/
-  skills-build/           # Generic build system for all skills
-  evals/                  # LLM evaluation system for skills
+    references/ (optional)
 ```
 
 ## Commands

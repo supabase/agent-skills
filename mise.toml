@@ -9,53 +9,13 @@ node = "lts"
 _.path = ["{{config_root}}/node_modules/.bin"]
 _.file = [".env", "packages/evals/.env"]
 
-# ── Root tasks ────────────────────────────────────────────────────────
-
 [tasks.install]
 description = "Install all dependencies"
-run = "npm install && npm --prefix packages/skills-build install && npm --prefix packages/evals install"
-sources = ["package.json", "packages/skills-build/package.json", "packages/evals/package.json"]
+run = "npm install"
+sources = ["package.json"]
 outputs = ["node_modules/.package-lock.json"]
-
-[tasks.validate]
-description = "Validate all skills"
-run = "npm --prefix packages/skills-build run validate"
-sources = ["skills/**/SKILL.md", "skills/**/references/**"]
-
-[tasks.build]
-description = "Build all skills"
-run = "npm --prefix packages/skills-build run build"
-sources = ["skills/**/SKILL.md", "skills/**/references/**", "packages/skills-build/src/**"]
-outputs = ["skills/**/AGENTS.md"]
-
-[tasks.check]
-description = "Format and lint (auto-fix)"
-run = "biome check --write ."
-sources = ["**/*.ts", "**/*.js", "**/*.json", "biome.json"]
-
-[tasks."ci:check"]
-description = "CI format and lint check"
-run = "biome ci ."
-sources = ["**/*.ts", "**/*.js", "**/*.json", "biome.json"]
 
 [tasks.test]
 description = "Run tests"
 run = "vitest run"
 sources = ["test/**", "skills/**"]
-
-# ── Eval tasks ────────────────────────────────────────────────────────
-
-[tasks.eval]
-description = "Run all evals"
-run = "tsx packages/evals/src/cli.ts"
-sources = ["packages/evals/src/**", "skills/**/references/**"]
-
-[tasks."eval:code-fix"]
-description = "Run code-fix evals"
-run = "tsx packages/evals/src/cli.ts --type code-fix"
-sources = ["packages/evals/src/**", "skills/**/references/**"]
-
-[tasks."eval:workflow"]
-description = "Run workflow evals"
-run = "tsx packages/evals/src/cli.ts --type workflow"
-sources = ["packages/evals/src/**", "skills/**/references/**"]
