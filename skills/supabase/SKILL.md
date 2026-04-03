@@ -1,5 +1,5 @@
 ---
-name: using-supabase
+name: supabase
 description: "Use when doing ANY task involving Supabase. Triggers: Supabase products (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues); client libraries and SSR integrations (supabase-js, @supabase/ssr) in Next.js, React, SvelteKit, Astro, Remix; auth issues (login, logout, sessions, JWT, cookies, getSession, getUser, getClaims, RLS); Supabase CLI or MCP server; schema changes, migrations, security audits, Postgres extensions (pg_graphql, pg_cron, pg_vector)."
 metadata:
   author: supabase
@@ -37,7 +37,7 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
    - **Views bypass RLS by default.** In Postgres 15 and above, use `CREATE VIEW ... WITH (security_invoker = true)`. In older versions of Postgres, protect your views by revoking access from the `anon` and `authenticated` roles, or by putting them in an unexposed schema.
    - **UPDATE requires a SELECT policy.** In Postgres RLS, an UPDATE needs to first SELECT the row. Without a SELECT policy, updates silently return 0 rows — no error, just no change.
    - **Do not put `security definer` functions in an exposed schema.** Keep them in a private or otherwise unexposed schema.
-   - **Treat `auth.users` triggers as signup-critical.** Use `SECURITY DEFINER`, set `search_path` safely, avoid privilege mistakes, and test trigger paths thoroughly because failed triggers can block signups.
+
 
 - **Storage access control**
    - **Storage upsert requires INSERT + SELECT + UPDATE.** Granting only INSERT allows new uploads but file replacement (upsert) silently fails. You need all three.
