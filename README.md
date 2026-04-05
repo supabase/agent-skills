@@ -2,24 +2,35 @@
 
 # Supabase Agent Skills
 
-
 Agent Skills to help developers using AI agents with Supabase. Agent Skills are
-folders of instructions, scripts, and resources that agents like Claude Code,
-Cursor, Github Copilot, etc... can discover and use to do things more accurately
-and efficiently.
+folders of instructions, scripts, and resources that agents can discover and use
+to do things more accurately and efficiently. Compatible with 18+ AI agents
+including Claude Code, GitHub Copilot, Cursor, Cline, and many others.
 
 The skills in this repo follow the [Agent Skills](https://agentskills.io/)
 format.
 
 ## Installation
 
+See the [Supabase AI Skills documentation](https://supabase.com/docs/guides/getting-started/ai-skills)
+for detailed installation instructions.
+
+### Install all skills
+
 ```bash
 npx skills add supabase/agent-skills
 ```
 
+### Install a specific skill
+
+```bash
+npx skills add supabase/agent-skills --skill supabase
+npx skills add supabase/agent-skills --skill supabase-postgres-best-practices
+```
+
 ### Claude Code Plugin
 
-You can also install the skills in this repo as Claude Code plugins
+You can also install the skills as Claude Code plugins:
 
 ```bash
 /plugin marketplace add supabase/agent-skills
@@ -27,6 +38,26 @@ You can also install the skills in this repo as Claude Code plugins
 ```
 
 ## Available Skills
+
+<details>
+<summary><strong>supabase</strong></summary>
+
+Comprehensive Supabase development skill covering all Supabase products and
+integrations.
+
+**Use when:**
+
+- Working with any Supabase product (Database, Auth, Edge Functions, Realtime,
+  Storage, Vectors, Cron, Queues)
+- Using client libraries and SSR integrations (supabase-js, @supabase/ssr) in
+  Next.js, React, SvelteKit, Astro, Remix
+- Troubleshooting auth issues (login, logout, sessions, JWT, cookies, getSession,
+  getUser, getClaims, RLS)
+- Using the Supabase CLI or MCP server
+- Working with schema changes, migrations, security audits, or Postgres extensions
+  (pg_graphql, pg_cron, pg_vector)
+
+</details>
 
 <details>
 <summary><strong>supabase-postgres-best-practices</strong></summary>
@@ -48,7 +79,7 @@ across 8 categories, prioritized by impact.
 - Connection Management (Critical)
 - Schema Design (High)
 - Concurrency & Locking (Medium-High)
-- Security & RLS (Medium-High)
+- Security & RLS (Critical)
 - Data Access Patterns (Medium)
 - Monitoring & Diagnostics (Low-Medium)
 - Advanced Features (Low)
@@ -71,6 +102,10 @@ Review my schema for performance issues
 ```
 
 ```
+Help me set up Supabase Auth with Next.js
+```
+
+```
 Help me add proper indexes to this table
 ```
 
@@ -79,4 +114,4 @@ Help me add proper indexes to this table
 Each skill follows the [Agent Skills Open Standard](https://agentskills.io/):
 
 - `SKILL.md` - Required skill manifest with frontmatter (name, description, metadata)
-- `references/` - (Optional) Reference files
+- `references/` - (Optional) Reference files for detailed documentation

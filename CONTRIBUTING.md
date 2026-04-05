@@ -67,7 +67,11 @@ To add a reference to an existing skill:
 2. Copy `_template.md` to `{prefix}-{your-reference-name}.md`
 3. Fill in the frontmatter (title, impact, tags)
 4. Write explanation and examples (Incorrect/Correct)
-5. Run validation and build:
+5. Bump the `version` in the skill's `SKILL.md` frontmatter metadata
+6. Run the tests:
+   ```bash
+   mise run test
+   ```
 
 ## Creating a New Skill
 

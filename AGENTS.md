@@ -15,6 +15,7 @@ correct tool versions from `mise.toml`.
 ```
 skills/
   {skill-name}/
+    SKILL.md
     references/ (optional)
 ```
 
@@ -26,20 +27,13 @@ All tasks are defined in `mise.toml` and can be run with `mise run` (or via
 ```bash
 mise install                     # Install tool versions (Node.js)
 mise run install                 # Install all npm dependencies
-mise run build                   # Build all skills
-mise run validate                # Validate all skills
-mise run check                   # Format and lint (auto-fix)
 mise run test                    # Run tests
-mise run eval                    # Run all LLM evals
-mise run eval:code-fix           # Run code-fix evals only
-mise run eval:workflow            # Run workflow evals only
 ```
 
 Tasks with `sources`/`outputs` defined in `mise.toml` skip automatically when
 nothing has changed.
 
-**Before completing any task**, run `mise run check` and `mise run build` to
-ensure CI passes.
+**Before completing any task**, run `mise run test` to ensure CI passes.
 
 ## Creating a New Skill
 
@@ -49,7 +43,7 @@ Skills follow the [Agent Skills Open Standard](https://agentskills.io/).
 2. Create `SKILL.md` following the format below
 3. Add `references/_sections.md` defining sections
 4. Add reference files: `{prefix}-{reference-name}.md`
-5. Run `mise run build`
+5. Run `mise run test`
 
 ---
 
@@ -73,6 +67,9 @@ description: What this skill does and when to use it.
 | `description` | Yes      | 1-1024 chars. Describe what the skill does AND when to use it.                  |
 | `license`     | No       | License name or reference to bundled license file.                              |
 | `metadata`    | No       | Arbitrary key-value pairs (e.g., `author`, `version`).                          |
+
+**Version bumps:** Any change to `SKILL.md` or files in `references/` must bump
+the `version` in the skill's frontmatter metadata before committing.
 
 ### Name Field Rules
 
