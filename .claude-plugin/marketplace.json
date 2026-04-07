@@ -6,9 +6,16 @@
 	},
 	"metadata": {
 		"description": "Official Supabase agent skills for Claude Code",
-		"version": "1.0.0"
+		"version": "1.1.0"
 	},
 	"plugins": [
+		{
+			"name": "supabase",
+			"description": "Use when doing ANY task involving Supabase. Triggers: Supabase products (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues); client libraries and SSR integrations (supabase-js, @supabase/ssr) in Next.js, React, SvelteKit, Astro, Remix; auth issues (login, logout, sessions, JWT, cookies, getSession, getUser, getClaims, RLS); Supabase CLI or MCP server; schema changes, migrations, security audits, Postgres extensions (pg_graphql, pg_cron, pg_vector).",
+			"source": "./",
+			"strict": false,
+			"skills": ["./skills/supabase"]
+		},
 		{
 			"name": "postgres-best-practices",
 			"description": "Postgres performance optimization and best practices. Use when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations.",
