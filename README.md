@@ -33,8 +33,12 @@ npx skills add supabase/agent-skills --skill supabase-postgres-best-practices
 You can also install the skills as Claude Code plugins:
 
 ```bash
-/plugin marketplace add supabase/agent-skills
-/plugin install postgres-best-practices@supabase-agent-skills
+# 1. Install supabase/agent-skill marketplace
+claude /plugin marketplace add supabase/agent-skills
+
+# 2. Install the plugin that you want 
+claude /plugin install supabase@supabase-agent-skills
+claude /plugin install postgres-best-practices@supabase-agent-skills
 ```
 
 ## Available Skills
