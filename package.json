@@ -10,6 +10,6 @@
 		"test:sanity": "vitest run test/sanity.test.ts"
 	},
 	"devDependencies": {
-		"vitest": "^3.0.0"
+		"vitest": "^4.1.4"
 	}
 }

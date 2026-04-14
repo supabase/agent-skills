@@ -1,11 +1,10 @@
 import { execSync } from "node:child_process";
-import { existsSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const SKILLS_DIR = join(__dirname, "..", "skills");
-const CLAUDE_SKILLS_DIR = join(__dirname, "..", ".claude", "skills");
-
 /**
  * Dynamically discover all skill names from the skills/ directory
  */
@@ -21,21 +20,20 @@ function discoverSkillNames(): string[] {
 }
 
 describe("skills add sanity check", () => {
+	let tmpDir: string;
+	let claudeSkillsDir: string;
 	let commandOutput: string;
 	let commandExitCode: number;
 	const skillNames = discoverSkillNames();
 
 	beforeAll(() => {
-		// Clean up any existing .claude/skills directory
-		if (existsSync(CLAUDE_SKILLS_DIR)) {
-			rmSync(CLAUDE_SKILLS_DIR, { recursive: true, force: true });
-		}
+		tmpDir = mkdtempSync(join(tmpdir(), "agent-skills-test-"));
+		claudeSkillsDir = join(tmpDir, ".claude", "skills");
 
-		// Run the skills add command using current directory (.) as source
-		// This tests the current branch's skills
+		const repoRoot = join(__dirname, "..");
 		try {
-			commandOutput = execSync("npx skills add . -a claude-code -y", {
-				cwd: join(__dirname, ".."),
+			commandOutput = execSync(`npx skills add ${repoRoot} -a claude-code -y`, {
+				cwd: tmpDir,
 				encoding: "utf-8",
 				stdio: ["pipe", "pipe", "pipe"],
 				timeout: 120000, // 2 minute timeout
@@ -47,16 +45,13 @@ describe("skills add sanity check", () => {
 				stderr?: string;
 				status?: number;
 			};
-			commandOutput = `${execError.stdout || ""}\n${execError.stderr || ""}`;
+			commandOutput = `${execError.stdout ?? ""}\n${execError.stderr ?? ""}`;
 			commandExitCode = execError.status ?? 1;
 		}
 	});
 
 	afterAll(() => {
-		// Clean up .claude/skills directory after tests
-		if (existsSync(CLAUDE_SKILLS_DIR)) {
-			rmSync(CLAUDE_SKILLS_DIR, { recursive: true, force: true });
-		}
+		rmSync(tmpDir, { recursive: true, force: true });
 	});
 
 	it("should have discovered skills in the repository", () => {
@@ -80,13 +75,13 @@ describe("skills add sanity check", () => {
 		expect(commandExitCode).toBe(0);
 	});
 
-	it("should create .claude/skills directory", () => {
-		expect(existsSync(CLAUDE_SKILLS_DIR)).toBe(true);
+	it("should create skills directory", () => {
+		expect(existsSync(claudeSkillsDir)).toBe(true);
 	});
 
 	it("should install all skills from the repository", () => {
 		for (const skillName of skillNames) {
-			const skillPath = join(CLAUDE_SKILLS_DIR, skillName);
+			const skillPath = join(claudeSkillsDir, skillName);
 			expect(
 				existsSync(skillPath),
 				`Expected skill "${skillName}" to be installed at ${skillPath}`,
@@ -96,7 +91,7 @@ describe("skills add sanity check", () => {
 
 	it("should have SKILL.md in each installed skill", () => {
 		for (const skillName of skillNames) {
-			const skillMdPath = join(CLAUDE_SKILLS_DIR, skillName, "SKILL.md");
+			const skillMdPath = join(claudeSkillsDir, skillName, "SKILL.md");
 			expect(
 				existsSync(skillMdPath),
 				`Expected SKILL.md to exist at ${skillMdPath}`,
