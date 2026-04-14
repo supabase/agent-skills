@@ -18,7 +18,7 @@ jobs:
         with:
           node-version-file: ".node-version"
 
-      - uses: pnpm/action-setup@a7487ba4cd83a1cca3a5c5bb73ec80e95956eb66 # v4.1.0
+      - uses: pnpm/action-setup@b307475762933b98ed359c036b0e51f26b63b74b # v5.0.0
 
       - name: Install dependencies
         run: pnpm install
