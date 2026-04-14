@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths: ["skills/**"]
+
+jobs:
+  release:
+    name: Build and release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version-file: ".node-version"
+
+      - uses: pnpm/action-setup@a7487ba4cd83a1cca3a5c5bb73ec80e95956eb66 # v4.1.0
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build release artifacts
+        run: pnpm build:release
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DATE=$(date -u '+%Y-%m-%d')
+          SHA=$(git rev-parse --short HEAD)
+          TAG="${DATE}-${SHA}"
+
+          gh release create "${TAG}" \
+            --title "${DATE} (${SHA})" \
+            --latest \
+            --generate-notes \
+            dist/index.json \
+            dist/*.tar.gz
