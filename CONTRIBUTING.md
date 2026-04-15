@@ -14,13 +14,12 @@ before contributing.
 
 ### Setup
 
-This project uses [mise](https://mise.jdx.dev/) to manage tool versions,
-environment variables, and project tasks. Install mise, then run from the
-repository root:
+This project uses `pnpm` for dependency management and task execution. Use the
+Node.js version declared in [`.node-version`](/Users/pedrorodrigues/supabase-agent-skills/.node-version),
+then run from the repository root:
 
 ```bash
-mise install        # Install Node.js (version defined in mise.toml)
-mise run install    # Install all npm dependencies
+pnpm install        # Install all npm dependencies
 ```
 
 ## Issues
@@ -54,7 +53,7 @@ Before submitting your PR, make sure you have the right tooling and run these
 checks:
 
 ```bash
-mise run test     # Run the test suite
+pnpm test         # Run the test suite
 ```
 
 All commands must complete successfully.
@@ -70,7 +69,7 @@ To add a reference to an existing skill:
 5. Bump the `version` in the skill's `SKILL.md` frontmatter metadata
 6. Run the tests:
    ```bash
-   mise run test
+   pnpm test
    ```
 
 ## Creating a New Skill

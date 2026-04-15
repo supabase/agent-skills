@@ -6,9 +6,9 @@ Guidance for AI coding agents working with this repository.
 
 ## Prerequisites
 
-This project uses [mise](https://mise.jdx.dev/) to manage tool versions,
-environment variables, and project tasks. Run `mise install` to set up the
-correct tool versions from `mise.toml`.
+This project uses `pnpm` for dependency management and task execution. Use the
+Node.js version declared in [`.node-version`](/Users/pedrorodrigues/supabase-agent-skills/.node-version),
+then install dependencies with `pnpm install`.
 
 ## Repository Structure
 
@@ -21,19 +21,14 @@ skills/
 
 ## Commands
 
-All tasks are defined in `mise.toml` and can be run with `mise run` (or via
-`npm run` which delegates to the same commands).
+Run tasks with `pnpm`.
 
 ```bash
-mise install                     # Install tool versions (Node.js)
-mise run install                 # Install all npm dependencies
-mise run test                    # Run tests
+pnpm install                     # Install dependencies
+pnpm test                        # Run tests
 ```
 
-Tasks with `sources`/`outputs` defined in `mise.toml` skip automatically when
-nothing has changed.
-
-**Before completing any task**, run `mise run test` to ensure CI passes.
+**Before completing any task**, run `pnpm test` to ensure CI passes.
 
 ## Creating a New Skill
 
@@ -43,7 +38,7 @@ Skills follow the [Agent Skills Open Standard](https://agentskills.io/).
 2. Create `SKILL.md` following the format below
 3. Add `references/_sections.md` defining sections
 4. Add reference files: `{prefix}-{reference-name}.md`
-5. Run `mise run test`
+5. Run `pnpm test`
 
 ---
 
