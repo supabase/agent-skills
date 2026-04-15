@@ -1,10 +1,28 @@
 import { execSync } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import {
+	cpSync,
+	existsSync,
+	mkdtempSync,
+	readdirSync,
+	rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const SKILLS_DIR = join(__dirname, "..", "skills");
+const PUBLIC_SKILL_NAMES = [
+	"supabase",
+	"supabase-postgres-best-practices",
+] as const;
+
+type InstallResult = {
+	commandExitCode: number;
+	commandOutput: string;
+	installedSkillNames: string[];
+	installDir: string;
+};
+
 /**
  * Dynamically discover all skill names from the skills/ directory
  */
@@ -19,79 +37,119 @@ function discoverSkillNames(): string[] {
 		.map((entry) => entry.name);
 }
 
-describe("skills add sanity check", () => {
-	let tmpDir: string;
-	let claudeSkillsDir: string;
+function createPublicSourceSnapshot(): string {
+	const sourceDir = mkdtempSync(join(tmpdir(), "agent-skills-source-"));
+	cpSync(SKILLS_DIR, join(sourceDir, "skills"), { recursive: true });
+	return sourceDir;
+}
+
+function runSkillsAdd(sourceDir: string, skillName?: string): InstallResult {
+	const installDir = mkdtempSync(join(tmpdir(), "agent-skills-install-"));
+	const claudeSkillsDir = join(installDir, ".claude", "skills");
+	const skillArg = skillName ? ` --skill ${skillName}` : "";
 	let commandOutput: string;
 	let commandExitCode: number;
-	const skillNames = discoverSkillNames();
 
-	beforeAll(() => {
-		tmpDir = mkdtempSync(join(tmpdir(), "agent-skills-test-"));
-		claudeSkillsDir = join(tmpDir, ".claude", "skills");
-
-		const repoRoot = join(__dirname, "..");
-		try {
-			commandOutput = execSync(`npx skills add ${repoRoot} -a claude-code -y`, {
-				cwd: tmpDir,
+	try {
+		commandOutput = execSync(
+			`npx skills add ${sourceDir} -a claude-code -y${skillArg}`,
+			{
+				cwd: installDir,
 				encoding: "utf-8",
 				stdio: ["pipe", "pipe", "pipe"],
 				timeout: 120000, // 2 minute timeout
-			});
-			commandExitCode = 0;
-		} catch (error) {
-			const execError = error as {
-				stdout?: string;
-				stderr?: string;
-				status?: number;
-			};
-			commandOutput = `${execError.stdout ?? ""}\n${execError.stderr ?? ""}`;
-			commandExitCode = execError.status ?? 1;
-		}
+			},
+		);
+		commandExitCode = 0;
+	} catch (error) {
+		const execError = error as {
+			stdout?: string;
+			stderr?: string;
+			status?: number;
+		};
+		commandOutput = `${execError.stdout ?? ""}\n${execError.stderr ?? ""}`;
+		commandExitCode = execError.status ?? 1;
+	}
+
+	const installedSkillNames = existsSync(claudeSkillsDir)
+		? readdirSync(claudeSkillsDir, { withFileTypes: true })
+				.filter((entry) => entry.isDirectory())
+				.map((entry) => entry.name)
+				.sort()
+		: [];
+
+	return {
+		commandExitCode,
+		commandOutput,
+		installedSkillNames,
+		installDir,
+	};
+}
+
+describe("skills add sanity check", () => {
+	let publicSourceDir: string;
+	let installAllResult: InstallResult;
+	const createdInstallDirs: string[] = [];
+	const skillNames = discoverSkillNames().sort();
+
+	beforeAll(() => {
+		publicSourceDir = createPublicSourceSnapshot();
+		installAllResult = runSkillsAdd(publicSourceDir);
+		createdInstallDirs.push(installAllResult.installDir);
 	});
 
 	afterAll(() => {
-		rmSync(tmpDir, { recursive: true, force: true });
+		rmSync(publicSourceDir, { recursive: true, force: true });
+		for (const installDir of createdInstallDirs) {
+			rmSync(installDir, { recursive: true, force: true });
+		}
 	});
 
-	it("should have discovered skills in the repository", () => {
-		expect(skillNames.length).toBeGreaterThan(0);
+	it("should discover exactly the two public skills", () => {
+		expect(skillNames).toEqual([...PUBLIC_SKILL_NAMES]);
 		console.log(
 			`Discovered ${skillNames.length} skills: ${skillNames.join(", ")}`,
 		);
 	});
 
-	it("should not contain 'Error' in command output", () => {
-		// Check for error patterns in output (case-insensitive for common error messages)
+	it("should install all public skills without failing", () => {
 		const hasError =
-			/\bError\b/i.test(commandOutput) && !/✓/.test(commandOutput);
+			/\bError\b/i.test(installAllResult.commandOutput) && !/✓/.test(installAllResult.commandOutput);
 
 		if (hasError) {
-			console.log("Command output:", commandOutput);
+			console.log("Command output:", installAllResult.commandOutput);
 		}
 
-		// Allow output with errors if the command still succeeded
-		// Some tools output "Error" in informational messages
-		expect(commandExitCode).toBe(0);
+		expect(installAllResult.commandExitCode).toBe(0);
 	});
 
-	it("should create skills directory", () => {
-		expect(existsSync(claudeSkillsDir)).toBe(true);
+	it("should install exactly the two public skills when installing all", () => {
+		expect(installAllResult.installedSkillNames).toEqual([...PUBLIC_SKILL_NAMES]);
 	});
 
-	it("should install all skills from the repository", () => {
-		for (const skillName of skillNames) {
-			const skillPath = join(claudeSkillsDir, skillName);
-			expect(
-				existsSync(skillPath),
-				`Expected skill "${skillName}" to be installed at ${skillPath}`,
-			).toBe(true);
-		}
+	it("should not install skill-creator in the public install flow", () => {
+		expect(installAllResult.installedSkillNames).not.toContain("skill-creator");
 	});
 
-	it("should have SKILL.md in each installed skill", () => {
-		for (const skillName of skillNames) {
-			const skillMdPath = join(claudeSkillsDir, skillName, "SKILL.md");
+	it.each(PUBLIC_SKILL_NAMES)(
+		"should install only %s when using --skill",
+		(skillName) => {
+			const result = runSkillsAdd(publicSourceDir, skillName);
+			createdInstallDirs.push(result.installDir);
+			expect(result.commandExitCode).toBe(0);
+			expect(result.installedSkillNames).toEqual([skillName]);
+		},
+	);
+
+	it("should have SKILL.md in each installed public skill", () => {
+		for (const skillName of installAllResult.installedSkillNames) {
+			const skillMdPath = join(
+				installAllResult.installDir,
+				".claude",
+				"skills",
+				skillName,
+				"SKILL.md",
+			);
 			expect(
 				existsSync(skillMdPath),
 				`Expected SKILL.md to exist at ${skillMdPath}`,
