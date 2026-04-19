@@ -50,3 +50,26 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ steps.release.outputs.tag_name }} dist/*.tar.gz
+
+      - name: Notify supabase-plugin
+        if: ${{ steps.release.outputs.release_created && secrets.SUPABASE_PLUGIN_DISPATCH_TOKEN != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.SUPABASE_PLUGIN_DISPATCH_TOKEN }}
+          TAG_NAME: ${{ steps.release.outputs.tag_name }}
+          VERSION: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+        run: |
+          SHA=$(git rev-parse HEAD)
+
+          gh api repos/supabase-community/supabase-plugin/dispatches \
+            --method POST \
+            --input - <<EOF
+          {
+            "event_type": "agent_skills_release_published",
+            "client_payload": {
+              "source_repo": "supabase/agent-skills",
+              "release_tag": "${TAG_NAME}",
+              "release_version": "${VERSION}",
+              "commit_sha": "${SHA}"
+            }
+          }
+          EOF

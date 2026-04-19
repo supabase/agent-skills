@@ -37,7 +37,7 @@ This repository uses Release Please on `main`.
 - Merge conventional commits using `feat:` and `fix:` prefixes so Release Please can open or update the release PR.
 - The release PR is the gate for semantic version bumps and changelog generation.
 - When the release PR is merged, GitHub Actions creates a semver GitHub release and uploads one tarball per shipped skill from `dist/`.
-- These GitHub releases are the source of truth for downstream consumers such as `supabase-community/supabase-plugin`, which poll upstream releases rather than receiving a cross-repo dispatch from this repository.
+- These GitHub releases are the source of truth for downstream consumers such as `supabase-community/supabase-plugin`.
 
 If you change shipped skill contents under `skills/`, make sure the change is represented with an appropriate conventional commit so it is included in the next release.
 

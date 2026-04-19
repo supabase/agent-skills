@@ -65,7 +65,7 @@ This repository uses Release Please to manage semantic version releases.
 - Use conventional commit prefixes such as `feat:` and `fix:` in merge commits so Release Please can determine the next version.
 - Release Please opens a release PR on `main` with the version bump and changelog updates.
 - When that release PR is merged, GitHub Actions publishes a GitHub release and uploads one `.tar.gz` artifact per shipped skill.
-- Those releases are consumed by downstream repositories, including the Supabase plugin repo, so they are part of the supported maintainer workflow. Downstream consumers are expected to poll these releases rather than rely on a cross-repo dispatch from this repository.
+- Those releases are consumed by downstream repositories, including the Supabase plugin repo, so they are part of the supported maintainer workflow.
 
 If your PR changes shipped skill content, assume it is release-affecting and make sure the resulting merge commit uses the right conventional commit type.
 
