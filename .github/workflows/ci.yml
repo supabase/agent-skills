@@ -14,10 +14,12 @@ jobs:
 
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: "20"
+          node-version-file: ".node-version"
+
+      - uses: pnpm/action-setup@b307475762933b98ed359c036b0e51f26b63b74b # v5.0.0
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Run sanity tests
-        run: npm run test:sanity
+        run: pnpm test:sanity
