@@ -11,6 +11,8 @@ metadata:
 ## Core Principles
 
 **1. Supabase changes frequently — verify against changelog and current docs before implementing.**
+Do not rely on training data for Supabase features. Function signatures, config.toml settings, and API conventions change between versions.
+
 First, fetch `https://supabase.com/changelog.md` (a lightweight summary index — not a heavy pull), scan for `breaking-change` tags relevant to your task, and follow the linked page for any that apply. Then look up the relevant topic using the documentation access methods below.
 
 **2. Verify your work.**
