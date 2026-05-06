@@ -35,9 +35,8 @@ pnpm test                        # Run tests
 This repository uses Release Please on `main`.
 
 - Merge conventional commits using `feat:` and `fix:` prefixes so Release Please can open or update the release PR.
-- The release PR is the gate for semantic version bumps and changelog generation.
-- When the release PR is merged, GitHub Actions creates a semver GitHub release and uploads one tarball per shipped skill from `dist/`.
-- These GitHub releases are the source of truth for downstream consumers such as `supabase-community/supabase-plugin`, which poll upstream releases rather than receiving a cross-repo dispatch from this repository.
+- The release PR bumps the repo version, updates the changelog, and bumps `metadata.version` in every skill's `SKILL.md` automatically via `extra-files` in `release-please-config.json`. Do not bump skill versions manually.
+- When the release PR is merged, GitHub Actions creates a semver GitHub release, uploads one `.tar.gz` per skill as release assets, and dispatches the sync workflow in `supabase-community/supabase-plugin` to update downstream skills immediately.
 
 If you change shipped skill contents under `skills/`, make sure the change is represented with an appropriate conventional commit so it is included in the next release.
 
@@ -49,7 +48,15 @@ Skills follow the [Agent Skills Open Standard](https://agentskills.io/).
 2. Create `SKILL.md` following the format below
 3. Add `references/_sections.md` defining sections
 4. Add reference files: `{prefix}-{reference-name}.md`
-5. Run `pnpm test`
+5. Register the skill in `release-please-config.json` under `extra-files` so Release Please keeps its `metadata.version` in sync on every release:
+   ```json
+   {
+     "type": "generic",
+     "path": "skills/{skill-name}/SKILL.md",
+     "expressions": ["version: \"([0-9]+\\.[0-9]+\\.[0-9]+)\""]
+   }
+   ```
+6. Run `pnpm test`
 
 ---
 
@@ -73,9 +80,6 @@ description: What this skill does and when to use it.
 | `description` | Yes      | 1-1024 chars. Describe what the skill does AND when to use it.                  |
 | `license`     | No       | License name or reference to bundled license file.                              |
 | `metadata`    | No       | Arbitrary key-value pairs (e.g., `author`, `version`).                          |
-
-**Version bumps:** Any change to `SKILL.md` or files in `references/` must bump
-the `version` in the skill's frontmatter metadata before committing.
 
 ### Name Field Rules
 

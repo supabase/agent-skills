@@ -60,14 +60,32 @@ All commands must complete successfully.
 
 ### Releases
 
-This repository uses Release Please to manage semantic version releases.
+Releases are automated via [Release Please](https://github.com/googleapis/release-please). It tracks commits on `main` and opens a release PR when there are releasable changes.
 
-- Use conventional commit prefixes such as `feat:` and `fix:` in merge commits so Release Please can determine the next version.
-- Release Please opens a release PR on `main` with the version bump and changelog updates.
-- When that release PR is merged, GitHub Actions publishes a GitHub release and uploads one `.tar.gz` artifact per shipped skill.
-- Those releases are consumed by downstream repositories, including the Supabase plugin repo, so they are part of the supported maintainer workflow. Downstream consumers are expected to poll these releases rather than rely on a cross-repo dispatch from this repository.
+- Use conventional commit prefixes — `fix:` for a patch bump, `feat:` for a minor bump — so Release Please can determine the next version.
+- Release Please opens a release PR on `main` that bumps the repo version, updates the changelog, and bumps `metadata.version` in every skill's `SKILL.md` automatically. You do not need to bump skill versions manually.
+- Merging the release PR triggers GitHub Actions to:
+  1. Create a GitHub release and git tag (e.g. `v0.2.0`)
+  2. Package each directory under `skills/` into its own `.tar.gz` and upload them as release assets
+  3. Dispatch the sync workflow in the Supabase plugin repo so downstream skills are updated immediately
 
-If your PR changes shipped skill content, assume it is release-affecting and make sure the resulting merge commit uses the right conventional commit type.
+#### Adding a new skill
+
+When you add a new skill, register its `SKILL.md` in `release-please-config.json` under `extra-files` so Release Please keeps its `metadata.version` in sync. Without this, the tarball will still be built and shipped but the skill's version will never be bumped.
+
+```json
+{
+  "type": "generic",
+  "path": "skills/my-skill/SKILL.md",
+  "expressions": ["version: \"([0-9]+\\.[0-9]+\\.[0-9]+)\""]
+}
+```
+
+#### Troubleshooting
+
+> **Release PR in a bad state?** Close it and re-run the workflow from the [Actions tab](https://github.com/supabase/agent-skills/actions/workflows/release-please.yml) → **Run workflow**. Release Please will recreate the PR from scratch.
+
+> **Dispatch to supabase-plugin missed?** This can happen if the release workflow fails partway through. The sync workflow in supabase-plugin runs on a weekly schedule as a fallback, or you can trigger it manually from its [Actions tab](https://github.com/supabase-community/supabase-plugin/actions/workflows/sync-agent-skills.yml) → **Run workflow** and supply the release tag.
 
 ## Contributing New References
 
@@ -77,8 +95,7 @@ To add a reference to an existing skill:
 2. Copy `_template.md` to `{prefix}-{your-reference-name}.md`
 3. Fill in the frontmatter (title, impact, tags)
 4. Write explanation and examples (Incorrect/Correct)
-5. Bump the `version` in the skill's `SKILL.md` frontmatter metadata
-6. Run the tests:
+5. Run the tests:
    ```bash
    pnpm test
    ```
