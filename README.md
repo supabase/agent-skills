@@ -119,3 +119,23 @@ Each skill follows the [Agent Skills Open Standard](https://agentskills.io/):
 
 - `SKILL.md` - Required skill manifest with frontmatter (name, description, metadata)
 - `references/` - (Optional) Reference files for detailed documentation
+
+## `.well-known` discovery
+
+Each release uploads a `dist/index.json` alongside the skill tarballs. This index conforms to the [agent-skills `.well-known` URI spec](https://github.com/agentskills/agentskills/pull/254) (schema v0.2.0) and is consumed by `supabase.com` to serve skills at `https://supabase.com/.well-known/agent-skills/`.
+
+The release artifacts are built by `scripts/build-release.ts` and triggered by [Release Please](https://github.com/googleapis/release-please) on every semver release.
+
+### Migrating to the official GitHub Action
+
+[`jonathanhefner/agentskills-build-for-well-known`](https://github.com/jonathanhefner/agentskills-build-for-well-known) is intended to be transferred to the `agentskills` org and published to the GitHub Marketplace. When that happens, `scripts/build-release.ts` and the `pnpm build:release` step in `release-please.yml` can be replaced with the Action directly:
+
+```yaml
+- name: Build release artifacts
+  uses: agentskills/build-for-well-known@v1   # replaces pnpm build:release
+  with:
+    skills-dir: skills
+    output-dir: dist
+```
+
+Everything else — the Release Please trigger, the upload step, the supabase-plugin dispatch — stays exactly the same. The script and the Action produce identical output, so it is a drop-in swap.
