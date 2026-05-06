@@ -13,10 +13,17 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate GitHub App token (this repo)
+        id: generate-token
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        with:
+          client-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
       - uses: googleapis/release-please-action@v4
         id: release
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
 
       - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
@@ -48,5 +55,24 @@ jobs:
       - name: Upload release assets
         if: ${{ steps.release.outputs.release_created }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: gh release upload ${{ steps.release.outputs.tag_name }} dist/*.tar.gz
+
+      - name: Generate GitHub App token (supabase-community)
+        id: generate-token-plugin
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        with:
+          client-id: ${{ secrets.GH_APP_ID_SUPABASE_PLUGIN }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_SUPABASE_PLUGIN }}
+
+      - name: Trigger supabase-plugin skill sync
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ steps.generate-token-plugin.outputs.token }}
+        run: |
+          gh workflow run sync-agent-skills.yml \
+            --repo supabase-community/supabase-plugin \
+            --field release_tag=${{ steps.release.outputs.tag_name }} \
+            --field release_version=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }} \
+            --field commit_sha=${{ github.sha }}

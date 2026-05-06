@@ -9,6 +9,16 @@
           "type": "json",
           "path": "package.json",
           "jsonpath": "$.version"
+        },
+        {
+          "type": "generic",
+          "path": "skills/supabase/SKILL.md",
+          "expressions": ["version: \"([0-9]+\\.[0-9]+\\.[0-9]+)\""]
+        },
+        {
+          "type": "generic",
+          "path": "skills/supabase-postgres-best-practices/SKILL.md",
+          "expressions": ["version: \"([0-9]+\\.[0-9]+\\.[0-9]+)\""]
         }
       ]
     }
