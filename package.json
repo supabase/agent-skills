@@ -5,11 +5,17 @@
 	"author": "Supabase",
 	"license": "MIT",
 	"description": "Official Supabase agent skills",
+	"type": "module",
 	"scripts": {
 		"test": "vitest run",
-		"test:sanity": "vitest run test/sanity.test.ts"
+		"test:sanity": "vitest run test/sanity.test.ts",
+		"build:release": "tsx scripts/build-release.ts"
 	},
 	"devDependencies": {
+		"@types/node": "^22.0.0",
+		"gray-matter": "^4.0.3",
+		"tsx": "^4.21.0",
+		"typescript": "^6.0.0",
 		"vitest": "^4.1.4"
 	}
 }

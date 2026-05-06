@@ -40,23 +40,15 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         run: pnpm install --frozen-lockfile
 
-      - name: Package skill tarballs
+      - name: Build release artifacts
         if: ${{ steps.release.outputs.release_created }}
-        run: |
-          mkdir -p dist
-
-          for skill_dir in skills/*; do
-            if [ -d "${skill_dir}" ]; then
-              skill_name=$(basename "${skill_dir}")
-              tar -czf "dist/${skill_name}.tar.gz" -C skills "${skill_name}"
-            fi
-          done
+        run: pnpm build:release
 
       - name: Upload release assets
         if: ${{ steps.release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: gh release upload ${{ steps.release.outputs.tag_name }} dist/*.tar.gz
+        run: gh release upload ${{ steps.release.outputs.tag_name }} dist/index.json dist/*.tar.gz
 
       - name: Generate GitHub App token (supabase-community)
         id: generate-token-plugin
