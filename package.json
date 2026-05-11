@@ -1,6 +1,6 @@
 {
 	"name": "supabase-agent-skills",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"packageManager": "pnpm@10.33.0",
 	"author": "Supabase",
 	"license": "MIT",

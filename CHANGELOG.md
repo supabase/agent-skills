@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/supabase/agent-skills/compare/v0.1.1...v0.1.2) (2026-05-11)
+
+
+### Features
+
+* build index.json for .well-known/agent-skills in release pipeline ([#77](https://github.com/supabase/agent-skills/issues/77)) ([3e77715](https://github.com/supabase/agent-skills/commit/3e7771598f3a03d29533208dd7b5a50bdfc8860f))
+
 ## [0.1.1](https://github.com/supabase/agent-skills/compare/v0.1.0...v0.1.1) (2026-05-06)
 
 
