@@ -85,6 +85,14 @@ For setup instructions, server URL, and configuration, see the [MCP setup guide]
 3. **Authenticate the MCP server:**
    If the server is reachable and `.mcp.json` is correct but tools aren't visible, the user needs to authenticate. The Supabase MCP server uses OAuth 2.1 — tell the user to trigger the auth flow in their agent, complete it in the browser, and reload the session.
 
+## Provisioning Projects
+
+When creating a new project via MCP `create_project`:
+
+- **Free tier cap is 2 active projects per user across orgs they administer, and paused projects still count toward the limit.** The only way to free a slot without upgrading is to delete a project — and `delete_project` is not exposed via MCP, so the user must do it from the dashboard (`https://supabase.com/dashboard/project/<ref>/settings/general` → "Delete project"). Run `list_projects` first so you can present the user with their actual options (delete which one, pause won't help, or upgrade) instead of discovering the cap by hitting the error.
+
+- **Cost confirmation IDs are tied to the cost at the moment of issue.** If the cost changes between `confirm_cost` and `create_project` (e.g., the user upgrades the org's plan mid-flow to clear the project cap), `create_project` rejects the stale ID with "Cost confirmation ID does not match the expected cost". Re-call `get_cost` + `confirm_cost` and retry — and re-confirm the new cost with the user before proceeding.
+
 ## Supabase Documentation
 
 Before implementing any Supabase feature, find the relevant documentation. Use these methods in priority order:
@@ -98,6 +106,8 @@ Before implementing any Supabase feature, find the relevant documentation. Use t
 **To make schema changes, use `execute_sql` (MCP) or `supabase db query` (CLI).** These run SQL directly on the database without creating migration history entries, so you can iterate freely and generate a clean migration when ready.
 
 Do NOT use `apply_migration` to change a local database schema — it writes a migration history entry on every call, which means you can't iterate, and `supabase db diff` / `supabase db pull` will produce empty or conflicting diffs. If you use it, you'll be stuck with whatever SQL you passed on the first try.
+
+**Migration filename convention:** MCP `apply_migration` records each migration with a timestamp-prefixed version (`YYYYMMDDHHMMSS_name`). If the user's repo uses a manual numeric prefix (e.g., `001_initial.sql`), the local filenames will diverge from the server-recorded versions. That's fine for "run-in-dashboard" workflows where the repo files are just reference, but `supabase db push`/`db pull` expects the timestamp format. If the user will use the CLI later, write new files with the timestamp prefix (via `supabase migration new <name>`) from the start.
 
 **When ready to commit** your changes to a migration file:
 
