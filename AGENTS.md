@@ -74,9 +74,6 @@ description: What this skill does and when to use it.
 | `license`     | No       | License name or reference to bundled license file.                              |
 | `metadata`    | No       | Arbitrary key-value pairs (e.g., `author`, `version`).                          |
 
-**Version bumps:** Any change to `SKILL.md` or files in `references/` must bump
-the `version` in the skill's frontmatter metadata before committing.
-
 ### Name Field Rules
 
 - Lowercase letters, numbers, and hyphens only (`a-z`, `0-9`, `-`)
