@@ -44,16 +44,23 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
 - **RLS, views, and privileged database code**
   - **Views bypass RLS by default.** In Postgres 15 and above, use `CREATE VIEW ... WITH (security_invoker = true)`. In older versions of Postgres, protect your views by revoking access from the `anon` and `authenticated` roles, or by putting them in an unexposed schema.
   - **UPDATE requires a SELECT policy.** In Postgres RLS, an UPDATE needs to first SELECT the row. Without a SELECT policy, updates silently return 0 rows — no error, just no change.
-  - **`auth.role()` is deprecated — use the `TO` clause instead.** Supabase has deprecated `auth.role()` in favour of specifying the target role directly on the policy with `TO authenticated` or `TO anon`. Beyond deprecation, `auth.role() = 'authenticated'` breaks silently when anonymous sign-ins are enabled, because anonymous users carry the `authenticated` Postgres role and pass the check regardless of whether the user is genuinely signed in. The correct pattern is `TO authenticated` on the policy combined with `auth.uid()` checks in `USING`:
+  - **`auth.role()` is deprecated — use the `TO` clause instead.** Supabase has deprecated `auth.role()` in favour of specifying the target role directly on the policy with `TO authenticated` or `TO anon`. Beyond deprecation, `auth.role() = 'authenticated'` breaks silently when anonymous sign-ins are enabled, because anonymous users carry the `authenticated` Postgres role and pass the check regardless of whether the user is genuinely signed in. Using `TO authenticated` only checks the role — it does not restrict which rows a user can access. The correct pattern combines `TO authenticated` with an ownership predicate in `USING`. For UPDATE, both `USING` and `WITH CHECK` are required — without `WITH CHECK` a user can reassign a row's `user_id` to another user:
     ```sql
     -- Deprecated (do not use)
     create policy "example" on table_name for select
     using ( auth.role() = 'authenticated' );
 
     -- Correct
+    -- Select
     create policy "example" on table_name for select
     to authenticated
     using ( (select auth.uid()) = user_id );
+
+    -- Update (note the WITH CHECK)
+    create policy "example" on table_name for update
+    to authenticated
+    using ( (select auth.uid()) = user_id )
+    with check ( (select auth.uid()) = user_id );
     ```
   - **`SECURITY DEFINER` functions bypass RLS and are callable by all roles by default.** A `SECURITY DEFINER` function runs with its creator's privileges — typically a superuser with `bypassrls`. Supabase also grants `EXECUTE` to `anon`, `authenticated`, and `service_role` for all new functions in `public` by default, making any such function a public API endpoint until that grant is explicitly revoked. Never add `SECURITY DEFINER` to resolve a permission error; it silently removes access control without fixing the underlying cause. Prefer `SECURITY INVOKER`. When `SECURITY DEFINER` is genuinely needed (e.g., bypassing RLS on an internal lookup table), keep the function in a non-exposed schema and always include an `auth.uid()` check in the function body. After any changes involving functions, run `supabase db advisors` and address any findings.
 
