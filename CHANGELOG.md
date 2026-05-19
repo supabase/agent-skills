@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/supabase/agent-skills/compare/v0.1.2...v0.1.3) (2026-05-19)
+
+
+### Bug Fixes
+
+* cover SECURITY DEFINER, auth.role() deprecation, and BOLA in security checklist ([#85](https://github.com/supabase/agent-skills/issues/85)) ([133f43e](https://github.com/supabase/agent-skills/commit/133f43e8c2ffc48823ff0630c692cabecea3e3a3))
+
 ## [0.1.2](https://github.com/supabase/agent-skills/compare/v0.1.1...v0.1.2) (2026-05-11)
 
 
