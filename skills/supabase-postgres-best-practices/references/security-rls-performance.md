@@ -47,7 +47,7 @@ as $$
 $$;
 
 -- Revoke direct execution from public roles
-revoke execute on function private.is_team_member(bigint) from anon, authenticated, public;
+revoke execute on function private.is_team_member(bigint) from PUBLIC, anon, authenticated, service_role;
 
 -- Use in policy (indexed lookup, not per-row check)
 create policy team_orders_policy on orders
