@@ -1,0 +1,27 @@
+name: Test cross-org token (supabase-plugin)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - test/cross-org-dispatch
+
+jobs:
+  mint-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token (supabase-community)
+        id: generate-token-plugin
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        with:
+          client-id: ${{ secrets.GH_APP_ID_SUPABASE_PLUGIN }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_SUPABASE_PLUGIN }}
+          owner: supabase-community
+          repositories: supabase-plugin
+
+      - name: Verify token can read supabase-community/supabase-plugin
+        env:
+          GH_TOKEN: ${{ steps.generate-token-plugin.outputs.token }}
+        run: |
+          gh api /repos/supabase-community/supabase-plugin \
+            --jq '{full_name, private, default_branch}'
