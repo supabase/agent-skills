@@ -57,6 +57,8 @@ jobs:
         with:
           client-id: ${{ secrets.GH_APP_ID_SUPABASE_PLUGIN }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY_SUPABASE_PLUGIN }}
+          owner: supabase-community
+          repositories: supabase-plugin
 
       - name: Trigger supabase-plugin skill sync
         if: ${{ steps.release.outputs.release_created }}
