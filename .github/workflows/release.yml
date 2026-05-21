@@ -42,6 +42,8 @@ jobs:
 
       - name: Build release artifacts
         if: ${{ steps.release.outputs.release_created }}
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
         run: pnpm build:release
 
       - name: Upload release assets

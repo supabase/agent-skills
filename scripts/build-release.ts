@@ -14,14 +14,15 @@ const SKILLS_DIR = join(ROOT, "skills")
 const DIST_DIR = join(ROOT, "dist")
 
 const SCHEMA = "https://schemas.agentskills.io/discovery/0.2.0/schema.json"
-const GITHUB_REPO = "supabase/agent-skills"
 
-const manifest = JSON.parse(readFileSync(join(ROOT, ".release-please-manifest.json"), "utf8")) as Record<string, string>
-const version = manifest["."]
-if (!version) throw new Error("Missing version in .release-please-manifest.json")
+const { GITHUB_SERVER_URL, GITHUB_REPOSITORY, RELEASE_TAG } = process.env
+if (!GITHUB_SERVER_URL || !GITHUB_REPOSITORY || !RELEASE_TAG) {
+  console.error("Missing required env: GITHUB_SERVER_URL, GITHUB_REPOSITORY, RELEASE_TAG")
+  process.exit(1)
+}
 
 function skillUrl(name: string): string {
-  return `https://github.com/${GITHUB_REPO}/releases/download/v${version}/${name}.tar.gz`
+  return `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${name}.tar.gz`
 }
 
 function listFiles(dir: string, prefix = ""): string[] {
