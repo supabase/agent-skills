@@ -14,6 +14,15 @@ const SKILLS_DIR = join(ROOT, "skills")
 const DIST_DIR = join(ROOT, "dist")
 
 const SCHEMA = "https://schemas.agentskills.io/discovery/0.2.0/schema.json"
+const GITHUB_REPO = "supabase/agent-skills"
+
+const manifest = JSON.parse(readFileSync(join(ROOT, ".release-please-manifest.json"), "utf8")) as Record<string, string>
+const version = manifest["."]
+if (!version) throw new Error("Missing version in .release-please-manifest.json")
+
+function skillUrl(name: string): string {
+  return `https://github.com/${GITHUB_REPO}/releases/download/v${version}/${name}.tar.gz`
+}
 
 function listFiles(dir: string, prefix = ""): string[] {
   const entries: string[] = []
@@ -73,7 +82,7 @@ for (const name of skillNames) {
 
   const digest = sha256File(artifactPath)
 
-  skills.push({ name, type: "archive", description: data.description, url: `${name}.tar.gz`, digest })
+  skills.push({ name, type: "archive", description: data.description, url: skillUrl(name), digest })
   console.log(`  ${name}: ${digest}`)
 }
 
