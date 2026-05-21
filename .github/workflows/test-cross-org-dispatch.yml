@@ -25,3 +25,28 @@ jobs:
         run: |
           gh api /repos/supabase-community/supabase-plugin \
             --jq '{full_name, private, default_branch}'
+
+      - name: Attempt to create and close PR on supabase-plugin
+        env:
+          GH_TOKEN: ${{ steps.generate-token-plugin.outputs.token }}
+        run: |
+          set -euo pipefail
+          BRANCH="test/cross-org-dispatch-${GITHUB_RUN_ID}"
+          git clone --depth=1 \
+            "https://x-access-token:${GH_TOKEN}@github.com/supabase-community/supabase-plugin.git" plugin
+          cd plugin
+          git config user.name "sb-community-agent-skills-releaser[bot]"
+          git config user.email "sb-community-agent-skills-releaser[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          echo "cross-org dispatch test from supabase/agent-skills run ${GITHUB_RUN_ID}" \
+            > .cross-org-dispatch-test
+          git add .cross-org-dispatch-test
+          git commit -m "test: cross-org dispatch verification (run ${GITHUB_RUN_ID})"
+          git push origin "$BRANCH"
+          PR_URL=$(gh pr create \
+            --title "test: cross-org dispatch verification (run ${GITHUB_RUN_ID})" \
+            --body "Automated test PR from supabase/agent-skills. Auto-closing." \
+            --base main \
+            --head "$BRANCH")
+          echo "Created PR: $PR_URL"
+          gh pr close "$PR_URL" --delete-branch
