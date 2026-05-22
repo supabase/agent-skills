@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.4](https://github.com/supabase/agent-skills/compare/v0.1.3...v0.1.4) (2026-05-22)
+
+
+### Features
+
+* embed absolute GitHub Release URLs in index.json ([#87](https://github.com/supabase/agent-skills/issues/87)) ([5ce9c70](https://github.com/supabase/agent-skills/commit/5ce9c70875d655b7d72eab05484835244da04e31))
+
+
+### Bug Fixes
+
+* scope supabase-plugin app token to the correct installation ([#88](https://github.com/supabase/agent-skills/issues/88)) ([5f25299](https://github.com/supabase/agent-skills/commit/5f252991a21a63ac2909b0266d28824915b0e86c))
+
 ## [0.1.3](https://github.com/supabase/agent-skills/compare/v0.1.2...v0.1.3) (2026-05-19)
 
 
