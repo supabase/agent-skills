@@ -31,23 +31,13 @@ jobs:
       - name: Collect skill tags
         id: collect-tags
         if: ${{ steps.release.outputs.releases_created }}
-        env:
-          PATHS_RELEASED: ${{ steps.release.outputs.paths_released }}
-          RELEASE_OUTPUTS: ${{ toJSON(steps.release.outputs) }}
         run: |
           node --input-type=module << 'EOF'
           import { readFileSync, appendFileSync } from 'fs';
           const manifest = JSON.parse(readFileSync('.release-please-manifest.json', 'utf8'));
-          const pathsReleased = JSON.parse(process.env.PATHS_RELEASED);
-          const releaseOutputs = JSON.parse(process.env.RELEASE_OUTPUTS);
-          const tags = {};
-          for (const [skillPath, version] of Object.entries(manifest)) {
-            const skillName = skillPath.split('/').pop();
-            const outputKey = skillPath.replace(/\//g, '--') + '--tag_name';
-            tags[skillName] = pathsReleased.includes(skillPath) && releaseOutputs[outputKey]
-              ? releaseOutputs[outputKey]
-              : `${skillPath}-v${version}`;
-          }
+          const tags = Object.fromEntries(
+            Object.entries(manifest).map(([path, version]) => [path.split('/').pop(), `${path}-v${version}`])
+          );
           appendFileSync(process.env.GITHUB_OUTPUT, `skill_tags=${JSON.stringify(tags)}\n`);
           EOF
 
