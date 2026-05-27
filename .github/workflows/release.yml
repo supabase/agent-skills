@@ -28,19 +28,6 @@ jobs:
       - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.releases_created }}
 
-      - name: Collect skill tags
-        id: collect-tags
-        if: ${{ steps.release.outputs.releases_created }}
-        run: |
-          node --input-type=module << 'EOF'
-          import { readFileSync, appendFileSync } from 'fs';
-          const manifest = JSON.parse(readFileSync('.release-please-manifest.json', 'utf8'));
-          const tags = Object.fromEntries(
-            Object.entries(manifest).map(([path, version]) => [path.split('/').pop(), `${path}-v${version}`])
-          );
-          appendFileSync(process.env.GITHUB_OUTPUT, `skill_tags=${JSON.stringify(tags)}\n`);
-          EOF
-
       - uses: actions/setup-node@v6
         if: ${{ steps.release.outputs.releases_created }}
         with:
@@ -55,8 +42,6 @@ jobs:
 
       - name: Build release artifacts
         if: ${{ steps.release.outputs.releases_created }}
-        env:
-          SKILL_TAGS: ${{ steps.collect-tags.outputs.skill_tags }}
         run: pnpm build:release
 
       - name: Upload release assets
@@ -64,12 +49,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PATHS_RELEASED='${{ steps.release.outputs.paths_released }}'
-          SKILL_TAGS='${{ steps.collect-tags.outputs.skill_tags }}'
-          for skill_path in $(echo "$PATHS_RELEASED" | jq -r '.[]'); do
+          MANIFEST=$(cat .release-please-manifest.json)
+          for skill_path in $(echo '${{ steps.release.outputs.paths_released }}' | jq -r '.[]'); do
             skill_name=$(basename "$skill_path")
-            skill_tag=$(echo "$SKILL_TAGS" | jq -r --arg n "$skill_name" '.[$n]')
-            gh release upload "$skill_tag" "dist/${skill_name}.tar.gz" "dist/index.json"
+            version=$(echo "$MANIFEST" | jq -r --arg p "$skill_path" '.[$p]')
+            gh release upload "${skill_path}-v${version}" "dist/${skill_name}.tar.gz" "dist/index.json"
           done
 
       - name: Generate GitHub App token (supabase-community)
@@ -87,10 +71,8 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token-plugin.outputs.token }}
         run: |
-          PATHS_RELEASED='${{ steps.release.outputs.paths_released }}'
-          SKILL_TAGS='${{ steps.collect-tags.outputs.skill_tags }}'
-          FIRST_SKILL=$(basename "$(echo "$PATHS_RELEASED" | jq -r '.[0]')")
-          FIRST_TAG=$(echo "$SKILL_TAGS" | jq -r --arg n "$FIRST_SKILL" '.[$n]')
+          FIRST_PATH=$(echo '${{ steps.release.outputs.paths_released }}' | jq -r '.[0]')
+          VERSION=$(cat .release-please-manifest.json | jq -r --arg p "$FIRST_PATH" '.[$p]')
           gh workflow run sync-agent-skills.yml \
             --repo supabase-community/supabase-plugin \
-            --field release_tag="$FIRST_TAG"
+            --field release_tag="${FIRST_PATH}-v${VERSION}"
