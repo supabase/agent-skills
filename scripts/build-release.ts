@@ -15,14 +15,18 @@ const DIST_DIR = join(ROOT, "dist")
 
 const SCHEMA = "https://schemas.agentskills.io/discovery/0.2.0/schema.json"
 
-const { GITHUB_SERVER_URL, GITHUB_REPOSITORY, RELEASE_TAG } = process.env
-if (!GITHUB_SERVER_URL || !GITHUB_REPOSITORY || !RELEASE_TAG) {
-  console.error("Missing required env: GITHUB_SERVER_URL, GITHUB_REPOSITORY, RELEASE_TAG")
+const { GITHUB_SERVER_URL, GITHUB_REPOSITORY, SKILL_TAGS } = process.env
+if (!GITHUB_SERVER_URL || !GITHUB_REPOSITORY || !SKILL_TAGS) {
+  console.error("Missing required env: GITHUB_SERVER_URL, GITHUB_REPOSITORY, SKILL_TAGS")
   process.exit(1)
 }
 
+const skillTags = JSON.parse(SKILL_TAGS) as Record<string, string>
+
 function skillUrl(name: string): string {
-  return `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${name}.tar.gz`
+  const tag = skillTags[name]
+  if (!tag) throw new Error(`No release tag found for skill: ${name}`)
+  return `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${tag}/${name}.tar.gz`
 }
 
 function listFiles(dir: string, prefix = ""): string[] {

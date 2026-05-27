@@ -2,19 +2,21 @@
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
   "packages": {
-    ".": {
+    "skills/supabase": {
       "release-type": "simple",
+      "include-paths": ["skills/supabase"],
       "extra-files": [
-        {
-          "type": "json",
-          "path": "package.json",
-          "jsonpath": "$.version"
-        },
         {
           "type": "generic",
           "path": "skills/supabase/SKILL.md",
           "expressions": ["version: \"([0-9]+\\.[0-9]+\\.[0-9]+)\""]
-        },
+        }
+      ]
+    },
+    "skills/supabase-postgres-best-practices": {
+      "release-type": "simple",
+      "include-paths": ["skills/supabase-postgres-best-practices"],
+      "extra-files": [
         {
           "type": "generic",
           "path": "skills/supabase-postgres-best-practices/SKILL.md",

@@ -35,8 +35,8 @@ pnpm test                        # Run tests
 This repository uses Release Please on `main`.
 
 - Merge conventional commits using `feat:` and `fix:` prefixes so Release Please can open or update the release PR.
-- The release PR bumps the repo version, updates the changelog, and bumps `metadata.version` in every skill's `SKILL.md` automatically via `extra-files` in `release-please-config.json`. Do not bump skill versions manually.
-- When the release PR is merged, GitHub Actions creates a semver GitHub release, uploads one `.tar.gz` per skill as release assets, and dispatches the sync workflow in `supabase-community/supabase-plugin` to update downstream skills immediately.
+- Each skill is an independent package. Release Please only opens a release PR for skills whose files were touched — unrelated skills are not bumped. Do not bump skill versions manually.
+- When a release PR is merged, GitHub Actions creates a per-skill GitHub release (e.g. `skills/supabase-v0.1.6`), uploads that skill's `.tar.gz` and a fresh `index.json` as release assets, and dispatches the sync workflow in `supabase-community/supabase-plugin`.
 
 If you change shipped skill contents under `skills/`, make sure the change is represented with an appropriate conventional commit so it is included in the next release.
 
@@ -48,13 +48,24 @@ Skills follow the [Agent Skills Open Standard](https://agentskills.io/).
 2. Create `SKILL.md` following the format below
 3. Add `references/_sections.md` defining sections
 4. Add reference files: `{prefix}-{reference-name}.md`
-5. Register the skill in `release-please-config.json` under `extra-files` so Release Please keeps its `metadata.version` in sync on every release:
+5. Register the skill in `release-please-config.json` as a new package and seed its version in `.release-please-manifest.json`:
    ```json
-   {
-     "type": "generic",
-     "path": "skills/{skill-name}/SKILL.md",
-     "expressions": ["version: \"([0-9]+\\.[0-9]+\\.[0-9]+)\""]
+   // release-please-config.json — add under "packages":
+   "skills/{skill-name}": {
+     "release-type": "simple",
+     "include-paths": ["skills/{skill-name}"],
+     "extra-files": [
+       {
+         "type": "generic",
+         "path": "skills/{skill-name}/SKILL.md",
+         "expressions": ["version: \"([0-9]+\\.[0-9]+\\.[0-9]+)\""]
+       }
+     ]
    }
+   ```
+   ```json
+   // .release-please-manifest.json — add:
+   "skills/{skill-name}": "0.1.0"
    ```
 6. Run `pnpm test`
 

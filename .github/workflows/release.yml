@@ -12,6 +12,10 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      paths_released: ${{ steps.release.outputs.paths_released }}
+      skill_tags: ${{ steps.collect-tags.outputs.skill_tags }}
     steps:
       - name: Generate GitHub App token (this repo)
         id: generate-token
@@ -26,35 +30,68 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
       - uses: actions/checkout@v4
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.releases_created }}
+
+      - name: Collect skill tags
+        id: collect-tags
+        if: ${{ steps.release.outputs.releases_created }}
+        env:
+          PATHS_RELEASED: ${{ steps.release.outputs.paths_released }}
+          RELEASE_OUTPUTS: ${{ toJSON(steps.release.outputs) }}
+        run: |
+          node --input-type=module << 'EOF'
+          import { readFileSync, appendFileSync } from 'fs';
+          const manifest = JSON.parse(readFileSync('.release-please-manifest.json', 'utf8'));
+          const pathsReleased = JSON.parse(process.env.PATHS_RELEASED);
+          const releaseOutputs = JSON.parse(process.env.RELEASE_OUTPUTS);
+          const tags = {};
+          for (const [skillPath, version] of Object.entries(manifest)) {
+            const skillName = skillPath.split('/').pop();
+            const outputKey = skillPath.replace(/\//g, '--') + '--tag_name';
+            tags[skillName] = pathsReleased.includes(skillPath) && releaseOutputs[outputKey]
+              ? releaseOutputs[outputKey]
+              : `${skillPath}-v${version}`;
+          }
+          appendFileSync(process.env.GITHUB_OUTPUT, `skill_tags=${JSON.stringify(tags)}\n`);
+          EOF
+
+  build-and-upload:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v6
-        if: ${{ steps.release.outputs.release_created }}
         with:
           node-version-file: ".node-version"
 
       - uses: pnpm/action-setup@v5
-        if: ${{ steps.release.outputs.release_created }}
 
       - name: Install dependencies
-        if: ${{ steps.release.outputs.release_created }}
         run: pnpm install --frozen-lockfile
 
       - name: Build release artifacts
-        if: ${{ steps.release.outputs.release_created }}
         env:
-          RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          SKILL_TAGS: ${{ needs.release-please.outputs.skill_tags }}
         run: pnpm build:release
 
       - name: Upload release assets
-        if: ${{ steps.release.outputs.release_created }}
         env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: gh release upload ${{ steps.release.outputs.tag_name }} dist/index.json dist/*.tar.gz
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PATHS_RELEASED='${{ needs.release-please.outputs.paths_released }}'
+          SKILL_TAGS='${{ needs.release-please.outputs.skill_tags }}'
+          for skill_path in $(echo "$PATHS_RELEASED" | jq -r '.[]'); do
+            skill_name=$(basename "$skill_path")
+            skill_tag=$(echo "$SKILL_TAGS" | jq -r --arg n "$skill_name" '.[$n]')
+            gh release upload "$skill_tag" "dist/${skill_name}.tar.gz" "dist/index.json"
+          done
 
       - name: Generate GitHub App token (supabase-community)
         id: generate-token-plugin
-        if: ${{ steps.release.outputs.release_created }}
         uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           client-id: ${{ secrets.GH_APP_ID_SUPABASE_PLUGIN }}
@@ -63,10 +100,13 @@ jobs:
           repositories: supabase-plugin
 
       - name: Trigger supabase-plugin skill sync
-        if: ${{ steps.release.outputs.release_created }}
         env:
           GH_TOKEN: ${{ steps.generate-token-plugin.outputs.token }}
         run: |
+          PATHS_RELEASED='${{ needs.release-please.outputs.paths_released }}'
+          SKILL_TAGS='${{ needs.release-please.outputs.skill_tags }}'
+          FIRST_SKILL=$(basename "$(echo "$PATHS_RELEASED" | jq -r '.[0]')")
+          FIRST_TAG=$(echo "$SKILL_TAGS" | jq -r --arg n "$FIRST_SKILL" '.[$n]')
           gh workflow run sync-agent-skills.yml \
             --repo supabase-community/supabase-plugin \
-            --field release_tag=${{ steps.release.outputs.tag_name }}
+            --field release_tag="$FIRST_TAG"
