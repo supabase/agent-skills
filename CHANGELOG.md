@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/supabase/agent-skills/compare/v0.1.4...v0.1.5) (2026-05-27)
+
+
+### Features
+
+* add npm supply-chain security guidance to supabase skill ([#94](https://github.com/supabase/agent-skills/issues/94)) ([82df90a](https://github.com/supabase/agent-skills/commit/82df90a5de1cd84386d8bc192746e50343b86dc0))
+
 ## [0.1.4](https://github.com/supabase/agent-skills/compare/v0.1.3...v0.1.4) (2026-05-22)
 
 
