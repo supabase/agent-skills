@@ -69,6 +69,4 @@ jobs:
         run: |
           gh workflow run sync-agent-skills.yml \
             --repo supabase-community/supabase-plugin \
-            --field release_tag=${{ steps.release.outputs.tag_name }} \
-            --field release_version=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }} \
-            --field commit_sha=${{ github.sha }}
+            --field release_tag=${{ steps.release.outputs.tag_name }}
