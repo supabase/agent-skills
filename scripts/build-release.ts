@@ -15,20 +15,14 @@ const DIST_DIR = join(ROOT, "dist")
 
 const SCHEMA = "https://schemas.agentskills.io/discovery/0.2.0/schema.json"
 
-const { GITHUB_SERVER_URL, GITHUB_REPOSITORY } = process.env
-if (!GITHUB_SERVER_URL || !GITHUB_REPOSITORY) {
-  console.error("Missing required env: GITHUB_SERVER_URL, GITHUB_REPOSITORY")
+const { GITHUB_SERVER_URL, GITHUB_REPOSITORY, RELEASE_TAG } = process.env
+if (!GITHUB_SERVER_URL || !GITHUB_REPOSITORY || !RELEASE_TAG) {
+  console.error("Missing required env: GITHUB_SERVER_URL, GITHUB_REPOSITORY, RELEASE_TAG")
   process.exit(1)
 }
 
-const manifest = JSON.parse(
-  readFileSync(join(ROOT, ".release-please-manifest.json"), "utf8")
-) as Record<string, string>
-
-function skillUrl(skillPath: string, name: string): string {
-  const version = manifest[skillPath]
-  if (!version) throw new Error(`No manifest entry for skill path: ${skillPath}`)
-  return `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${skillPath}-v${version}/${name}.tar.gz`
+function skillUrl(name: string): string {
+  return `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${name}.tar.gz`
 }
 
 function listFiles(dir: string, prefix = ""): string[] {
@@ -89,7 +83,7 @@ for (const name of skillNames) {
 
   const digest = sha256File(artifactPath)
 
-  skills.push({ name, type: "archive", description: data.description, url: skillUrl(`skills/${name}`, name), digest })
+  skills.push({ name, type: "archive", description: data.description, url: skillUrl(name), digest })
   console.log(`  ${name}: ${digest}`)
 }
 

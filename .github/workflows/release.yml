@@ -40,8 +40,18 @@ jobs:
         if: ${{ steps.release.outputs.releases_created }}
         run: pnpm install --frozen-lockfile
 
+      - name: Resolve release tag
+        id: resolve-tag
+        if: ${{ steps.release.outputs.releases_created }}
+        run: |
+          FIRST_PATH=$(echo '${{ steps.release.outputs.paths_released }}' | jq -r '.[0]')
+          VERSION=$(jq -r --arg p "$FIRST_PATH" '.[$p]' .release-please-manifest.json)
+          echo "tag=${FIRST_PATH}-v${VERSION}" >> "$GITHUB_OUTPUT"
+
       - name: Build release artifacts
         if: ${{ steps.release.outputs.releases_created }}
+        env:
+          RELEASE_TAG: ${{ steps.resolve-tag.outputs.tag }}
         run: pnpm build:release
 
       - name: Upload release assets
@@ -51,9 +61,8 @@ jobs:
         run: |
           MANIFEST=$(cat .release-please-manifest.json)
           for skill_path in $(echo '${{ steps.release.outputs.paths_released }}' | jq -r '.[]'); do
-            skill_name=$(basename "$skill_path")
             version=$(echo "$MANIFEST" | jq -r --arg p "$skill_path" '.[$p]')
-            gh release upload "${skill_path}-v${version}" "dist/${skill_name}.tar.gz" "dist/index.json"
+            gh release upload "${skill_path}-v${version}" dist/*.tar.gz dist/index.json
           done
 
       - name: Generate GitHub App token (supabase-community)
@@ -71,8 +80,6 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token-plugin.outputs.token }}
         run: |
-          FIRST_PATH=$(echo '${{ steps.release.outputs.paths_released }}' | jq -r '.[0]')
-          VERSION=$(cat .release-please-manifest.json | jq -r --arg p "$FIRST_PATH" '.[$p]')
           gh workflow run sync-agent-skills.yml \
             --repo supabase-community/supabase-plugin \
-            --field release_tag="${FIRST_PATH}-v${VERSION}"
+            --field release_tag="${{ steps.resolve-tag.outputs.tag }}"
