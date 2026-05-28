@@ -56,7 +56,7 @@ jobs:
       - name: Upload release assets
         if: ${{ steps.release.outputs.releases_created }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: gh release upload "${{ steps.resolve-tag.outputs.tag }}" dist/*.tar.gz dist/index.json
 
       - name: Generate GitHub App token (supabase-community)
