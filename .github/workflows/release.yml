@@ -57,7 +57,7 @@ jobs:
         if: ${{ steps.release.outputs.releases_created }}
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: gh release upload "${{ steps.resolve-tag.outputs.tag }}" dist/*.tar.gz dist/index.json
+        run: gh release upload "${{ steps.resolve-tag.outputs.tag }}" dist/index.json dist/*.tar.gz
 
       - name: Generate GitHub App token (supabase-community)
         id: generate-token-plugin
