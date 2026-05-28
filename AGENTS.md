@@ -66,9 +66,10 @@ Skills follow the [Agent Skills Open Standard](https://agentskills.io/).
    ```
    ```json
    // .release-please-manifest.json — add:
-   "skills/{skill-name}": "0.1.0"
+   "skills/{skill-name}": "0.0.0"
    ```
 6. Run `pnpm test`
+7. Commit the new skill with a `feat:` prefix so Release Please bumps it from `0.0.0` to `0.1.0` on first release. Using `fix:` would produce `0.0.1` instead.
 
 ---
 
