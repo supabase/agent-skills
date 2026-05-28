@@ -40,24 +40,17 @@ jobs:
         if: ${{ steps.release.outputs.releases_created }}
         run: pnpm install --frozen-lockfile
 
-      - name: Resolve release tag
-        id: resolve-tag
-        if: ${{ steps.release.outputs.releases_created }}
-        run: |
-          VERSION=$(jq -r '."."' .release-please-manifest.json)
-          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
-
       - name: Build release artifacts
         if: ${{ steps.release.outputs.releases_created }}
         env:
-          RELEASE_TAG: ${{ steps.resolve-tag.outputs.tag }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
         run: pnpm build:release
 
       - name: Upload release assets
         if: ${{ steps.release.outputs.releases_created }}
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: gh release upload "${{ steps.resolve-tag.outputs.tag }}" dist/index.json dist/*.tar.gz
+        run: gh release upload ${{ steps.release.outputs.tag_name }} dist/index.json dist/*.tar.gz
 
       - name: Generate GitHub App token (supabase-community)
         id: generate-token-plugin
@@ -76,5 +69,5 @@ jobs:
         run: |
           gh workflow run sync-agent-skills.yml \
             --repo supabase-community/supabase-plugin \
-            --field release_tag="${{ steps.resolve-tag.outputs.tag }}"
+            --field release_tag=${{ steps.release.outputs.tag_name }}
 

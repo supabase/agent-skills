@@ -1,0 +1,30 @@
+name: Test release-please outputs (debug only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        with:
+          client-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Dump release-please outputs
+        run: |
+          echo "releases_created=${{ steps.release.outputs.releases_created }}"
+          echo "tag_name=${{ steps.release.outputs.tag_name }}"
+          echo "paths_released=${{ steps.release.outputs.paths_released }}"
