@@ -84,6 +84,9 @@ followed by **Markdown instructions**.
 ---
 name: skill-name
 description: What this skill does and when to use it.
+metadata:
+  author: supabase
+  version: "0.0.0"
 ---
 ```
 
@@ -92,7 +95,7 @@ description: What this skill does and when to use it.
 | `name`        | Yes      | 1-64 chars. Lowercase alphanumeric and hyphens only. Must match directory name. |
 | `description` | Yes      | 1-1024 chars. Describe what the skill does AND when to use it.                  |
 | `license`     | No       | License name or reference to bundled license file.                              |
-| `metadata`    | No       | Arbitrary key-value pairs (e.g., `author`, `version`).                          |
+| `metadata`    | No       | Arbitrary key-value pairs. Always include `version: "0.0.0"` — Release Please bumps it on first release. |
 
 ### Name Field Rules
 
