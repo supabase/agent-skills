@@ -44,9 +44,8 @@ jobs:
         id: resolve-tag
         if: ${{ steps.release.outputs.releases_created }}
         run: |
-          FIRST_PATH=$(echo '${{ steps.release.outputs.paths_released }}' | jq -r '.[0]')
-          VERSION=$(jq -r --arg p "$FIRST_PATH" '.[$p]' .release-please-manifest.json)
-          echo "tag=${FIRST_PATH}-v${VERSION}" >> "$GITHUB_OUTPUT"
+          VERSION=$(jq -r '."."' .release-please-manifest.json)
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Build release artifacts
         if: ${{ steps.release.outputs.releases_created }}
@@ -58,12 +57,7 @@ jobs:
         if: ${{ steps.release.outputs.releases_created }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          MANIFEST=$(cat .release-please-manifest.json)
-          for skill_path in $(echo '${{ steps.release.outputs.paths_released }}' | jq -r '.[]'); do
-            version=$(echo "$MANIFEST" | jq -r --arg p "$skill_path" '.[$p]')
-            gh release upload "${skill_path}-v${version}" dist/*.tar.gz dist/index.json
-          done
+        run: gh release upload "${{ steps.resolve-tag.outputs.tag }}" dist/*.tar.gz dist/index.json
 
       - name: Generate GitHub App token (supabase-community)
         id: generate-token-plugin
@@ -83,3 +77,4 @@ jobs:
           gh workflow run sync-agent-skills.yml \
             --repo supabase-community/supabase-plugin \
             --field release_tag="${{ steps.resolve-tag.outputs.tag }}"
+

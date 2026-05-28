@@ -2,9 +2,20 @@
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
   "packages": {
+    ".": {
+      "release-type": "simple",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "package.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     "skills/supabase": {
       "release-type": "simple",
-      "include-paths": ["skills/supabase"],
+      "draft": true,
+      "force-tag-creation": true,
       "extra-files": [
         {
           "type": "generic",
@@ -15,7 +26,8 @@
     },
     "skills/supabase-postgres-best-practices": {
       "release-type": "simple",
-      "include-paths": ["skills/supabase-postgres-best-practices"],
+      "draft": true,
+      "force-tag-creation": true,
       "extra-files": [
         {
           "type": "generic",

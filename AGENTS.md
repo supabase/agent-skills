@@ -53,7 +53,8 @@ Skills follow the [Agent Skills Open Standard](https://agentskills.io/).
    // release-please-config.json — add under "packages":
    "skills/{skill-name}": {
      "release-type": "simple",
-     "include-paths": ["skills/{skill-name}"],
+     "draft": true,
+     "force-tag-creation": true,
      "extra-files": [
        {
          "type": "generic",
