@@ -35,8 +35,8 @@ pnpm test                        # Run tests
 This repository uses Release Please on `main`.
 
 - Merge conventional commits using `feat:` and `fix:` prefixes so Release Please can open or update the release PR.
-- Each skill is an independent package. Release Please only opens a release PR for skills whose files were touched — unrelated skills are not bumped. Do not bump skill versions manually.
-- When a release PR is merged, GitHub Actions creates a per-skill GitHub release (e.g. `skills/supabase-v0.1.6`), uploads that skill's `.tar.gz` and a fresh `index.json` as release assets, and dispatches the sync workflow in `supabase-community/supabase-plugin`.
+- Every commit triggers a root release PR (tag `v{version}`) that bundles all skills. Each skill is also an independent package — Release Please only opens a per-skill release PR for skills whose files were touched, bumping only that skill's `metadata.version` in its `SKILL.md`. Do not bump skill versions manually.
+- When release PRs are merged, GitHub Actions creates one real root GitHub release with all tarballs and `index.json`. Per-skill releases are created as drafts with a git tag (e.g. `skills/supabase-v0.1.3`) for version tracking only — they hold no assets and never appear as the latest release.
 
 If you change shipped skill contents under `skills/`, make sure the change is represented with an appropriate conventional commit so it is included in the next release.
 
