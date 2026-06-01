@@ -4,6 +4,7 @@
   "packages": {
     ".": {
       "release-type": "simple",
+      "skip-changelog": true,
       "extra-files": [
         {
           "type": "json",
@@ -14,8 +15,8 @@
     },
     "skills/supabase": {
       "release-type": "simple",
-      "draft": true,
-      "force-tag-creation": true,
+      "skip-github-release": true,
+      "changelog-path": "skills/supabase/CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
@@ -26,8 +27,8 @@
     },
     "skills/supabase-postgres-best-practices": {
       "release-type": "simple",
-      "draft": true,
-      "force-tag-creation": true,
+      "skip-github-release": true,
+      "changelog-path": "skills/supabase-postgres-best-practices/CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
