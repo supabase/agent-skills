@@ -35,8 +35,8 @@ pnpm test                        # Run tests
 This repository uses Release Please on `main`.
 
 - Merge conventional commits using `feat:` and `fix:` prefixes so Release Please can open or update the release PR.
-- Every commit triggers a root release PR (tag `v{version}`) that bundles all skills. Each skill is also an independent package — Release Please only opens a per-skill release PR for skills whose files were touched, bumping only that skill's `metadata.version` in its `SKILL.md`. Do not bump skill versions manually.
-- When release PRs are merged, GitHub Actions creates one real root GitHub release with all tarballs and `index.json`. Per-skill packages use `skip-github-release: true` — no GitHub release is created for them, but their `metadata.version` in `SKILL.md` and their `CHANGELOG.md` are updated.
+- Release Please opens **one combined release PR** that bumps the root version and the version of any skill whose files were touched. Unrelated skills are not bumped. Do not bump skill versions manually.
+- When the PR is merged, GitHub Actions creates one GitHub release (tag `v{version}`) with all skill tarballs and `index.json`. Per-skill packages use `skip-github-release: true` — no separate GitHub release is created for them, but their `metadata.version` in `SKILL.md` and their `CHANGELOG.md` are committed as part of the release PR.
 
 If you change shipped skill contents under `skills/`, make sure the change is represented with an appropriate conventional commit so it is included in the next release.
 
