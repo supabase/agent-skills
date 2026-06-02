@@ -1,5 +1,5 @@
 {
   ".": "0.1.5",
-  "skills/supabase": "0.1.2",
-  "skills/supabase-postgres-best-practices": "1.1.1"
+  "skills/supabase": "0.1.3",
+  "skills/supabase-postgres-best-practices": "1.2.0"
 }
