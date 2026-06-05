@@ -16,7 +16,7 @@
     "skills/supabase": {
       "release-type": "simple",
       "skip-github-release": true,
-      "changelog-path": "skills/supabase/CHANGELOG.md",
+      "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
@@ -28,7 +28,7 @@
     "skills/supabase-postgres-best-practices": {
       "release-type": "simple",
       "skip-github-release": true,
-      "changelog-path": "skills/supabase-postgres-best-practices/CHANGELOG.md",
+      "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
