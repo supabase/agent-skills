@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      force_publish:
+        description: 'Skip release-please and publish current version of agent skills'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -26,35 +32,47 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
       - uses: actions/checkout@v4
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created || inputs.force_publish == true }}
+        with:
+          fetch-tags: true
+
+      - name: Resolve release tag
+        id: tag
+        if: ${{ steps.release.outputs.release_created || inputs.force_publish == true }}
+        run: |
+          if [ -n "${{ steps.release.outputs.tag_name }}" ]; then
+            echo "name=${{ steps.release.outputs.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: actions/setup-node@v6
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created || inputs.force_publish == true }}
         with:
           node-version-file: ".node-version"
 
       - uses: pnpm/action-setup@v5
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created || inputs.force_publish == true }}
 
       - name: Install dependencies
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created || inputs.force_publish == true }}
         run: pnpm install --frozen-lockfile
 
       - name: Build release artifacts
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created || inputs.force_publish == true }}
         env:
-          RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
+          RELEASE_TAG: ${{ steps.tag.outputs.name }}
         run: pnpm build:release
 
       - name: Upload release assets
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created || inputs.force_publish == true }}
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: gh release upload ${{ steps.release.outputs.tag_name }} dist/index.json dist/*.tar.gz
+        run: gh release upload ${{ steps.tag.outputs.name }} dist/index.json dist/*.tar.gz --clobber
 
       - name: Generate GitHub App token (supabase-community)
         id: generate-token-plugin
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created || inputs.force_publish == true }}
         uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           client-id: ${{ secrets.GH_APP_ID_SUPABASE_PLUGIN }}
@@ -63,11 +81,11 @@ jobs:
           repositories: supabase-plugin
 
       - name: Trigger supabase-plugin skill sync
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created || inputs.force_publish == true }}
         env:
           GH_TOKEN: ${{ steps.generate-token-plugin.outputs.token }}
         run: |
           gh workflow run sync-agent-skills.yml \
             --repo supabase-community/supabase-plugin \
-            --field release_tag=${{ steps.release.outputs.tag_name }}
+            --field release_tag=${{ steps.tag.outputs.name }}
 
