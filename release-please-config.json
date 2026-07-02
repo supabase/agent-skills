@@ -36,6 +36,18 @@
           "expressions": ["version: \"([0-9]+\\.[0-9]+\\.[0-9]+)\""]
         }
       ]
+    },
+    "skills/supabase-debugging": {
+      "release-type": "simple",
+      "skip-github-release": true,
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "skills/supabase-debugging/SKILL.md",
+          "expressions": ["version: \"([0-9]+\\.[0-9]+\\.[0-9]+)\""]
+        }
+      ]
     }
   }
 }

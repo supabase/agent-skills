@@ -13,6 +13,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 const SKILLS_DIR = join(__dirname, "..", "skills");
 const PUBLIC_SKILL_NAMES = [
 	"supabase",
+	"supabase-debugging",
 	"supabase-postgres-best-practices",
 ] as const;
 
