@@ -63,7 +63,7 @@ limit 100;
 ## Common `log_attributes` keys
 
 - **`edge_logs`**: `request.method`, `request.path`, `request.search`, `response.status_code`, `identifier`, `request.cf.country`, `request.headers.user_agent`
-- **`postgres_logs`**: `parsed.error_severity`, `parsed.sql_state_code`, `parsed.query`, `parsed.detail`, `parsed.hint`, `parsed.user_name`, `parsed.application_name`, `identifier`
+- **`postgres_logs`**: `parsed.error_severity`, `parsed.sql_state_code`, `parsed.user_name`, `parsed.database_name`, `parsed.query_id`, `identifier` — the statement text and error detail live in `event_message`, not in a `parsed.*` key (`parsed.query`/`parsed.detail` are almost always empty)
 - **`auth_logs`**: `level`, `status`, `path`, `msg`, `error`
 - **`function_edge_logs`**: `response.status_code`, `request.method`, `request.pathname`, `function_id`, `execution_id`, `execution_time_ms`
 - **`function_logs`**: `event_type`, `level`, `function_id`, `execution_id`
@@ -103,8 +103,8 @@ A specific SQLSTATE (e.g. `42501` permission denied, `42P01` relation missing, `
 ```sql
 select timestamp,
        log_attributes['parsed.user_name'] as role,
-       log_attributes['parsed.query'] as query,
-       log_attributes['parsed.detail'] as detail
+       log_attributes['parsed.error_severity'] as severity,
+       event_message
 from logs
 where source = 'postgres_logs'
   and log_attributes['parsed.sql_state_code'] = '42501'

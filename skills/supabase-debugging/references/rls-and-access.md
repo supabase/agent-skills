@@ -110,8 +110,8 @@ Postgres errors are in the `postgres_logs` source (ClickHouse). Filter by SQL st
 ```sql
 select timestamp,
        log_attributes['parsed.user_name'] as role,
-       log_attributes['parsed.query'] as query,
-       log_attributes['parsed.detail'] as detail
+       log_attributes['parsed.error_severity'] as severity,
+       event_message
 from logs
 where source = 'postgres_logs'
   and log_attributes['parsed.sql_state_code'] = '42501'
