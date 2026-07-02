@@ -48,7 +48,7 @@ Every log line from every service is one row in a single ClickHouse `logs` table
 - Use **`count()`**, never `count(*)` or `select *` (the endpoint rejects both); `order by timestamp desc` for most-recent-first.
 - Read structured fields with bracket access: `log_attributes['request.path']`. Keys keep the full dotted path (`request.cf.country`, not `cf.country`).
 - Map values are **strings** — wrap numbers in `toInt32OrZero(...)` (returns 0 on missing/non-numeric, so it never errors on partial data).
-- A missing key returns `''` (empty), not an error — so an unknown key is safe to select, but confirm the column is actually populated before relying on it (some documented `parsed.*` keys are almost always empty; the raw line is in `event_message`).
+- **Don't invent `log_attributes` keys.** A missing key silently returns `''` (never an error), so a guessed key makes a working query look like it found nothing. Use only the confirmed keys listed above; for anything else — statement text, error detail, an Edge Function shutdown reason — select `event_message` (always present, carries the full line) or run the `mapKeys` discovery query first to see what a source actually sets.
 
 Minimal query:
 ```sql
