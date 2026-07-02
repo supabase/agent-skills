@@ -2,6 +2,19 @@
 
 Evidence comes first. Before hypothesizing, pull the logs for the failing layer, run the advisors, and inspect the schema. This file is the diagnostic toolkit the rest of the skill relies on.
 
+## Query narrow, widen deliberately
+
+This is the core discipline. Log tables are enormous and, on paid projects, **billed by data scanned** — and a broad scan buries the one line you need under everything you don't, flooding your context too. Efficient debugging resolves most issues in a handful of queries:
+
+1. **Pick the one most-specific `source`** for the symptom (table below). Do not scan every source at once. If you don't yet know which service owns the problem, identify it from the stack/status code *first* — that identification is half the job.
+2. **Start with a short window** (since the failure / last few minutes) and a **`LIMIT`**.
+3. **Filter to the specific error** on the real columns (`source`, `timestamp`, a status or `sql_state_code`) *before* reaching into `log_attributes`.
+4. **Widen deliberately** — broaden the window, loosen the filter, or add a source only when the narrow query comes back empty. Each widening is a conscious step, not the starting point.
+
+**The anti-pattern this skill exists to kill:** `select *` with no `source`, no `LIMIT`, and a multi-day window across all services. It's slow, it costs scanned-GB, and it makes the root cause *harder* to find. Never open with an all-source dump.
+
+For **recurring** export or monitoring — not one-off debugging — configure a **log drain** to stream logs to an external sink (Datadog, a webhook, etc.) instead of re-running queries on a schedule.
+
 ## Two ways to read logs
 
 **1. MCP `get_logs` — fastest, when the Supabase MCP server is connected.** One call, by service:
@@ -31,12 +44,11 @@ Every log line from every service is one row in a single ClickHouse `logs` table
 | `source` | String | The service — **always filter on this** |
 | `log_attributes` | Map(String, String) | Structured per-source fields, dotted keys |
 
-**Rules for correct, cheap queries:**
-- **Always filter by `source`** and **always add a `LIMIT`** — the tables are huge.
-- Use **`count()`**, never `count(*)` or `select *` (the endpoint rejects both).
-- Keep the time range tight; `order by timestamp desc` for most-recent-first.
+**Query mechanics** (the narrow-first discipline above is the *method*; these are the *syntax* rules):
+- Use **`count()`**, never `count(*)` or `select *` (the endpoint rejects both); `order by timestamp desc` for most-recent-first.
 - Read structured fields with bracket access: `log_attributes['request.path']`. Keys keep the full dotted path (`request.cf.country`, not `cf.country`).
 - Map values are **strings** — wrap numbers in `toInt32OrZero(...)` (returns 0 on missing/non-numeric, so it never errors on partial data).
+- A missing key returns `''` (empty), not an error — so an unknown key is safe to select, but confirm the column is actually populated before relying on it (some documented `parsed.*` keys are almost always empty; the raw line is in `event_message`).
 
 Minimal query:
 ```sql
