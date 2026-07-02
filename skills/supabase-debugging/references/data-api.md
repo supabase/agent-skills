@@ -58,6 +58,11 @@ $$;
 ```
 Call with `supabase.rpc('example', { ids: [...] })`.
 
+### `400 column "..." does not exist` — only on PATCH/POST/DELETE, fine on GET
+**Cause:** A known PostgREST bug (fixed in 14.4) mis-resolves a column when an `or()` filter is used on a **mutation**; the identical filter works on a `SELECT`.
+**Diagnose:** Re-run the same filter as a GET — if it succeeds but the mutation 400s, it's this. Check the PostgREST version under Project Settings → Infrastructure.
+**Fix:** Immediate workaround — add the column to `select`: `PATCH /rest/v1/t?or=(col.eq.a,col.eq.b)&select=id,col`. Permanent — upgrade Postgres (pulls in a fixed PostgREST).
+
 ### API call "returns nothing" / hangs
 **Cause:** Empty result from RLS (see [rls-and-access.md](rls-and-access.md)); a cached response (Next.js — see the caching entry in rls-and-access.md); or the request never left the client. Confirm reality in `edge_logs`.
 

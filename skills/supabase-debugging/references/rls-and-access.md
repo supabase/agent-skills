@@ -52,6 +52,10 @@ const admin = createClient(url, serviceRoleKey, {
 ```
 Use `admin.auth.admin.createUser()` for user creation instead of `signUp()`.
 
+### Server code is RLS-restricted with a key that should bypass
+**Cause:** The server is using the **anon / publishable** key (which *is* subject to RLS) where the **secret / `service_role`** key was intended. The key rename in progress (`anon` → publishable, `service_role` → secret) makes this easy to mix up.
+**Fix:** Use the secret key for trusted server code and confirm which key the failing client was built with. Never expose the secret key to a browser — in Next.js only `NEXT_PUBLIC_*` vars reach the client, so a secret must not carry that prefix.
+
 ### `42501 permission denied for table ...` (HTTP 401/403)
 **Cause:** The role lacks the base table privilege (this is separate from RLS), or you are touching a protected schema (`auth`, `vault`), or a custom schema that is not exposed.
 **Fix:** Grant the needed privilege:

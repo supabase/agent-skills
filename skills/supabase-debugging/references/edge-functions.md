@@ -46,6 +46,21 @@ The first fork for every error: **did your code return this status, or did the p
 EdgeRuntime.waitUntil(upstream.body.pipeTo(writable))   // or a promise that resolves when the socket closes
 ```
 
+### Called from a browser: CORS error / preflight (`OPTIONS`) fails
+**Cause:** Edge Functions don't add CORS headers for you, so the browser's preflight `OPTIONS` gets no `Access-Control-Allow-*` and the real request never fires. (A 404 also surfaces as a CORS error in the browser — rule that out first.)
+**Fix:** Handle `OPTIONS` and echo CORS headers on every response:
+```ts
+const cors = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+Deno.serve((req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
+  return new Response(JSON.stringify(result), { headers: { ...cors, 'Content-Type': 'application/json' } })
+})
+```
+The Data API (PostgREST) returns CORS headers automatically — this is an Edge Function concern only.
+
 ## Deploy & bundle
 
 ### `Function deploy failed due to an internal error` / won't deploy

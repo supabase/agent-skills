@@ -202,7 +202,7 @@ select pid from pg_stat_activity where backend_type ilike '%pg_net%';
 select net.worker_restart();                    -- worker dead? (pg_net 0.8+; older versions: fast-reboot the project instead)
 select * from net._http_response where status_code >= 400 order by created desc;   -- recent failures
 ```
-If `net.http_request_queue` grows large (`select count(*) from net.http_request_queue;`) it's flooded — raise compute. Truncating it (`truncate net.http_request_queue;`) clears the backlog but **permanently drops every undelivered webhook call**, so reach for it only when you accept that loss.
+If `net.http_request_queue` grows large (`select count(*) from net.http_request_queue;`) it's flooded — raise compute. Truncating it (`truncate net.http_request_queue;`) clears the backlog but **permanently drops every undelivered webhook call**, so reach for it only when you accept that loss. A `net._http_response` row with every column null except `id`, `error_msg`, and `created` is the pre-0.11 `pg_net` timeout bug — raise the webhook's timeout, or upgrade Postgres for `pg_net` 0.11+.
 
 pg_cron scheduler:
 ```sql
