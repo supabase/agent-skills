@@ -2,19 +2,19 @@
 
 The Data API is PostgREST in front of Postgres. Its errors come in two families: **`PGRST*`** codes (PostgREST itself — usually the schema cache) and **Postgres `SQLSTATE`** codes surfaced through the API (`42P01`, `42501`, `23505`). A `PGRST` code means "PostgREST couldn't build or use its view of your schema"; a five-character SQLSTATE means the database rejected the statement.
 
-First evidence stop: the `edge_logs` source for the HTTP status, then `postgres_logs` for the underlying SQL error.
+Check the `edge_logs` source first for the HTTP status, then `postgres_logs` for the underlying SQL error.
 
 ## Schema cache errors (the most common Data API failure)
 
-PostgREST caches your schema. After a DDL change (new table/column/view/function/foreign key) the cache can be stale, so the API 404s or 400s on objects that clearly exist.
+PostgREST caches your schema. After a DDL change (new table, column, view, function, or foreign key), the cache can go stale, so the API 404s or 400s on objects that clearly exist.
 
 ### `Could not find the table/column/relationship ... in the schema cache` / new object not recognized
 **Cause:** Stale PostgREST schema cache.
-**Fix:** Reload it (SQL editor, no restart needed):
+**Fix:** Reload it from the SQL editor (no restart needed):
 ```sql
 notify pgrst, 'reload schema';
 ```
-If the reload doesn't take, the Postgres `NOTIFY` queue may be saturated by a long-idle transaction, so the `pgrst` channel never gets the signal. Check how full it is, then clear the blocker:
+If the reload doesn't take, a long-idle transaction may be saturating the Postgres `NOTIFY` queue, so the `pgrst` channel never gets the signal. Check how full it is, then clear the blocker:
 ```sql
 select pg_notification_queue_usage();   -- fraction of the async-notify queue in use (0.0–1.0), read-only
 -- near 1.0? find and end the idle transaction holding it:
@@ -23,7 +23,7 @@ select pid, state, xact_start from pg_stat_activity where state = 'idle in trans
 ```
 
 ### `PGRST002: Could not query the database for the schema cache`
-**Cause:** A schema listed in **Data API → Exposed schemas** was dropped, so PostgREST can't build its cache at all (the whole API is down, not one table).
+**Cause:** A schema listed in **Data API → Exposed schemas** was dropped, so PostgREST can't build its cache at all (the entire API is down, not just one table).
 **Fix:** Recreate the missing schema, remove it from Exposed Schemas in the dashboard, then drop it — in that order. If you manage schemas via the role setting: `alter role authenticator set pgrst.db_schemas = 'public'; notify pgrst, 'reload config';`
 
 ### `PGRST106: The schema must be one of the following ...`
@@ -37,7 +37,7 @@ select pid, state, xact_start from pg_stat_activity where state = 'idle in trans
 ## Postgres errors surfaced through the API
 
 ### `42P01: relation "..." does not exist`
-**Cause:** The object is in an unexposed/custom schema, the name's case doesn't match, or it truly doesn't exist.
+**Cause:** The object sits in an unexposed or custom schema, the name's case doesn't match, or it truly doesn't exist.
 **Fix:** Qualify the schema (`supabase.schema('myschema').from('mytable')`); confirm the name with `select * from information_schema.tables where table_name ilike 'yourtable';`; avoid quoted mixed-case names (rename to lowercase). For `auth`/`vault`, go through a `security definer` function, never direct access.
 
 ### `42501: permission denied` → see [rls-and-access.md](rls-and-access.md)
@@ -60,14 +60,14 @@ Call with `supabase.rpc('example', { ids: [...] })`.
 
 ### `400 column "..." does not exist` — only on PATCH/POST/DELETE, fine on GET
 **Cause:** A known PostgREST bug (fixed in 14.4) mis-resolves a column when an `or()` filter is used on a **mutation**; the identical filter works on a `SELECT`.
-**Diagnose:** Re-run the same filter as a GET — if it succeeds but the mutation 400s, it's this. Check the PostgREST version under Project Settings → Infrastructure.
-**Fix:** Immediate workaround — add the column to `select`: `PATCH /rest/v1/t?or=(col.eq.a,col.eq.b)&select=id,col`. Permanent — upgrade Postgres (pulls in a fixed PostgREST).
+**Diagnose:** Re-run the same filter as a GET — if it succeeds but the mutation 400s, this is the cause. Check the PostgREST version under Project Settings → Infrastructure.
+**Fix:** As an immediate workaround, add the column to `select`: `PATCH /rest/v1/t?or=(col.eq.a,col.eq.b)&select=id,col`. For a permanent fix, upgrade Postgres (which pulls in a fixed PostgREST).
 
 ### API call "returns nothing" / hangs
-**Cause:** Empty result from RLS (see [rls-and-access.md](rls-and-access.md)); a cached response (Next.js — see the caching entry in rls-and-access.md); or the request never left the client. Confirm reality in `edge_logs`.
+**Cause:** An empty result from RLS (see [rls-and-access.md](rls-and-access.md)); a cached response (Next.js — see the caching entry in rls-and-access.md); or the request never left the client. Confirm what happened in `edge_logs`.
 
 ### A query is too complex for the client builder
-**Fix:** Push it into a database function and call it via `supabase.rpc(...)`. This is the sanctioned escape hatch for multi-join/aggregate logic and also sidesteps the 16KB URL limit.
+**Fix:** Push it into a database function and call it via `supabase.rpc(...)`. This is the sanctioned escape hatch for multi-join/aggregate logic, and it also sidesteps the 16KB URL limit.
 
 ## Find API errors in the logs
 

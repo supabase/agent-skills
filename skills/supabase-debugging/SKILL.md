@@ -20,7 +20,7 @@ metadata:
 
 # Debugging Supabase
 
-Debug by **evidence**, not by guessing. A Supabase error almost always surfaces at one layer but originates at another — the fix comes from finding *where*, and the only reliable way to find where is to read the logs and the data, not to pattern-match the symptom. Retrying a failed command rarely fixes anything; **isolate the layer** first.
+Debug by **evidence**, not by guessing. A Supabase error almost always surfaces at one layer but originates at another — find *where* by reading the logs and the data, not by pattern-matching the symptom. Retrying a failed command rarely fixes anything; **isolate the layer** first.
 
 ## The debugging loop
 
@@ -29,12 +29,12 @@ Run this loop. Do not skip to a fix before you have evidence for the cause.
 1. **Reproduce and read the error precisely.** Capture the exact status code, the error code, and the full message — not a paraphrase. `401` ≠ `403`; `PGRST002` ≠ `PGRST106`; a Postgres `SQLSTATE` (`42501`, `42P01`, `23505`) points at the exact failure. The precise error is the single strongest clue; treat a vague "it doesn't work" as step-0-incomplete and pin down the observable first. With `supabase-js` the error is **returned, not thrown** — it's in the `error` of `{ data, error }`, so confirm the code actually inspects `error`; a swallowed `error` is why many bugs look like "nothing happened".
 2. **Locate the failing layer** in the request stack below. The status code and error code usually name it.
 3. **Gather evidence** for that layer: query the logs, run advisors, inspect the schema or metrics. Logs are the primary tool: Supabase logs live in one ClickHouse `logs` table, one `source` per service. **Query narrow: one specific source, a bounded time window, only the columns you need, and widen only when it comes up empty.** A broad, all-source scan buries the signal, bloats your context, and costs scanned data; it is the default failure mode this skill exists to prevent. See [references/logs-and-evidence.md](references/logs-and-evidence.md).
-4. **Isolate the cause** using the layer's reference file (routing table below). Confirm the hypothesis against evidence before acting — most Supabase bugs have a small set of known causes, and the reference tells you how to tell them apart.
+4. **Isolate the cause** using the layer's reference file (routing table below). Confirm the hypothesis against evidence before acting — most Supabase bugs trace to a small set of known causes, and the reference tells you how to tell them apart.
 5. **Apply the fix**, then **verify**: re-run the exact operation that failed and confirm it now succeeds *and* that the corresponding log line is clean. A fix you have not re-run is a guess. If two or three attempts do not resolve it, stop and re-gather evidence — do not loop on the same command.
 
 ## The Supabase request stack
 
-An API call from a client passes through several layers. Errors propagate up, so the layer that *reports* the error is often not the one that *caused* it. Isolating the layer is the core move.
+An API call from a client passes through several layers. Errors propagate up, so the layer that *reports* the error is often not the layer that *caused* it. Isolating the layer is the core move.
 
 ```
 Client (supabase-js / SSR)
@@ -72,7 +72,7 @@ For query performance and schema-design optimization (indexes, `EXPLAIN`, N+1, p
 
 ## Verify before declaring done
 
-Debugging is complete only when the failing operation has been re-run and succeeds, and the layer's log shows the clean result. State what you changed, why the evidence pointed there, and how you confirmed the fix.
+Debugging is complete only when you have re-run the failing operation, it succeeds, and the layer's log shows the clean result. State what you changed, why the evidence pointed there, and how you confirmed the fix.
 
 ## Skill feedback
 

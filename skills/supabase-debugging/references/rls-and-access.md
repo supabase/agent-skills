@@ -1,6 +1,6 @@
 # RLS & database access
 
-The single most common Supabase bug: a query returns an **empty array** (or the wrong rows, or `42501 permission denied`) even though the data is there. This is almost always Row-Level Security or a missing table privilege — not a bug in your query. An empty result with **no error** is the signature of RLS; a `42501` error is the signature of a missing `GRANT`.
+The single most common Supabase bug: a query returns an **empty array** (or the wrong rows, or `42501 permission denied`) even though the data exists. Row-Level Security or a missing table privilege causes this almost every time — not a bug in your query. An empty result with **no error** signals RLS; a `42501` error signals a missing `GRANT`.
 
 ## Diagnose in order
 
@@ -27,7 +27,7 @@ select * from your_table;          -- returns only what that user can see
 reset role;                         -- always reset when done
 ```
 
-If this returns the expected rows, the policy is correct and the problem is client-side (wrong/absent JWT). If it returns nothing, the policy predicate is the problem.
+If this returns the expected rows, the policy is correct and the problem lies client-side (a wrong or absent JWT). If it returns nothing, the policy predicate is the problem.
 
 ## Common causes and fixes
 
@@ -41,7 +41,7 @@ to authenticated using ((select auth.uid()) = user_id);
 For public read, use `to anon, authenticated using (true)`. Never leave a table in an exposed schema with RLS enabled and zero policies unless you intend it to be invisible.
 
 ### `service_role` client still hits RLS / returns empty
-**Cause:** `service_role` bypasses RLS, so this means the request is **not actually using the service key** — a user JWT is overriding the `Authorization` header. Happens when an SSR client built from cookies is reused, when `Authorization: Bearer <user-token>` is set on a service client, or after `signUp()`/`signInWithPassword()` returns a session that replaces the key.
+**Cause:** `service_role` bypasses RLS, so the request **is not actually using the service key** — a user JWT is overriding the `Authorization` header. This happens when an SSR client built from cookies gets reused, when `Authorization: Bearer <user-token>` is set on a service client, or after `signUp()`/`signInWithPassword()` returns a session that replaces the key.
 **Diagnose:** In DevTools → Network, inspect the `Authorization` header on the failing request; if it carries a user JWT, that is the bug.
 **Fix:** Build a dedicated admin client that never shares user session state, and keep the secret key server-only:
 ```ts
@@ -53,8 +53,8 @@ const admin = createClient(url, serviceRoleKey, {
 Use `admin.auth.admin.createUser()` for user creation instead of `signUp()`.
 
 ### Server code is RLS-restricted with a key that should bypass
-**Cause:** The server is using the **anon / publishable** key (which *is* subject to RLS) where the **secret / `service_role`** key was intended. The key rename in progress (`anon` → publishable, `service_role` → secret) makes this easy to mix up.
-**Fix:** Use the secret key for trusted server code and confirm which key the failing client was built with. Never expose the secret key to a browser — in Next.js only `NEXT_PUBLIC_*` vars reach the client, so a secret must not carry that prefix.
+**Cause:** The server is using the **anon / publishable** key (which *is* subject to RLS) where the **secret / `service_role`** key was intended. The key rename in progress (`anon` → publishable, `service_role` → secret) makes this easy to confuse.
+**Fix:** Use the secret key for trusted server code and confirm which key the failing client was built with. Never expose the secret key to a browser — in Next.js only `NEXT_PUBLIC_*` vars reach the client, so a secret's name must not carry that prefix.
 
 ### `42501 permission denied for table ...` (HTTP 401/403)
 **Cause:** The role lacks the base table privilege (this is separate from RLS), or you are touching a protected schema (`auth`, `vault`), or a custom schema that is not exposed.
@@ -65,11 +65,11 @@ grant select, insert, update, delete on table public.your_table to anon, authent
 For protected schemas, never query them directly — wrap access in a `security definer` function that includes its own `auth.uid()` check. Confirm which statement failed with the logs query below.
 
 ### `42501 permission denied for table http_request_queue`
-**Cause:** `pg_net` extension state is corrupted.
-**Fix:** First confirm the queue is drained — `select * from net.http_request_queue;` should be empty, because recreating the extension discards anything still queued. Then reset it: `drop extension pg_net; create extension pg_net schema extensions;`. If dependent objects block the drop, contact support.
+**Cause:** The `pg_net` extension state is corrupted.
+**Fix:** First confirm the queue has drained — `select * from net.http_request_queue;` should be empty, because recreating the extension discards anything still queued. Then reset it: `drop extension pg_net; create extension pg_net schema extensions;`. If dependent objects block the drop, contact support.
 
 ### UPDATE/DELETE reports 0 rows changed (no error)
-**Cause:** An UPDATE/DELETE policy needs a `using` clause to *see* the row before it can change it. With only `with check`, the row is invisible and nothing is updated.
+**Cause:** An UPDATE/DELETE policy needs a `using` clause to *see* the row before it can change it. With only `with check`, the row stays invisible and nothing gets updated.
 **Fix:** Provide both clauses:
 ```sql
 create policy "update own" on your_table for update
@@ -80,11 +80,11 @@ with check ((select auth.uid()) = user_id);
 `with check` also prevents a user from reassigning a row's `user_id` to someone else.
 
 ### INSERT/UPDATE succeeds but the client sees "no rows returned"
-**Cause:** PostgREST returns the affected rows via an implicit `SELECT`. Without a `SELECT` policy, the write commits but the return is empty — looks like a silent failure.
+**Cause:** PostgREST returns the affected rows via an implicit `SELECT`. Without a `SELECT` policy, the write commits but the return comes back empty — a silent failure in appearance only.
 **Fix:** Add a matching `SELECT` policy alongside the INSERT/UPDATE policy.
 
 ### Policy or function silently wrong with camelCase names
-**Cause:** Postgres folds unquoted identifiers to lowercase, so `userId` becomes `userid` and never matches the real `"userId"` column.
+**Cause:** Postgres folds unquoted identifiers to lowercase, so `userId` becomes `userid` and never matches the real column `"userId"`.
 **Fix:** Quote camelCase identifiers (`"userId"`), or — far better — use `snake_case` for every database identifier to eliminate the whole class of bug.
 
 ### `permission denied for function ...` on an RPC
@@ -92,7 +92,7 @@ with check ((select auth.uid()) = user_id);
 **Fix:** `grant execute on function your_fn to authenticated;` (or `to anon` / `to public`).
 
 ### `security definer` function used in a policy doesn't run
-**Cause:** The function isn't reachable from the policy's search path.
+**Cause:** The policy's search path can't reach the function.
 **Fix:** Schema-qualify it in the policy — `using ((select private.can_access(id)))` — and keep it in a non-exposed schema. You do **not** need to add `security definer` functions to the exposed-schemas list for them to work in policies.
 
 ### Deprecated `auth.role()` / `auth.email()`
@@ -100,7 +100,7 @@ with check ((select auth.uid()) = user_id);
 **Fix:** Replace `auth.role() = 'authenticated'` with the `to authenticated` clause; replace `auth.email() = x` with `(auth.jwt() ->> 'email') = x`.
 
 ### Data updated in Supabase but a Next.js app still shows old rows
-**Cause:** Next.js cached the response; the request never reached Supabase after your RLS/data change.
+**Cause:** Next.js cached the response, so the request never reached Supabase after your RLS/data change.
 **Diagnose:** Check `edge_logs` — if the request isn't there, the response was served from cache.
 **Fix:** Opt the affected route out of caching: `export const dynamic = 'force-dynamic'` or `export const revalidate = 0`.
 
@@ -125,8 +125,8 @@ limit 100;
 
 ## Roles at a glance
 
-- `anon` — unauthenticated; only what policies explicitly allow.
-- `authenticated` — signed-in; `auth.uid()` is the user id. **Anonymous sign-ins also carry this role** — check `auth.jwt() ->> 'is_anonymous'` if you must distinguish them.
-- `service_role` — server-only; **bypasses RLS entirely**, so adding it to a policy does nothing. Never ship the secret key to a client.
+- `anon` — unauthenticated; sees only what policies explicitly allow.
+- `authenticated` — signed-in; `auth.uid()` is the user id. **Anonymous sign-ins also carry this role** — check `auth.jwt() ->> 'is_anonymous'` to distinguish them.
+- `service_role` — server-only; **bypasses RLS entirely**, so adding it to a policy accomplishes nothing. Never ship the secret key to a client.
 
 For RLS performance (wrapping `auth.uid()` in a subselect, indexing policy columns), use the **supabase-postgres-best-practices** skill.

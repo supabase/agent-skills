@@ -4,12 +4,12 @@ Evidence comes first. Before hypothesizing, pull the logs for the failing layer,
 
 ## Query narrow, widen deliberately
 
-This is the core discipline. Log tables are enormous and, on paid projects, **billed by data scanned**, and a broad scan buries the one line you need under everything you don't while flooding your context. This skill is for **on-demand debugging**: query while you investigate, do not poll in a loop. Efficient debugging resolves most issues in a handful of queries:
+This is the core discipline. Log tables are enormous and, on paid projects, **billed by data scanned**; a broad scan buries the one line you need under everything you don't, and floods your context. This skill is for **on-demand debugging**: query while you investigate, never poll in a loop. Efficient debugging resolves most issues in a handful of queries:
 
-1. **Pick the one most-specific `source`** for the symptom (table below). Do not scan every source at once. If you don't yet know which service owns the problem, identify it from the stack and status code *first*: that identification is half the job.
-2. **Bound the window, but not too fresh.** Add a **`LIMIT`** and a time range, but avoid an ultra-recent window: querying just the last 1 to 5 minutes can scan far more than expected because the newest rows aren't fully settled yet. Roughly the last 15 minutes is a good floor; widen to hours only as needed.
+1. **Pick the one most-specific `source`** for the symptom (table below). Never scan every source at once. If you don't yet know which service owns the problem, identify it from the stack and status code *first*: that identification is half the job.
+2. **Bound the window, but not too fresh.** Add a **`LIMIT`** and a time range, but avoid an ultra-recent window: querying just the last 1 to 5 minutes can scan far more than expected, because the newest rows haven't fully settled. Roughly the last 15 minutes is a good floor; widen to hours only as needed.
 3. **Select only the columns you need**, and filter to the specific error on the real columns (`source`, `timestamp`, a status or `sql_state_code`) *before* reaching into `log_attributes`.
-4. **Widen along an anchor, deliberately.** Once a query gives you an anchor (a timestamp, request id, or error code), pivot on it: query the adjacent source filtered by that anchor to follow the request across layers (for example `edge_logs` to `postgres_logs`). Broaden the window or loosen the filter only when a query comes up empty. Widening is following the thread, never a fresh scan of every source from scratch.
+4. **Widen along an anchor, deliberately.** Once a query gives you an anchor (a timestamp, request id, or error code), pivot on it: query the adjacent source, filtered by that anchor, to follow the request across layers (for example `edge_logs` to `postgres_logs`). Broaden the window or loosen the filter only when a query comes up empty. Widening follows the thread; it is never a fresh scan of every source from scratch.
 
 **The anti-pattern this skill exists to kill:** `select *` with no `source`, no `LIMIT`, and a multi-day window across all services. It's slow, it costs scanned-GB, and it makes the root cause *harder* to find. Never open with an all-source dump.
 
@@ -23,13 +23,13 @@ For **recurring** export or monitoring, which is not one-off debugging, configur
 get_logs(project_id, service)
 ```
 
-`service` is one of: `api`, `postgres`, `auth`, `storage`, `realtime`, `edge-function`, `branch-action`. It returns a **limited recent window**, so it's ideal for "what just failed" but not for historical or aggregated analysis — for that, use the Logs Explorer.
+`service` is one of: `api`, `postgres`, `auth`, `storage`, `realtime`, `edge-function`, `branch-action`. It returns a **limited recent window**, ideal for "what just failed" but not for historical or aggregated analysis — for that, use the Logs Explorer.
 
 > `get_logs` service names differ from the Logs Explorer `source` names below: `api` → `edge_logs`, `postgres` → `postgres_logs`, `auth` → `auth_logs`, `edge-function` → `function_edge_logs`/`function_logs`.
 
 **2. Logs Explorer (ClickHouse SQL) — most powerful.** Write a query for exactly what you need: filter, aggregate, search across a chosen time range. Everything below is this path.
 
-> **Watch out:** many troubleshooting docs and older blog posts show the **BigQuery** syntax — `... from postgres_logs cross join unnest(metadata) as m cross join unnest(m.parsed) as parsed where parsed.sql_state_code = ...`. That engine is retired. The logs now live in **ClickHouse**; translate every `cross join unnest(...)` into a single `log_attributes['...']` lookup (below).
+> **Watch out:** many troubleshooting docs and older blog posts show the **BigQuery** syntax — `... from postgres_logs cross join unnest(metadata) as m cross join unnest(m.parsed) as parsed where parsed.sql_state_code = ...`. That engine is retired; the logs now live in **ClickHouse**. Translate every `cross join unnest(...)` into a single `log_attributes['...']` lookup (below).
 
 ## The `logs` table
 
@@ -47,8 +47,8 @@ Every log line from every service is one row in a single ClickHouse `logs` table
 **Query mechanics** (the narrow-first discipline above is the *method*; these are the *syntax* rules):
 - **List only the columns you need**, never `select *` (the endpoint rejects it, and an edge-log event carries ~40 fields, so naming columns sharply cuts bytes scanned). Use `count()`, not `count(*)`, and `order by timestamp desc` for most-recent-first.
 - Read structured fields with bracket access: `log_attributes['request.path']`. Keys keep the full dotted path (`request.cf.country`, not `cf.country`).
-- Map values are **strings**, so wrap numbers in `toInt32OrZero(...)` (returns 0 on missing or non-numeric, so it never errors on partial data).
-- **Don't invent `log_attributes` keys.** A missing key silently returns `''` (never an error), so a guessed key makes a working query look like it found nothing. Use only the confirmed keys listed above; for anything else (statement text, error detail, an Edge Function shutdown reason) select `event_message` (always present, carries the full line) or run the `mapKeys` discovery query first to see what a source actually sets.
+- Map values are **strings**, so wrap numbers in `toInt32OrZero(...)`, which returns 0 on missing or non-numeric input and so never errors on partial data.
+- **Don't invent `log_attributes` keys.** A missing key silently returns `''` and never an error, so a guessed key makes a working query look like it found nothing. Use only the confirmed keys listed above; for anything else (statement text, error detail, an Edge Function shutdown reason), select `event_message` (always present, carries the full line), or run the `mapKeys` discovery query first to see what a source actually sets.
 
 Minimal query:
 ```sql
@@ -144,7 +144,7 @@ ClickHouse function substitutions: `count()` (not `count(*)`), `match(x,'p')` (r
 
 ## Advisors — run these on any schema/security bug
 
-Advisors are built-in security and performance linters. Run **`get_advisors(project_id, type)`** with `type: security` or `type: performance` (or `supabase db advisors` via CLI). The security advisor catches the classics: tables without RLS, `security definer` views, function search-path issues, exposed materialized views. Run it after any DDL and after any RLS change.
+Advisors are built-in security and performance linters. Run **`get_advisors(project_id, type)`** with `type: security` or `type: performance` (or `supabase db advisors` via CLI). The security advisor catches the classics: tables without RLS, `security definer` views, function search-path issues, exposed materialized views. Run it after any DDL change and after any RLS change.
 
 ## Inspect the schema
 
@@ -154,9 +154,9 @@ Advisors are built-in security and performance linters. Run **`get_advisors(proj
 
 ## Metrics & resources
 
-View metrics via the dashboard **Reports** (hourly averages) or a **Grafana** dashboard (per-second). Reading them:
+View metrics via the dashboard **Reports** (hourly averages) or a **Grafana** dashboard (per-second). To read them:
 
-- **Memory chart:** yellow = active RAM, blue = cache/buffers (good — this is why cache-hit rate matters), green = free, **red = swap**. High swap alone is *not* a problem; it's concerning only when active RAM is also sustained high (>~75–85%). Aim for a ~99% cache-hit rate (`select * from ...` via `supabase inspect db cache-hit --linked`).
+- **Memory chart:** yellow = active RAM, blue = cache/buffers (good — this is why cache-hit rate matters), green = free, **red = swap**. High swap alone is *not* a problem; it's concerning only when active RAM also stays sustained high (>~75–85%). Aim for a ~99% cache-hit rate (`select * from ...` via `supabase inspect db cache-hit --linked`).
 - **IO chart:** each compute size has a baseline and a burst IOPS/throughput limit. Sustained near-peak IOPS or high CPU IOWait means the disk is the bottleneck — usually from sequential scans (missing indexes), too little cache, heavy RLS joins, or bloat.
 
 Remediate IO/memory strain by adding indexes, raising compute, adding a read replica, or partitioning — see the **supabase-postgres-best-practices** skill.
@@ -172,7 +172,7 @@ alter role postgres reset log_min_messages;
 
 ## EXPLAIN
 
-`explain analyze <query>` reveals the real plan and timings; paste large plans into `explain.depesz.com`. Look for `Seq Scan` on big tables (missing index) and big gaps between estimated vs actual rows (stale stats — `analyze <table>`). For plans *inside* a function, use `auto_explain` in a rolled-back transaction:
+`explain analyze <query>` reveals the real plan and timings; paste large plans into `explain.depesz.com`. Look for `Seq Scan` on big tables (missing index) and large gaps between estimated and actual rows (stale stats — `analyze <table>`). For plans *inside* a function, use `auto_explain` in a rolled-back transaction:
 ```sql
 begin;
 set local auto_explain.log_min_duration = '0';
@@ -194,7 +194,7 @@ Beyond the standard codes, Supabase's gateway emits a few custom ones:
 
 ## pg_cron & webhook health checks
 
-Webhooks (`pg_net`) and `pg_cron` fail silently when their background worker dies. Confirm the worker is alive before debugging logic.
+Webhooks (`pg_net`) and `pg_cron` fail silently when their background worker dies. Confirm the worker is alive before you debug the logic.
 
 Webhook worker:
 ```sql
