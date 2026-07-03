@@ -4,16 +4,16 @@ Evidence comes first. Before hypothesizing, pull the logs for the failing layer,
 
 ## Query narrow, widen deliberately
 
-This is the core discipline. Log tables are enormous and, on paid projects, **billed by data scanned** — and a broad scan buries the one line you need under everything you don't, flooding your context too. Efficient debugging resolves most issues in a handful of queries:
+This is the core discipline. Log tables are enormous and, on paid projects, **billed by data scanned**, and a broad scan buries the one line you need under everything you don't while flooding your context. This skill is for **on-demand debugging**: query while you investigate, do not poll in a loop. Efficient debugging resolves most issues in a handful of queries:
 
-1. **Pick the one most-specific `source`** for the symptom (table below). Do not scan every source at once. If you don't yet know which service owns the problem, identify it from the stack/status code *first* — that identification is half the job.
-2. **Start with a short window** (since the failure / last few minutes) and a **`LIMIT`**.
-3. **Filter to the specific error** on the real columns (`source`, `timestamp`, a status or `sql_state_code`) *before* reaching into `log_attributes`.
-4. **Widen deliberately** — broaden the window, loosen the filter, or add a source only when the narrow query comes back empty. Each widening is a conscious step, not the starting point.
+1. **Pick the one most-specific `source`** for the symptom (table below). Do not scan every source at once. If you don't yet know which service owns the problem, identify it from the stack and status code *first*: that identification is half the job.
+2. **Bound the window, but not too fresh.** Add a **`LIMIT`** and a time range, but avoid an ultra-recent window: querying just the last 1 to 5 minutes can scan far more than expected because the newest rows aren't fully settled yet. Roughly the last 15 minutes is a good floor; widen to hours only as needed.
+3. **Select only the columns you need**, and filter to the specific error on the real columns (`source`, `timestamp`, a status or `sql_state_code`) *before* reaching into `log_attributes`.
+4. **Widen along an anchor, deliberately.** Once a query gives you an anchor (a timestamp, request id, or error code), pivot on it: query the adjacent source filtered by that anchor to follow the request across layers (for example `edge_logs` to `postgres_logs`). Broaden the window or loosen the filter only when a query comes up empty. Widening is following the thread, never a fresh scan of every source from scratch.
 
 **The anti-pattern this skill exists to kill:** `select *` with no `source`, no `LIMIT`, and a multi-day window across all services. It's slow, it costs scanned-GB, and it makes the root cause *harder* to find. Never open with an all-source dump.
 
-For **recurring** export or monitoring — not one-off debugging — configure a **log drain** to stream logs to an external sink (Datadog, a webhook, etc.) instead of re-running queries on a schedule.
+For **recurring** export or monitoring, which is not one-off debugging, configure a **log drain** to stream logs to an external sink (Datadog, a webhook, and so on) instead of re-running queries on a schedule.
 
 ## Two ways to read logs
 
@@ -45,10 +45,10 @@ Every log line from every service is one row in a single ClickHouse `logs` table
 | `log_attributes` | Map(String, String) | Structured per-source fields, dotted keys |
 
 **Query mechanics** (the narrow-first discipline above is the *method*; these are the *syntax* rules):
-- Use **`count()`**, never `count(*)` or `select *` (the endpoint rejects both); `order by timestamp desc` for most-recent-first.
+- **List only the columns you need**, never `select *` (the endpoint rejects it, and an edge-log event carries ~40 fields, so naming columns sharply cuts bytes scanned). Use `count()`, not `count(*)`, and `order by timestamp desc` for most-recent-first.
 - Read structured fields with bracket access: `log_attributes['request.path']`. Keys keep the full dotted path (`request.cf.country`, not `cf.country`).
-- Map values are **strings** — wrap numbers in `toInt32OrZero(...)` (returns 0 on missing/non-numeric, so it never errors on partial data).
-- **Don't invent `log_attributes` keys.** A missing key silently returns `''` (never an error), so a guessed key makes a working query look like it found nothing. Use only the confirmed keys listed above; for anything else — statement text, error detail, an Edge Function shutdown reason — select `event_message` (always present, carries the full line) or run the `mapKeys` discovery query first to see what a source actually sets.
+- Map values are **strings**, so wrap numbers in `toInt32OrZero(...)` (returns 0 on missing or non-numeric, so it never errors on partial data).
+- **Don't invent `log_attributes` keys.** A missing key silently returns `''` (never an error), so a guessed key makes a working query look like it found nothing. Use only the confirmed keys listed above; for anything else (statement text, error detail, an Edge Function shutdown reason) select `event_message` (always present, carries the full line) or run the `mapKeys` discovery query first to see what a source actually sets.
 
 Minimal query:
 ```sql
