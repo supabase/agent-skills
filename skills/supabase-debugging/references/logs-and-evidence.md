@@ -23,7 +23,7 @@ For **recurring** export or monitoring, which is not one-off debugging, configur
 get_logs(project_id, service)
 ```
 
-`service` is one of: `api`, `postgres`, `auth`, `storage`, `realtime`, `edge-function`, `branch-action`. It returns a **limited recent window**, ideal for "what just failed" but not for historical or aggregated analysis — for that, use the Logs Explorer.
+`service` is one of: `api`, `postgres`, `auth`, `storage`, `realtime`, `edge-function`, `branch-action`. It returns logs from the **last 24 hours**, ideal for "what just failed" but not for older or aggregated analysis — for that, use the Logs Explorer.
 
 > `get_logs` service names differ from the Logs Explorer `source` names below: `api` → `edge_logs`, `postgres` → `postgres_logs`, `auth` → `auth_logs`, `edge-function` → `function_edge_logs`/`function_logs`.
 
