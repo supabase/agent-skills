@@ -1,0 +1,55 @@
+# Debugging Supabase
+
+Debug by **evidence**, not by guessing. A Supabase error almost always surfaces at one layer but originates at another — find *where* by reading the logs and the data, not by pattern-matching the symptom. Retrying a failed command rarely fixes anything; **isolate the layer** first.
+
+## The debugging loop
+
+Run this loop. Do not skip to a fix before you have evidence for the cause.
+
+1. **Reproduce and read the error precisely.** Capture the exact status code, the error code, and the full message — not a paraphrase. `401` ≠ `403`; `PGRST002` ≠ `PGRST106`; a Postgres `SQLSTATE` (`42501`, `42P01`, `23505`) points at the exact failure. The precise error is the single strongest clue; treat a vague "it doesn't work" as step-0-incomplete and pin down the observable first. With `supabase-js` the error is **returned, not thrown** — it's in the `error` of `{ data, error }`, so confirm the code actually inspects `error`; a swallowed `error` is why many bugs look like "nothing happened".
+2. **Locate the failing layer** in the request stack below. The status code and error code usually name it.
+3. **Gather evidence** for that layer: query the logs, run advisors, inspect the schema or metrics. Logs are the primary tool: Supabase logs live in one ClickHouse `logs` table, one `source` per service. **Query narrow: one specific source, a bounded time window, only the columns you need, and widen only when it comes up empty.** A broad, all-source scan buries the signal, bloats your context, and costs scanned data; it is the default failure mode this workflow exists to prevent. See [logs-and-evidence.md](logs-and-evidence.md).
+4. **Isolate the cause** using the layer's reference file (routing table below). Confirm the hypothesis against evidence before acting — most Supabase bugs trace to a small set of known causes, and the reference tells you how to tell them apart.
+5. **Apply the fix**, then **verify**: re-run the exact operation that failed and confirm it now succeeds *and* that the corresponding log line is clean. A fix you have not re-run is a guess. If two or three attempts do not resolve it, stop and re-gather evidence — do not loop on the same command.
+
+## The Supabase request stack
+
+An API call from a client passes through several layers. Errors propagate up, so the layer that *reports* the error is often not the layer that *caused* it. Isolating the layer is the core move.
+
+```
+Client (supabase-js / SSR)
+  → Edge / API gateway            → edge_logs            (HTTP status, routing, rate limits)
+  → PostgREST (Data/REST API)     → postgrest_logs       (PGRST* codes, schema cache)
+  → GoTrue (Auth)                 → auth_logs            (login, JWT, OAuth, email)
+  → Storage API                   → storage_logs         (uploads, object access)
+  → Realtime                      → realtime_logs        (channels, presence, broadcast)
+  → Supavisor (connection pooler) → supavisor_logs       (pooling, timeouts)
+  → Postgres (SQL, RLS, triggers) → postgres_logs        (SQLSTATE, RLS, functions)
+```
+
+Edge Functions run separately: `function_edge_logs` (the HTTP request to the function) and `function_logs` (`console` output from inside it).
+
+**A permission or empty-result error at the API layer is almost always a Postgres RLS or privilege problem one layer down.** Trace toward the database.
+
+## Symptom → reference routing
+
+Match the symptom to the layer, then read that file for the specific cause and fix. When a symptom fits two layers (e.g. an auth call failing with an RLS error), read both, starting with the one nearest the database.
+
+| Symptom / error | Layer | Read |
+| --- | --- | --- |
+| Empty `data` array with rows present; wrong rows returned; UPDATE/DELETE affects 0 rows; `42501` permission denied; `service_role` still blocked; policy not matching | RLS & access | [rls-and-access.md](rls-and-access.md) |
+| `PGRST002`/`PGRST106`; "schema cache"; "could not find table/relationship"; new column/table not recognized; `42P01` relation does not exist; `520`; API call returns nothing | Data API (PostgREST) | [data-api.md](data-api.md) |
+| Login/logout/session broken; JWT "invalid claim"/"missing sub"; cookies not sent; OAuth redirect wrong; OTP/magic-link expired; MFA/TOTP fails; auth `500`/`503`; emails not arriving | Auth | [auth.md](auth.md) |
+| `statement timeout`; duplicate key / sequence; `prepared statement already exists`; trigger errors; slow `ALTER`/query; blocked queries; disk/memory/swap; index size | Database (Postgres) | [database.md](database.md) |
+| "too many connections"; "remaining connection slots"; `CONNECT_TIMEOUT`; pooler vs direct; transaction-mode read-only; `no pg_hba.conf entry`; IPv4/IPv6; SASL/SCRAM | Connections & pooler | [connections.md](connections.md) |
+| Edge Function `401`/`404`/`500`/`503`/`504`/`546`; CPU/memory/wall-clock limit; won't deploy; boot error; WebSocket drop; `esm.sh` import fails | Edge Functions | [edge-functions.md](edge-functions.md) |
+| Realtime `TIMED_OUT`; `TooManyChannels`; silent disconnect; missed DB changes; broadcast-from-DB warning; heartbeats | Realtime | [realtime.md](realtime.md) |
+| Upload/list fails; public bucket inaccessible; `relation "objects" does not exist`; file-size limit; folder/RLS | Storage | [storage.md](storage.md) |
+| Webhook not firing; `pg_cron` job not running; `pg_net` queue stuck | Database jobs | [logs-and-evidence.md](logs-and-evidence.md) |
+| Need to read/query logs, interpret Postgres logs, run advisors, or read metrics | Diagnostics | [logs-and-evidence.md](logs-and-evidence.md) |
+
+For query performance and schema-design optimization (indexes, `EXPLAIN`, N+1, partitioning), use the **supabase-postgres-best-practices** skill: these workflows cover *diagnosing* the failure, that skill covers *optimizing* the design.
+
+## Verify before declaring done
+
+Debugging is complete only when you have re-run the failing operation, it succeeds, and the layer's log shows the clean result. State what you changed, why the evidence pointed there, and how you confirmed the fix.

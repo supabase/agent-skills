@@ -1,6 +1,6 @@
 ---
 name: supabase
-description: "Use when doing ANY task involving Supabase. Triggers: Supabase products (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues); client libraries and SSR integrations (supabase-js, @supabase/ssr) in Next.js, React, SvelteKit, Astro, Remix; auth issues (login, logout, sessions, JWT, cookies, getSession, getUser, getClaims, RLS); Supabase CLI or MCP server; schema changes, migrations, security audits, Postgres extensions (pg_graphql, pg_cron, pg_vector)."
+description: "Use when doing ANY task involving Supabase. Triggers: Supabase products (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues); client libraries and SSR integrations (supabase-js, @supabase/ssr) in Next.js, React, SvelteKit, Astro, Remix; auth issues (login, logout, sessions, JWT, cookies, getSession, getUser, getClaims, RLS); Supabase CLI or MCP server; schema changes, migrations, security audits, Postgres extensions (pg_graphql, pg_cron, pg_vector); debugging errors or unexpected behavior (empty query results, 401/403/500/503/546, 42501, 42P01, PGRST002, permission denied, schema cache, statement timeout, too many connections, prepared statement already exists, Edge Function crashes, Realtime drops, Storage upload failures) and reading or querying logs (Logs Explorer, ClickHouse)."
 metadata:
   author: supabase
   version: "0.1.2"
@@ -128,6 +128,12 @@ Do NOT use `apply_migration` to change a local database schema — it writes a m
 2. **Review the Security Checklist above** if your changes involve views, functions, triggers, or storage.
 3. **Generate the migration** → `supabase db pull <descriptive-name> --local --yes`
 4. **Verify** → `supabase migration list --local`
+
+## Debugging
+
+When a Supabase app returns an error or misbehaves — an empty query result, a `401`/`403`/`500`/`546`, a Postgres or PostgREST code (`42501`, `42P01`, `PGRST002`), an RLS surprise, broken auth or sessions, an Edge Function crash, a Realtime drop, or a Storage failure — debug by **evidence, not guessing**: reproduce and read the exact error, **isolate the failing layer** in the request stack, then gather evidence from logs. Query logs **narrow** — one specific `source`, a bounded window, only the columns you need — and widen only when needed; a broad all-source scan buries the signal and wastes scanned data.
+
+Start at [references/debugging/index.md](references/debugging/index.md) for the debugging loop, the request-stack model, and a symptom-to-reference router covering RLS and access, the Data API, auth, database, connections and pooler, Edge Functions, Realtime, and Storage.
 
 ## Reference Guides
 
