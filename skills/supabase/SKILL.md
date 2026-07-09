@@ -133,7 +133,7 @@ Do NOT use `apply_migration` to change a local database schema — it writes a m
 
 When a Supabase app returns an error or misbehaves — an empty query result, a `401`/`403`/`500`/`546`, a Postgres or PostgREST code (`42501`, `42P01`, `PGRST002`), an RLS surprise, broken auth or sessions, an Edge Function crash, a Realtime drop, or a Storage failure — debug by **evidence, not guessing**: reproduce and read the exact error, **isolate the failing layer** in the request stack, then gather evidence from logs. Query logs **narrow** — one specific `source`, a bounded window, only the columns you need — and widen only when needed; a broad all-source scan buries the signal and wastes scanned data.
 
-Start at [references/debugging/index.md](references/debugging/index.md) for the debugging loop, the request-stack model, and a symptom-to-reference router covering RLS and access, the Data API, auth, database, connections and pooler, Edge Functions, Realtime, and Storage.
+Start at [references/debugging/index.md](references/debugging/index.md) for the debugging loop, the request-stack model, and a symptom-to-docs router that maps each symptom to the layer, its log `source`, and the Supabase troubleshooting guide with the specific cause and fix. The guides are the source of truth: read the current guide (fetch with `.md`, or use `search_docs`) rather than relying on cached knowledge, since docs are updated continuously and this skill file is not. [references/debugging/logs-and-evidence.md](references/debugging/logs-and-evidence.md) carries the ClickHouse log-querying method (query narrow, one source, bounded window) that has no docs equivalent.
 
 ## Reference Guides
 
