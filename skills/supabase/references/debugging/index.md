@@ -18,13 +18,15 @@ An API call from a client passes through several layers. Errors propagate up, so
 
 ```
 Client (supabase-js / SSR)
-  → Edge / API gateway            → edge_logs            (HTTP status, routing, rate limits)
-  → PostgREST (Data/REST API)     → postgrest_logs       (PGRST* codes, schema cache)
-  → GoTrue (Auth)                 → auth_logs            (login, JWT, OAuth, email)
-  → Storage API                   → storage_logs         (uploads, object access)
-  → Realtime                      → realtime_logs        (channels, presence, broadcast)
-  → Supavisor (connection pooler) → supavisor_logs       (pooling, timeouts)
-  → Postgres (SQL, RLS, triggers) → postgres_logs        (SQLSTATE, RLS, functions)
+  → Edge / API gateway → edge_logs (HTTP status, routing, rate limits)
+      the gateway routes to ONE of these parallel services (they are not chained):
+      ├→ PostgREST (Data/REST API) → postgrest_logs (low-signal; PGRST* evidence is in edge_logs + postgres_logs)
+      ├→ GoTrue (Auth)             → auth_logs      (login, JWT, OAuth, email)
+      ├→ Storage API               → storage_logs   (uploads, object access)
+      └→ Realtime                  → realtime_logs  (channels, presence, broadcast)
+  PostgREST, GoTrue, and Storage each reach the database on their own:
+  → Supavisor (connection pooler) → supavisor_logs (pooling, timeouts)
+  → Postgres (SQL, RLS, triggers) → postgres_logs  (SQLSTATE, RLS, functions)
 ```
 
 Edge Functions run separately: `function_edge_logs` (the HTTP request to the function) and `function_logs` (`console` output from inside it).

@@ -7,7 +7,7 @@ Evidence comes first. Before hypothesizing, pull the logs for the failing layer,
 This is the core discipline. Log volumes are enormous and, on paid projects, **billed by data scanned**; a broad scan buries the one line you need under everything you don't, and floods your context. This is **on-demand debugging**: query while you investigate, never poll in a loop. Efficient debugging resolves most issues in a handful of queries:
 
 1. **Pick the one most-specific `source`** for the symptom (table below). Never scan every source at once. If you don't yet know which service owns the problem, identify it from the stack and status code *first*: that identification is half the job.
-2. **Bound the window, but not too fresh.** Add a **`LIMIT`** and a time range, but avoid an ultra-recent window: querying just the last 1 to 5 minutes can scan far more than expected, because the newest rows haven't fully settled. Roughly the last 15 minutes is a good floor; widen to hours only as needed.
+2. **Bound the window, but not too fresh.** Add a **`LIMIT`** and a time range, but avoid an ultra-recent window: the last 1 to 5 minutes can be noisier and less complete while the newest rows are still being ingested. Roughly the last 15 minutes is a good floor; widen to hours only as needed.
 3. **Select only the columns you need**, and filter to the specific error on the real columns (`source`, `timestamp`, a status or `sql_state_code`) *before* reaching into `log_attributes`.
 4. **Widen along an anchor, deliberately.** Once a query gives you an anchor (a timestamp, request id, or error code), pivot on it: query the adjacent source, filtered by that anchor, to follow the request across layers (for example `edge_logs` to `postgres_logs`). Broaden the window or loosen the filter only when a query comes up empty. Widening follows the thread; it is never a fresh scan of every source from scratch.
 
@@ -25,9 +25,9 @@ get_logs(project_id, service)
 
 `service` is one of: `api`, `postgres`, `auth`, `storage`, `realtime`, `edge-function`, `branch-action`. It returns logs from the **last 24 hours**. For older or aggregated analysis, use the Logs Explorer.
 
-> `get_logs` service names map to Logs Explorer `source` names: `api` → `edge_logs`, `postgres` → `postgres_logs`, `auth` → `auth_logs`, `edge-function` → `function_edge_logs`/`function_logs`.
+> `get_logs` service names map to Logs Explorer `source` names: `api` → `edge_logs`, `postgres` → `postgres_logs`, `auth` → `auth_logs`, `storage` → `storage_logs`, `realtime` → `realtime_logs`, `edge-function` → `function_edge_logs`/`function_logs` (plus `branch-action` for branching).
 
-**2. Logs Explorer (SQL) — for filtering, aggregation, and custom time ranges.** The Explorer defaults to **ClickHouse**: every log line is one row in a single `logs` table tagged by `source`, with structured fields in a `log_attributes` map (values are strings) and the raw line in `event_message`. Read fields with bracket access, wrap numbers in `toInt32OrZero`, and use `count()` (not `count(*)`):
+**2. Logs Explorer (SQL) — for filtering, aggregation, and custom time ranges.** The Explorer defaults to **ClickHouse**: every log line is one row in a single `logs` table tagged by `source`, with structured fields in a `log_attributes` map (values are strings) and the raw line in `event_message`. Read fields with bracket access, wrap numbers in `toInt32OrZero`, and prefer `count()` over `count(*)`:
 
 ```sql
 -- failing API requests
