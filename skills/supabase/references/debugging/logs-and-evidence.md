@@ -1,6 +1,6 @@
 # Logs & evidence
 
-Evidence comes first. Before hypothesizing, pull the logs for the failing layer, run the advisors, and inspect the schema. This file covers the agent tools and the operating discipline; the ClickHouse query reference (the `logs` table, `log_attributes` keys, and example queries) lives in the docs guide linked below, which stays current.
+Evidence comes first. Before hypothesizing, pull the logs for the failing layer, run the advisors, and inspect the schema. This file is the log-querying method the debugging loop relies on; the per-symptom causes and fixes live in the troubleshooting guides linked from [index.md](index.md).
 
 ## Query narrow, widen deliberately
 
@@ -27,7 +27,29 @@ get_logs(project_id, service)
 
 > `get_logs` service names map to Logs Explorer `source` names: `api` → `edge_logs`, `postgres` → `postgres_logs`, `auth` → `auth_logs`, `edge-function` → `function_edge_logs`/`function_logs`.
 
-**2. Logs Explorer (SQL) — for filtering, aggregation, and custom time ranges.** The Explorer defaults to ClickHouse: a single `logs` table tagged by `source`, structured fields in a `log_attributes` map. For the query reference — the table schema, the confirmed `log_attributes` keys per source, ClickHouse function substitutions, and copy-ready diagnostic queries — read [Querying logs efficiently in the Logs Explorer](https://supabase.com/docs/guides/troubleshooting/querying-logs-efficiently-in-the-logs-explorer). Do not guess `log_attributes` key names: a missing key silently returns `''`, so a guessed key makes a working query look empty. Confirm keys from that guide, or select `event_message` (always present) and a sample first.
+**2. Logs Explorer (SQL) — for filtering, aggregation, and custom time ranges.** The Explorer defaults to **ClickHouse**: every log line is one row in a single `logs` table tagged by `source`, with structured fields in a `log_attributes` map (values are strings) and the raw line in `event_message`. Read fields with bracket access, wrap numbers in `toInt32OrZero`, and use `count()` (not `count(*)`):
+
+```sql
+-- failing API requests
+select timestamp,
+       toInt32OrZero(log_attributes['response.status_code']) as status,
+       log_attributes['request.path'] as path
+from logs
+where source = 'edge_logs'
+  and toInt32OrZero(log_attributes['response.status_code']) >= 400
+order by timestamp desc limit 100;
+
+-- a specific Postgres SQLSTATE (42501 permission denied, 42P01 relation missing, 23505 duplicate key)
+select timestamp, log_attributes['parsed.user_name'] as role, event_message
+from logs
+where source = 'postgres_logs'
+  and log_attributes['parsed.sql_state_code'] = '42501'
+order by timestamp desc limit 100;
+```
+
+**Don't guess `log_attributes` keys.** A missing key silently returns `''`, so a guessed key makes a working query look empty. Discover real keys with `select arrayJoin(mapKeys(log_attributes)) as k, count() from logs where source = '...' group by k order by 2 desc`, or read `event_message` (always present; statement text and error detail live there, not in `parsed.query`/`parsed.detail`, which are almost always empty).
+
+The [Logs Explorer guide](https://supabase.com/docs/guides/telemetry/logs) covers the sources, best practices, and the field reference. Note: it still shows the legacy **BigQuery** dialect (`cross join unnest(metadata)` against per-source tables) and lags the ClickHouse default, so translate those `unnest` joins into `log_attributes['...']` lookups, or use `get_logs` to skip SQL entirely.
 
 ## Which source for which problem
 
