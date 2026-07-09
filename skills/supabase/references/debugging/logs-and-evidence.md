@@ -4,65 +4,38 @@ Evidence comes first. Before hypothesizing, pull the logs for the failing layer,
 
 ## Query narrow, widen deliberately
 
-This is the core discipline. Log tables are enormous and, on paid projects, **billed by data scanned**; a broad scan buries the one line you need under everything you don't, and floods your context. This is **on-demand debugging**: query while you investigate, never poll in a loop. Efficient debugging resolves most issues in a handful of queries:
+This is the core discipline, and it holds regardless of which query engine backs the logs. Log volumes are enormous and, on paid projects, **billed by data scanned**; a broad scan buries the one line you need under everything you don't, and floods your context. This is **on-demand debugging**: query while you investigate, never poll in a loop. Efficient debugging resolves most issues in a handful of queries:
 
-1. **Pick the one most-specific `source`** for the symptom (table below). Never scan every source at once. If you don't yet know which service owns the problem, identify it from the stack and status code *first*: that identification is half the job.
+1. **Pick the one most-specific source** for the symptom (table below). Never scan every source at once. If you don't yet know which service owns the problem, identify it from the stack and status code *first*: that identification is half the job.
 2. **Bound the window, but not too fresh.** Add a **`LIMIT`** and a time range, but avoid an ultra-recent window: querying just the last 1 to 5 minutes can scan far more than expected, because the newest rows haven't fully settled. Roughly the last 15 minutes is a good floor; widen to hours only as needed.
-3. **Select only the columns you need**, and filter to the specific error on the real columns (`source`, `timestamp`, a status or `sql_state_code`) *before* reaching into `log_attributes`.
+3. **Select only the fields you need**, and filter to the specific error on the top-level columns (`timestamp`, status, severity) *before* digging into nested metadata.
 4. **Widen along an anchor, deliberately.** Once a query gives you an anchor (a timestamp, request id, or error code), pivot on it: query the adjacent source, filtered by that anchor, to follow the request across layers (for example `edge_logs` to `postgres_logs`). Broaden the window or loosen the filter only when a query comes up empty. Widening follows the thread; it is never a fresh scan of every source from scratch.
 
-**The anti-pattern this discipline exists to kill:** `select *` with no `source`, no `LIMIT`, and a multi-day window across all services. It's slow, it costs scanned-GB, and it makes the root cause *harder* to find. Never open with an all-source dump.
+**The anti-pattern this discipline exists to kill:** `select *` with no source filter, no `LIMIT`, and a multi-day window across all services. It's slow, it costs scanned-GB, and it makes the root cause *harder* to find. Never open with an all-source dump.
 
 For **recurring** export or monitoring, which is not one-off debugging, configure a **log drain** to stream logs to an external sink (Datadog, a webhook, and so on) instead of re-running queries on a schedule.
 
-## Two ways to read logs
+## How to read logs
 
-**1. MCP `get_logs` — fastest, when the Supabase MCP server is connected.** One call, by service:
+**1. MCP `get_logs` — the primary path when the Supabase MCP server is connected.** It takes a service name, not SQL, so it is unaffected by which engine backs the logs — prefer it for "what just failed":
 
 ```
 get_logs(project_id, service)
 ```
 
-`service` is one of: `api`, `postgres`, `auth`, `storage`, `realtime`, `edge-function`, `branch-action`. It returns logs from the **last 24 hours**, ideal for "what just failed" but not for older or aggregated analysis — for that, use the Logs Explorer.
+`service` is one of: `api`, `postgres`, `auth`, `storage`, `realtime`, `edge-function`, `branch-action`. It returns logs from the **last 24 hours**. For older or aggregated analysis, use the Logs Explorer.
 
-> `get_logs` service names differ from the Logs Explorer `source` names below: `api` → `edge_logs`, `postgres` → `postgres_logs`, `auth` → `auth_logs`, `edge-function` → `function_edge_logs`/`function_logs`.
+> `get_logs` service names map to the Logs Explorer sources below: `api` → `edge_logs`, `postgres` → `postgres_logs`, `auth` → `auth_logs`, `edge-function` → `function_edge_logs`/`function_logs`.
 
-**2. Logs Explorer (ClickHouse SQL) — most powerful.** Write a query for exactly what you need: filter, aggregate, search across a chosen time range. Everything below is this path.
+**2. Logs Explorer (SQL) — for filtering, aggregation, and custom time ranges.**
 
-> **Watch out:** many troubleshooting docs and older blog posts show the **BigQuery** syntax — `... from postgres_logs cross join unnest(metadata) as m cross join unnest(m.parsed) as parsed where parsed.sql_state_code = ...`. That engine is retired; the logs now live in **ClickHouse**. Translate every `cross join unnest(...)` into a single `log_attributes['...']` lookup (below).
+> **Confirm the dialect before writing non-trivial SQL.** The Logs Explorer currently runs on **BigQuery**: each source is its own table (`edge_logs`, `postgres_logs`, …), and nested fields are reached by `cross join unnest(metadata)`. A migration of the logs backend to **ClickHouse** is in progress; when it lands, the model changes to a single `logs` table with a `log_attributes` map, and the `unnest` joins go away. The [logs docs](https://supabase.com/docs/guides/telemetry/logs.md) are authoritative and updated — read them for the exact current syntax and field names rather than trusting cached knowledge.
 
-## The `logs` table
-
-Every log line from every service is one row in a single ClickHouse `logs` table, tagged by `source`.
-
-| Column | Type | Notes |
-| --- | --- | --- |
-| `id` | String | Unique log id |
-| `timestamp` | DateTime64 (UTC) | ISO 8601, microsecond precision — compare/order directly |
-| `event_message` | String | The raw log line |
-| `severity_text` | String | Level, when the source sets one |
-| `source` | String | The service — **always filter on this** |
-| `log_attributes` | Map(String, String) | Structured per-source fields, dotted keys |
-
-**Query mechanics** (the narrow-first discipline above is the *method*; these are the *syntax* rules):
-- **List only the columns you need**, never `select *` (the endpoint rejects it, and an edge-log event carries ~40 fields, so naming columns sharply cuts bytes scanned). Use `count()`, not `count(*)`, and `order by timestamp desc` for most-recent-first.
-- Read structured fields with bracket access: `log_attributes['request.path']`. Keys keep the full dotted path (`request.cf.country`, not `cf.country`).
-- Map values are **strings**, so wrap numbers in `toInt32OrZero(...)`, which returns 0 on missing or non-numeric input and so never errors on partial data.
-- **Don't invent `log_attributes` keys.** A missing key silently returns `''` and never an error, so a guessed key makes a working query look like it found nothing. Use only the confirmed keys listed below; for anything else (statement text, error detail, an Edge Function shutdown reason), select `event_message` (always present, carries the full line), or run the `mapKeys` discovery query first to see what a source actually sets.
-- Function substitutions vs standard SQL: `count()` (not `count(*)`), `match(x,'p')` (regex), `x ilike '%p%'` (substring), `toInt32OrZero(x)` (numeric), `mapKeys(log_attributes)` (keys).
-
-Minimal query:
-```sql
-select timestamp, event_message
-from logs
-where source = 'edge_logs'
-order by timestamp desc
-limit 100;
-```
+**Don't guess field names.** In BigQuery a wrong field errors; after the ClickHouse migration a missing map key silently returns `''`. Either way, confirm real field names from the docs field reference, or select `event_message` (always present, carries the full raw line) and a small sample first to see the real shape.
 
 ## Which source for which problem
 
-| Problem | `source` | Contains |
+| Problem | Source | Contains |
 | --- | --- | --- |
 | API request failed / HTTP error / latency | `edge_logs` | Gateway requests, status, method, path, client IP/geo |
 | SQL error, RLS, slow query, pg_cron, webhooks (`pg_net`) | `postgres_logs` | Statements, severity, SQLSTATE, hints |
@@ -73,66 +46,34 @@ limit 100;
 | Realtime connections | `realtime_logs` | Channel/connection state |
 | Pooler/PostgREST internals | `supavisor_logs`, `pgbouncer_logs`, `postgrest_logs` | Mostly `event_message` |
 
-## Common `log_attributes` keys
+## Minimal Logs Explorer queries (BigQuery — current dialect)
 
-- **`edge_logs`**: `request.method`, `request.path`, `request.search`, `response.status_code`, `identifier`, `request.cf.country`, `request.headers.user_agent`
-- **`postgres_logs`**: `parsed.error_severity`, `parsed.sql_state_code`, `parsed.user_name`, `parsed.database_name`, `parsed.query_id`, `identifier` — the statement text and error detail live in `event_message`, not in a `parsed.*` key (`parsed.query`/`parsed.detail` are almost always empty)
-- **`auth_logs`**: `level`, `status`, `path`, `msg`, `error`
-- **`function_edge_logs`**: `response.status_code`, `request.method`, `request.pathname`, `function_id`, `execution_id`, `execution_time_ms`
-- **`function_logs`**: `event_type`, `level`, `function_id`, `execution_id`
-
-**Discover keys from real data** instead of guessing:
-```sql
-select arrayJoin(mapKeys(log_attributes)) as key, count() as n
-from logs
-where source = 'postgres_logs'
-group by key order by n desc limit 100;
-```
-
-## Essential diagnostic queries
+Keep queries narrow: name the fields, filter first, cap the rows. BigQuery caps results at 1000 rows.
 
 Failing API requests by status:
 ```sql
-select timestamp,
-       toInt32OrZero(log_attributes['response.status_code']) as status,
-       log_attributes['request.method'] as method,
-       log_attributes['request.path'] as path
-from logs
-where source = 'edge_logs'
-  and toInt32OrZero(log_attributes['response.status_code']) >= 400
-order by timestamp desc limit 100;
+select timestamp, request.method, request.path, response.status_code
+from edge_logs
+  cross join unnest(metadata) as m
+  cross join unnest(m.request) as request
+  cross join unnest(m.response) as response
+where response.status_code >= 400
+order by timestamp desc
+limit 100;
 ```
 
-A specific SQLSTATE (e.g. `42501` permission denied, `42P01` relation missing, `23505` duplicate key):
+A specific Postgres SQLSTATE (e.g. `42501` permission denied, `42P01` relation missing, `23505` duplicate key):
 ```sql
-select timestamp,
-       log_attributes['parsed.user_name'] as role,
-       log_attributes['parsed.error_severity'] as severity,
-       event_message
-from logs
-where source = 'postgres_logs'
-  and log_attributes['parsed.sql_state_code'] = '42501'
-order by timestamp desc limit 100;
+select timestamp, event_message, parsed.error_severity, parsed.sql_state_code
+from postgres_logs
+  cross join unnest(metadata) as m
+  cross join unnest(m.parsed) as parsed
+where parsed.sql_state_code = '42501'
+order by timestamp desc
+limit 100;
 ```
 
-Auth errors:
-```sql
-select timestamp, event_message, log_attributes['msg'] as message
-from logs
-where source = 'auth_logs'
-  and log_attributes['level'] in ('error','fatal')
-order by timestamp desc limit 100;
-```
-
-Free-text search a raw message:
-```sql
-select timestamp, event_message
-from logs
-where source = 'postgres_logs' and event_message ilike '%deadlock%'
-order by timestamp desc limit 100;
-```
-
-Once a query gives you an anchor (timestamp, request id, SQLSTATE), pivot to the adjacent source filtered by it — for a failing API call, take the `timestamp` from `edge_logs` and read `postgres_logs` around it for the SQLSTATE.
+To follow a request across layers, take the `timestamp` from the `edge_logs` row and read `postgres_logs` in a tight window around it. For the exact field paths per source (they differ by table), see [Interpret the Postgres logs](https://supabase.com/docs/guides/troubleshooting/how-to-interpret-and-explore-the-postgres-logs-OuCIOj) and [API errors in the logs](https://supabase.com/docs/guides/troubleshooting/discovering-and-interpreting-api-errors-in-the-logs-7xREI9).
 
 ## Advisors — run these on any schema/security bug
 
