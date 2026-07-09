@@ -44,10 +44,33 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
 - **RLS, views, and privileged database code**
   - **Views bypass RLS by default.** In Postgres 15 and above, use `CREATE VIEW ... WITH (security_invoker = true)`. In older versions of Postgres, protect your views by revoking access from the `anon` and `authenticated` roles, or by putting them in an unexposed schema.
   - **UPDATE requires a SELECT policy.** In Postgres RLS, an UPDATE needs to first SELECT the row. Without a SELECT policy, updates silently return 0 rows — no error, just no change.
-  - **Do not put `security definer` functions in an exposed schema.** Keep them in a private or otherwise unexposed schema.
+  - **`auth.role()` is deprecated — use the `TO` clause instead.** Supabase has deprecated `auth.role()` in favour of specifying the target role directly on the policy with `TO authenticated` or `TO anon`. Beyond deprecation, `auth.role() = 'authenticated'` breaks silently when anonymous sign-ins are enabled, because anonymous users carry the `authenticated` Postgres role and pass the check regardless of whether the user is genuinely signed in.
+    ```sql
+    -- Deprecated (do not use)
+    create policy "example" on table_name for select
+    using ( auth.role() = 'authenticated' );
+    ```
+  - **`TO authenticated` alone is authentication without authorization (BOLA / IDOR).** Using `TO authenticated` only checks the role — it does not restrict which rows a user can access. The correct pattern combines `TO authenticated` with an ownership predicate in `USING`:
+    ```sql
+    create policy "example" on table_name for select
+    to authenticated
+    using ( (select auth.uid()) = user_id );
+    ```
+  - **UPDATE policies require both `USING` and `WITH CHECK`.** Without `WITH CHECK`, a user can reassign a row's `user_id` to another user:
+    ```sql
+    create policy "example" on table_name for update
+    to authenticated
+    using ( (select auth.uid()) = user_id )
+    with check ( (select auth.uid()) = user_id );
+    ```
+  - **`SECURITY DEFINER` functions bypass RLS.** A `SECURITY DEFINER` function runs with its creator's privileges — typically a role with `bypassrls` (e.g., `postgres`). Never add `SECURITY DEFINER` to resolve a permission error; it silently removes access control without fixing the underlying cause. Prefer `SECURITY INVOKER`.
+  - **`SECURITY DEFINER` functions in `public` are callable by all roles.** Postgres grants `EXECUTE` to `PUBLIC` by default for every new function, so any `SECURITY DEFINER` function in `public` is a public API endpoint callable by `anon` and `authenticated` (which inherit from `PUBLIC`) without any additional grant. When `SECURITY DEFINER` is genuinely needed (e.g., bypassing RLS on an internal lookup table), keep the function in a non-exposed schema, always include an `auth.uid()` check in the function body, and run `supabase db advisors` after making changes.
 
 - **Storage access control**
   - **Storage upsert requires INSERT + SELECT + UPDATE.** Granting only INSERT allows new uploads but file replacement (upsert) silently fails. You need all three.
+
+- **Dependency and supply-chain security**
+  - **Always pin package versions and commit lockfiles** when installing Supabase packages (`supabase-js`, `@supabase/ssr`, `supabase-py`, etc.). See the [npm security guide](https://supabase.com/docs/guides/security/npm-security.md) for the full checklist.
 
 For any security concern not covered above, fetch the Supabase product security index: `https://supabase.com/docs/guides/security/product-security.md`
 
@@ -65,7 +88,7 @@ supabase <group> <command> --help  # Flags for a specific command
 
 - `supabase db query` requires **CLI v2.79.0+** → use MCP `execute_sql` or `psql` as fallback
 - `supabase db advisors` requires **CLI v2.81.3+** → use MCP `get_advisors` as fallback
-- To author a migration **by hand** (imperative workflow only), create the file with `supabase migration new <name>` — never invent a filename. For **declarative-schema** changes, do NOT use `migration new` — see "Making and Committing Schema Changes" below.
+- In imperative migration projects, create new hand-authored migration files with `supabase migration new <name>` first. Never invent a migration filename or rely on memory for the expected format. Declarative schema projects generate migrations from `supabase/schemas/`; see "Making and Committing Schema Changes" below.
 
 **Version check and upgrade:** Run `supabase --version` to check. For CLI changelogs and version-specific features, consult the [CLI documentation](https://supabase.com/docs/reference/cli/introduction) or [GitHub releases](https://github.com/supabase/cli/releases).
 
@@ -95,24 +118,25 @@ Before implementing any Supabase feature, find the relevant documentation. Use t
 
 ## Making and Committing Schema Changes
 
-**First decide which workflow the project uses — they generate migrations differently, and mixing them corrupts your diffs.** Check whether a `supabase/schemas/` directory exists (or the task explicitly mentions "declarative schema"):
+First decide which schema workflow the project uses.
 
-- **Declarative schema** (`supabase/schemas/` present, or asked for) → you edit the desired end-state and the CLI *generates* the migration. Use approach A.
-- **Imperative** (no `supabase/schemas/`) → you change the database directly and *snapshot* a migration. Use approach B.
+### Option A: Declarative schemas
 
-### A. Declarative schema (`supabase/schemas/`)
+Use this when `supabase/schemas/` exists or `config.toml` sets `schema_paths`. Edit the desired schema state in those files, then generate and review the migration. Do not start by hand-writing a migration. See the [Declarative database schemas guide](https://supabase.com/docs/guides/local-development/declarative-database-schemas).
 
-The desired end-state lives in `supabase/schemas/*.sql` and the CLI **generates** the migration by diffing it — so do NOT hand-write the migration or use `supabase migration new` for these changes. The exact commands, flags, and diff limitations change between CLI versions, so look up the current workflow rather than relying on memory: search the supabase documentation for "Declarative database schemas".
+### Option B: Imperative migrations
 
-### B. Imperative (no declarative schema)
+Use this when the project does not use declarative schemas.
 
-**Make changes with `execute_sql` (MCP) or `supabase db query` (CLI).** These run SQL directly without creating migration-history entries, so you can iterate freely. Do NOT use `apply_migration` to change a local schema — it writes a migration-history entry on every call, so you can't iterate and `supabase db diff`/`db pull` will produce empty or conflicting diffs.
+**To make schema changes, use `execute_sql` (MCP) or `supabase db query` (CLI).** These run SQL directly on the database without creating migration history entries, so you can iterate freely and generate a clean migration when ready.
 
-**When ready to commit:**
+Do NOT use `apply_migration` to change a local database schema — it writes a migration history entry on every call, which means you can't iterate, and `supabase db diff` / `supabase db pull` will produce empty or conflicting diffs. If you use it, you'll be stuck with whatever SQL you passed on the first try.
+
+**When ready to commit** your changes to a migration file:
 
 1. **Run advisors** → `supabase db advisors` (CLI v2.81.3+) or MCP `get_advisors`. Fix any issues.
 2. **Review the Security Checklist above** if your changes involve views, functions, triggers, or storage.
-3. **Snapshot the migration** → `supabase db diff -f <name>` (diffs the local DB against existing migrations), or `supabase db pull <name> --local --yes` to capture current state.
+3. **Generate the migration** → `supabase db pull <descriptive-name> --local --yes`
 4. **Verify** → `supabase migration list --local`
 
 ## Reference Guides
