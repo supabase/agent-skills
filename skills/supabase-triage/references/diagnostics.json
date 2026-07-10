@@ -1,0 +1,164 @@
+{
+  "_readme": "Consumed by workflows/triage.js's live-mcp-diagnosis search branch (only runs when args.project_id is set). Every 'sql' value is copied verbatim from the already-cited entries in references/*.md — do not hand-write new/optimized queries here. Entries with 'requiresParam' need a single placeholder token (e.g. <tableName>) substituted from the reported symptom text before running — the live-diagnosis agent is only allowed to do that one substitution, never construct new SQL. Log-service queries have no 'sql' because the MCP get_logs tool takes no filter argument — logFilterHints describe what to text-search for in the returned last-24h log lines.",
+
+  "queryLibrary": {
+    "cacheHitRate": {
+      "sql": "select 'index hit rate' as name, sum(idx_blks_hit)/nullif(sum(idx_blks_hit+idx_blks_read),0) as ratio from pg_statio_user_indexes union all select 'table hit rate' as name, sum(heap_blks_hit)/nullif(sum(heap_blks_hit)+sum(heap_blks_read),0) as ratio from pg_statio_user_tables;",
+      "interpret": "ratio should be >= 0.99; a lower ratio supports 'undersized cache/compute or missing indexes' as the cause",
+      "source": "https://github.com/orgs/supabase/discussions/22449"
+    },
+    "maxConnections": {
+      "sql": "SHOW max_connections;",
+      "interpret": "establishes the hard Postgres connection ceiling; compare against pgStatActivity's live connection count to see how close the project is to it",
+      "source": "https://github.com/orgs/supabase/discussions/27388"
+    },
+    "datconnlimit": {
+      "sql": "select datconnlimit from pg_database where datname='postgres';",
+      "interpret": "anything other than -1 supports 'datconnlimit was manually misconfigured' as the cause of connection refusals",
+      "source": "https://github.com/orgs/supabase/discussions/45579"
+    },
+    "pgStatActivity": {
+      "sql": "SELECT * FROM pg_stat_activity WHERE application_name ILIKE 'pg_cron scheduler';",
+      "interpret": "no row returned confirms the pg_cron scheduler process has died (needs a fast reboot); also useful more generally to see what's currently connected/running when investigating connection-limit or high-CPU symptoms",
+      "source": "https://github.com/orgs/supabase/discussions/30168"
+    },
+    "cronJobHealth": {
+      "sql": "SELECT * FROM cron.job_run_details WHERE status NOT IN ('succeeded','running') AND start_time > NOW() - INTERVAL '5 days' ORDER BY start_time DESC;",
+      "interpret": "non-empty rows identify which specific scheduled job(s) are failing and why",
+      "source": "https://github.com/orgs/supabase/discussions/30168"
+    },
+    "roleConfig": {
+      "sql": "SELECT rolname, rolconfig FROM pg_roles;",
+      "interpret": "a tight statement_timeout in rolconfig for the affected role supports 'role-level timeout is cancelling the query' as the cause",
+      "source": "https://github.com/orgs/supabase/discussions/14256"
+    }
+  },
+
+  "categories": {
+    "auth": {
+      "liveDiagnosable": true,
+      "logServices": ["auth", "postgres"],
+      "logFilterHints": [
+        "postgres logs: text-search for error_severity ERROR/FATAL/PANIC combined with user_name supabase_auth_admin — confirms a 500 Auth error is DB-driven",
+        "postgres logs: text-search for 'converting NULL to string is unsupported' — confirms the direct-SQL-insert cause of 'Database error saving new user'",
+        "auth logs: text-search for SMTP/handover error messages — confirms an email-delivery misconfiguration vs. a provider/recipient-side cause"
+      ],
+      "sqlQueries": [],
+      "advisorTypes": [],
+      "notes": "no queryLibrary reuse; this category is log-filter only. auth.md's 'Resolving 500 status Auth errors' entry shows a 'SQL to run in the Log Explorer' snippet (cross join unnest(metadata)...) that is BigQuery/Logflare dialect — NOT valid Postgres, do not run it via execute_sql; use get_logs(service='postgres') + text search per logFilterHints instead."
+    },
+    "rls": {
+      "liveDiagnosable": true,
+      "logServices": ["postgres"],
+      "logFilterHints": [
+        "postgres logs: text-search for 'infinite recursion detected in policy for relation' — confirms circular RLS policies"
+      ],
+      "sqlQueries": [
+        {
+          "name": "httpRequestQueue",
+          "sql": "select * from net.http_request_queue;",
+          "interpret": "non-empty result (or the query itself erroring) informs whether a clean pg_net extension reinstall is safe",
+          "source": "https://github.com/orgs/supabase/discussions/21450"
+        }
+      ],
+      "advisorTypes": ["security", "performance"],
+      "notes": "disproportionately advisor-shaped: RLS-enabled-with-no-policy, missing index on an RLS predicate column, and the Storage INSERT/SELECT policy asymmetry are all things get_advisors can flag directly"
+    },
+    "database-postgres": {
+      "liveDiagnosable": true,
+      "logServices": ["postgres"],
+      "logFilterHints": [
+        "postgres logs: text-search for '42P01' or 'relation ... does not exist' to correlate with a specific table/timestamp",
+        "postgres logs: text-search for 'duplicate key violates unique constraint' to correlate with a specific sequence table"
+      ],
+      "sqlQueries": [
+        "cacheHitRate",
+        "pgStatActivity",
+        "cronJobHealth",
+        "roleConfig",
+        {
+          "name": "tableExists",
+          "sql": "select * from information_schema.tables where table_name ilike '<tableName>';",
+          "interpret": "a row returned (with unexpected schema/case) supports a search-path or case-sensitivity cause; no row supports the table genuinely not existing",
+          "requiresParam": "tableName",
+          "source": "https://github.com/orgs/supabase/discussions/29577"
+        }
+      ],
+      "advisorTypes": ["performance"],
+      "notes": "richest category for queryLibrary reuse (4 of 5 shared keys apply here)"
+    },
+    "postgrest-api": {
+      "liveDiagnosable": true,
+      "logServices": ["api", "postgres"],
+      "logFilterHints": [
+        "postgres logs: text-search for sql_state_code 42501 to isolate the exact failing statement/user",
+        "api logs: text-search for 'PGRST002' to confirm a dropped-but-still-exposed schema"
+      ],
+      "sqlQueries": [
+        {
+          "name": "grantsCheck",
+          "sql": "select grantee, privilege_type from information_schema.role_table_grants where table_name = '<tableName>';",
+          "interpret": "a missing SELECT/INSERT/UPDATE/DELETE grant for anon/authenticated supports a grants-based 42501, as opposed to a forbidden-schema or exposed-schema-config cause",
+          "requiresParam": "tableName",
+          "source": "https://github.com/orgs/supabase/discussions/31293"
+        }
+      ],
+      "advisorTypes": [],
+      "notes": "the postgres_logs SQL shown in postgrest-api.md's 42501 entry is BigQuery/Logflare dialect (cross join unnest(metadata)...) — NOT valid Postgres, do not run it via execute_sql; use get_logs(service='postgres') + text search instead"
+    },
+    "edge-functions": {
+      "liveDiagnosable": true,
+      "logServices": ["edge-function"],
+      "logFilterHints": [
+        "filter returned lines by the status_code mentioned in the symptom (401/404/500/504/546)",
+        "null execution_id on a 401/404 usually means platform-level (before your code ran); a present execution_id means your code returned it",
+        "for 546: look for 'Memory limit exceeded' / 'CPU Time exceeded' in the event_message",
+        "for 504: look for consistently high execution_time_ms on the same function pathname"
+      ],
+      "sqlQueries": [],
+      "advisorTypes": [],
+      "notes": "richest live category overall — 5 of 10 curated entries (401/404/500/504/546) share this exact status_code + execution_id filter shape over one log service"
+    },
+    "realtime-storage": {
+      "liveDiagnosable": true,
+      "logServices": ["realtime", "postgres", "api"],
+      "logFilterHints": [
+        "realtime logs: text-search for 'RealtimeDisabledForTenant' (project suspended for quota) or 'ChannelRateLimitReached' (TooManyChannels)",
+        "postgres logs: text-search for 'relation \"objects\" does not exist' (Storage search_path misconfiguration)",
+        "api logs: look for endpoints with disproportionate request volume/response size when investigating an egress symptom"
+      ],
+      "sqlQueries": [],
+      "advisorTypes": ["security"],
+      "notes": "advisorTypes targets the Storage INSERT/SELECT RLS policy asymmetry (403 on upload); heartbeat and client-side logger entries in this category are not server-observable at all"
+    },
+    "connections-pooling": {
+      "liveDiagnosable": true,
+      "logServices": ["postgres"],
+      "logFilterHints": [
+        "text-search for 'Circuit breaker open' / 'too many authentication failures' (post-password-rotation lockout)",
+        "text-search for 'remaining connection slots reserved for non-replication superuser connections'",
+        "text-search for 'prepared_statement \"...\" does not exist' / 'already exists' or 'cursor/portal \"...\" does not exist' / 'already exists' (pooler session-artifact errors)"
+      ],
+      "sqlQueries": ["maxConnections", "datconnlimit", "pgStatActivity"],
+      "advisorTypes": [],
+      "notes": "connection-limit checks recur 4x across this category's curated entries — collapsed into the shared queryLibrary keys"
+    },
+    "performance-monitoring": {
+      "liveDiagnosable": "partial",
+      "logServices": ["edge-function"],
+      "logFilterHints": [
+        "for the 'Project Status reports unhealthy services' entry's Edge-Functions-only case: filter edge-function logs for event_message containing 'health' to check whether only health-check pings are failing (a common false positive) vs. real invocations"
+      ],
+      "sqlQueries": ["cacheHitRate"],
+      "advisorTypes": ["performance"],
+      "notes": "7 of 9 entries in this category (Grafana CPU/RAM/swap/IO chart interpretation, latency benchmarking) require dashboards the MCP tools cannot read at all — for any symptom that lands here but isn't the cache-hit-rate or unhealthy-services case, skip live checks and fall back to research-only"
+    },
+    "self-hosting-misc": {
+      "liveDiagnosable": false,
+      "logServices": [],
+      "sqlQueries": [],
+      "advisorTypes": [],
+      "notes": "self-hosted infra (Kong/Docker logs) isn't project_id-scoped/MCP-reachable at all; the remaining entries are pure dashboard/CLI actions (pause/restore/region/password) with no live check to run — always research-only for this category"
+    }
+  }
+}

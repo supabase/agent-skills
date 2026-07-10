@@ -14,6 +14,7 @@ const SKILLS_DIR = join(__dirname, "..", "skills");
 const PUBLIC_SKILL_NAMES = [
 	"supabase",
 	"supabase-postgres-best-practices",
+	"supabase-triage",
 ] as const;
 
 type InstallResult = {
