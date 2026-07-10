@@ -49,7 +49,7 @@ order by timestamp desc limit 100;
 
 **Don't guess `log_attributes` keys.** A missing key silently returns `''`, so a guessed key makes a working query look empty. Discover real keys with `select arrayJoin(mapKeys(log_attributes)) as k, count() from logs where source = '...' group by k order by 2 desc`, or read `event_message` (always present; statement text and error detail live there, not in `parsed.query`/`parsed.detail`, which are almost always empty).
 
-The [Logs Explorer guide](https://supabase.com/docs/guides/telemetry/logs) covers the sources, best practices, and the field reference. Note: it still shows the legacy **BigQuery** dialect (`cross join unnest(metadata)` against per-source tables) and lags the ClickHouse default, so translate those `unnest` joins into `log_attributes['...']` lookups, or use `get_logs` to skip SQL entirely.
+The [Logs Explorer guide](https://supabase.com/docs/guides/telemetry/logs.md) covers the sources, best practices, and the field reference. Note: it still shows the legacy **BigQuery** dialect (`cross join unnest(metadata)` against per-source tables) and lags the ClickHouse default, so translate those `unnest` joins into `log_attributes['...']` lookups, or use `get_logs` to skip SQL entirely.
 
 ## Which source for which problem
 
@@ -76,7 +76,7 @@ Advisors are built-in security and performance linters. Run **`get_advisors(proj
 
 ## Deeper diagnostics
 
-For topics beyond the request-stack layers, find the current guide with `search_docs` or the [troubleshooting index](https://supabase.com/docs/guides/troubleshooting) rather than working from memory:
+For topics beyond the request-stack layers, find the current guide with `search_docs` or the [troubleshooting index](https://supabase.com/docs/guides/troubleshooting.md) rather than working from memory:
 
 - **Interpreting logs per source**, field by field.
 - **Supabase-specific HTTP status codes**: `402` fair-use, `540` paused, `544` gateway timeout guard, `546` Edge Function resource limit.
