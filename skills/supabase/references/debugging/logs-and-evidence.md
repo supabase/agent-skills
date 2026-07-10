@@ -74,13 +74,13 @@ Advisors are built-in security and performance linters. Run **`get_advisors(proj
 - **`execute_sql(project_id, query)`** — run any diagnostic SQL directly (`pg_class`, `pg_policies`, `information_schema` checks).
 - **`list_extensions`**, **`list_migrations`** — confirm an extension is installed / a migration applied.
 
-## Deeper diagnostics — read the guide
+## Deeper diagnostics
 
-These have dedicated troubleshooting guides that stay current; fetch the relevant one as Markdown (append `.md`) rather than working from memory.
+For topics beyond the request-stack layers, find the current guide with `search_docs` or the [troubleshooting index](https://supabase.com/docs/guides/troubleshooting) rather than working from memory:
 
-- **Interpreting logs per source** (field-by-field): [Postgres logs](https://supabase.com/docs/guides/troubleshooting/how-to-interpret-and-explore-the-postgres-logs-OuCIOj), [API errors in the logs](https://supabase.com/docs/guides/troubleshooting/discovering-and-interpreting-api-errors-in-the-logs-7xREI9).
-- **Supabase-specific HTTP status codes** (`402` fair-use, `540` paused, `544` gateway timeout guard, `546` Edge Function resource limit): [HTTP status codes](https://supabase.com/docs/guides/troubleshooting/http-status-codes).
-- **Metrics & resources** (Reports, Grafana, memory/IO/CPU charts): [View DB metrics](https://supabase.com/docs/guides/troubleshooting/how-to-view-database-metrics-uqf2z_), [Memory charts](https://supabase.com/docs/guides/troubleshooting/supabase-grafana-memory-charts), [IO charts](https://supabase.com/docs/guides/troubleshooting/interpreting-supabase-grafana-io-charts-MUynDR), [High CPU](https://supabase.com/docs/guides/troubleshooting/high-cpu-usage). Remediate IO/memory strain (indexes, compute, read replica, partitioning) with the **supabase-postgres-best-practices** skill.
-- **Postgres logging levels** (never leave `DEBUG`/`INFO`/`NOTICE` on — they flood the disk): [Logging levels](https://supabase.com/docs/guides/troubleshooting/understanding-postgresql-logging-levels-and-how-they-impact-your-project-KXiJRm).
-- **EXPLAIN and query plans**: [Understanding EXPLAIN](https://supabase.com/docs/guides/troubleshooting/understanding-postgresql-explain-output-Un9dqX), [EXPLAIN on functions](https://supabase.com/docs/guides/troubleshooting/running-explain-analyze-on-functions). For turning a diagnosed slow query into an optimized one, use the **supabase-postgres-best-practices** skill.
-- **pg_cron & webhook health** (`pg_net`/`pg_cron` fail silently when their worker dies): [Webhook debugging](https://supabase.com/docs/guides/troubleshooting/webhook-debugging-guide-M8sk47), [pg_cron debugging](https://supabase.com/docs/guides/troubleshooting/pgcron-debugging-guide-n1KTaz).
+- **Interpreting logs per source**, field by field.
+- **Supabase-specific HTTP status codes**: `402` fair-use, `540` paused, `544` gateway timeout guard, `546` Edge Function resource limit.
+- **Metrics & resources**: Reports, Grafana, memory/IO/CPU charts. Remediate IO/memory strain (indexes, compute, read replica, partitioning) with the **supabase-postgres-best-practices** skill.
+- **Postgres logging levels**: never leave `DEBUG`/`INFO`/`NOTICE` on; they flood the disk.
+- **EXPLAIN and query plans**. For turning a diagnosed slow query into an optimized one, use the **supabase-postgres-best-practices** skill.
+- **pg_cron & webhook health**: `pg_net`/`pg_cron` fail silently when their worker dies.
