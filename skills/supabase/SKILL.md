@@ -141,9 +141,7 @@ Do NOT use `apply_migration` to change a local database schema — it writes a m
 
 ## Debugging
 
-When a Supabase request fails or behaves unexpectedly (an error code such as `401`/`403`/`500`/`546`, `42501`, `42P01`, or `PGRST002`, an empty result, an RLS surprise, broken auth, or an Edge Function, Realtime, or Storage failure), you **must** consult Supabase's debugging documentation before diagnosing or proposing a fix, rather than working from memory. Start from the [Debugging guide](https://supabase.com/docs/guides/telemetry/debugging.md): it carries the debugging loop, the request-stack model, and a symptom-to-layer router to the troubleshooting guide for the specific cause and fix. Read the current guide for the symptom; how you fetch it is up to the tools your environment provides.
-
-When the investigation involves logs, you **must** also read [references/debugging/logs-and-evidence.md](references/debugging/logs-and-evidence.md) before querying or interpreting them. It carries the log-querying method (query narrow: one `source`, a bounded window, only the columns you need; MCP `get_logs` vs the Logs Explorer) that has no docs equivalent yet.
+When a Supabase request fails or behaves unexpectedly (an error code such as `401`/`403`/`500`/`546`, `42501`, `42P01`, or `PGRST002`, an empty result, an RLS surprise, broken auth, or an Edge Function, Realtime, or Storage failure), you **must** consult Supabase's debugging documentation before diagnosing or proposing a fix, rather than working from memory. Start from the [Debugging guide](https://supabase.com/docs/guides/telemetry/debugging.md): it carries the debugging loop, the request-stack model, and a symptom-to-layer router to the troubleshooting guide for the specific cause and fix. When the investigation involves logs, the [Logging guide](https://supabase.com/docs/guides/telemetry/logs.md) covers how to query them, including the narrow-query discipline and both the ClickHouse and BigQuery syntax. Read the current guide for the symptom; how you fetch it is up to the tools your environment provides.
 
 ## Reference Guides
 
