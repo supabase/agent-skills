@@ -1,6 +1,6 @@
 # Logs & evidence
 
-Evidence comes first. Before hypothesizing, pull the logs for the failing layer, run the advisors, and inspect the schema. This file is the log-querying method the debugging loop relies on; the per-symptom causes and fixes live in the troubleshooting guides linked from [index.md](index.md).
+Evidence comes first. Before hypothesizing, pull the logs for the failing layer, run the advisors, and inspect the schema. This file is the log-querying method the debugging loop relies on; the loop, request-stack model, and per-symptom routing live in the [Debugging guide](https://supabase.com/docs/guides/telemetry/debugging.md) in the docs.
 
 ## Query narrow, widen deliberately
 
