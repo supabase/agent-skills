@@ -1,6 +1,6 @@
 ---
 name: supabase-postgres-best-practices
-description: Postgres performance optimization and best practices from Supabase. Use this skill when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations.
+description: Postgres performance optimization and best practices from Supabase. Use this skill when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations. Also use when scaffolding a new Supabase project, creating tables, setting up or using a database, or building a backend for the first time.
 license: MIT
 metadata:
   author: supabase
@@ -37,22 +37,27 @@ Reference these guidelines when:
 | 7 | Monitoring & Diagnostics | LOW-MEDIUM | `monitor-` |
 | 8 | Advanced Features | LOW | `advanced-` |
 
+## Reference Loading Guide
+
+Load references based on the task at hand:
+
+| Scenario | Load these first |
+|----------|-----------------|
+| Scaffolding a new project / creating tables | `schema-primary-keys.md`, `schema-data-types.md`, `conn-pooling.md` |
+| Slow queries / performance investigation | `monitor-explain-analyze.md`, `query-missing-indexes.md`, `monitor-pg-stat-statements.md` |
+| Too many connections / connection errors | `conn-pooling.md`, `conn-limits.md`, `conn-idle-timeout.md` |
+| RLS / access control | `security-rls-basics.md`, `security-rls-performance.md`, `security-privileges.md` |
+| Deadlocks / blocking queries | `lock-deadlock-prevention.md`, `lock-short-transactions.md`, `lock-advisory.md` |
+| Bulk inserts / data migrations | `data-batch-inserts.md`, `data-upsert.md`, `lock-short-transactions.md` |
+| Pagination / large result sets | `data-pagination.md`, `query-missing-indexes.md` |
+
 ## How to Use
 
-Read individual rule files for detailed explanations and SQL examples:
-
-```
-references/query-missing-indexes.md
-references/query-partial-indexes.md
-references/_sections.md
-```
-
-Each rule file contains:
+Read individual rule files for detailed explanations and SQL examples. Each rule file contains:
 - Brief explanation of why it matters
 - Incorrect SQL example with explanation
 - Correct SQL example with explanation
 - Optional EXPLAIN output or metrics
-- Additional context and references
 - Supabase-specific notes (when applicable)
 
 ## References
