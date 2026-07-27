@@ -88,6 +88,7 @@ supabase <group> <command> --help  # Flags for a specific command
 
 - `supabase db query` requires **CLI v2.79.0+** → use MCP `execute_sql` or `psql` as fallback
 - `supabase db advisors` requires **CLI v2.81.3+** → use MCP `get_advisors` as fallback
+- In detected agent environments (Codex, Cursor agents, etc.), the CLI may auto-select JSON / non-interactive output. Interactive commands such as `supabase login` can then fail with `NonInteractiveError: Cannot prompt for input in JSON output mode`. Check global flags with `supabase --help`. If your installed version supports it (e.g. CLI `2.107.0+`), run one-time interactive flows with an explicit override such as `supabase --agent no login ...`. For automation, keep agent mode enabled and pass every required value via flags instead of relying on prompts.
 - In imperative migration projects, create new hand-authored migration files with `supabase migration new <name>` first. Never invent a migration filename or rely on memory for the expected format. Declarative schema projects generate migrations from `supabase/schemas/`; see "Making and Committing Schema Changes" below.
 
 **Version check and upgrade:** Run `supabase --version` to check. For CLI changelogs and version-specific features, consult the [CLI documentation](https://supabase.com/docs/reference/cli/introduction) or [GitHub releases](https://github.com/supabase/cli/releases).
