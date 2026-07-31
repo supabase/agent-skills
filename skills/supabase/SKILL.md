@@ -15,6 +15,12 @@ Do not rely on training data for Supabase features. Function signatures, config.
 
 First, fetch `https://supabase.com/changelog.md` (a lightweight summary index — not a heavy pull), scan for `breaking-change` tags relevant to your task, and follow the linked page for any that apply. Then look up the relevant topic using the documentation access methods below.
 
+**Hosted auth email templates (Free tier, 2026-06-03).** Before recommending any auth email-template edit (Magic Link, confirmation, password recovery, `TokenHash` / PKCE link changes), verify that the project can actually edit templates:
+
+1. Check the [email template customisation changelog](https://supabase.com/changelog/46599-changes-to-email-template-customisation-on-free-tier): from **3 June 2026**, **new Free-plan projects** using Supabase **default SMTP** cannot customize auth email templates (subject/body are read-only; default `ConfirmationURL` templates are used as-is).
+2. Existing Free projects created before that date, **Pro+** plans, and Free projects with **custom SMTP** (or an equivalent send-email hook) can still edit templates.
+3. If templates are locked, do **not** recommend PKCE/`TokenHash` template changes. Prefer configuring custom SMTP first, or use a client/server flow compatible with the locked default template instead of assuming the dashboard can be edited.
+
 **2. Verify your work.**
 After implementing any fix, run a test query to confirm the change works. A fix without verification is incomplete.
 
@@ -37,6 +43,7 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
   - **Never use `user_metadata` claims in JWT-based authorization decisions.** In Supabase, `raw_user_meta_data` is user-editable and can appear in `auth.jwt()`, so it is unsafe for RLS policies or any other authorization logic. Store authorization data in `raw_app_meta_data` / `app_metadata` instead.
   - **Deleting a user does not invalidate existing access tokens.** Sign out or revoke sessions first, keep JWT expiry short for sensitive apps, and for strict guarantees validate `session_id` against `auth.sessions` on sensitive operations.
   - **If you use `app_metadata` or `auth.jwt()` for authorization, remember JWT claims are not always fresh until the user's token is refreshed.**
+  - **Do not assume auth email templates are editable.** On new Free-plan projects using default SMTP (from 3 June 2026), templates are locked. Confirm editability before recommending Magic Link / recovery template changes; otherwise configure custom SMTP or keep a flow compatible with the default template. See **Hosted auth email templates** under principle 1.
 
 - **API key and client exposure**
   - **Never expose the `service_role` or secret key in public clients.** Prefer publishable keys for frontend code. Legacy `anon` keys are only for compatibility. In Next.js, any `NEXT_PUBLIC_` env var is sent to the browser.
