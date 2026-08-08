@@ -40,6 +40,9 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
 
 - **API key and client exposure**
   - **Never expose the `service_role` or secret key in public clients.** Prefer publishable keys for frontend code. Legacy `anon` keys are only for compatibility. In Next.js, any `NEXT_PUBLIC_` env var is sent to the browser.
+  - **Never paste `sb_secret_...` (or other secret) keys into browser-based test UIs.** Requests from a browser User-Agent — including the Supabase Dashboard Edge Function test panel — are rejected with HTTP 401. For preview/staging checks, use a locally controlled terminal or server-side runner (for example `curl`) and pass the key through a non-persistent environment prompt, not a web form.
+  - **Opaque publishable/secret keys and Edge Functions.** When a function uses new opaque keys, deploy with `verify_jwt = false` only if the function implements its own fail-closed authorization. Prefer application-level auth over relying on gateway JWT verification alone in that setup.
+  - **Distinguish gateway vs function auth failures.** Gateway-level `Invalid API key` / 401 responses mean the key was rejected before invocation. Edge runtime response headers plus a function-defined body mean the request reached application code (then inspect the function's own `unauthorized` handling).
 
 - **RLS, views, and privileged database code**
   - **Views bypass RLS by default.** In Postgres 15 and above, use `CREATE VIEW ... WITH (security_invoker = true)`. In older versions of Postgres, protect your views by revoking access from the `anon` and `authenticated` roles, or by putting them in an unexposed schema.
