@@ -29,7 +29,7 @@ create policy orders_policy on orders
 
 Use security definer functions for complex checks:
 
-`SECURITY DEFINER` functions run with the creator's privileges and bypass RLS on any tables they touch — which is what makes them useful for internal lookups, but also what makes them dangerous if misused. Always include an explicit `auth.uid()` check inside the function body, keep them in a non-exposed schema, and revoke `EXECUTE` from any role that shouldn't call them directly.
+`SECURITY DEFINER` functions run with the creator's privileges and bypass RLS on any tables they touch — which is what makes them useful for internal lookups, but also what makes them dangerous if misused. Always include an explicit `auth.uid()` check inside the function body and keep helpers in a non-exposed schema. Revoke `EXECUTE` from roles that should not invoke the helper, but roles whose RLS policies evaluate through it still need schema `USAGE` and function `EXECUTE`. `SECURITY DEFINER` does not remove that caller privilege check.
 
 ```sql
 -- Create helper function in a private schema
@@ -46,12 +46,41 @@ as $$
   );
 $$;
 
--- Revoke direct execution from public roles
-revoke execute on function private.is_team_member(bigint) from PUBLIC, anon, authenticated, service_role;
+-- Revoke broad/default execution; keep anonymous callers out
+revoke execute on function private.is_team_member(bigint) from PUBLIC;
+revoke execute on function private.is_team_member(bigint) from anon;
+
+-- Authenticated policy evaluation still requires schema USAGE + EXECUTE
+grant usage on schema private to authenticated;
+grant execute on function private.is_team_member(bigint) to authenticated;
 
 -- Use in policy (indexed lookup, not per-row check)
 create policy team_orders_policy on orders
+  to authenticated
   using ((select private.is_team_member(team_id)));
+```
+
+Keep the helper schema out of PostgREST's exposed schemas. Schema `USAGE` for `authenticated` only allows PostgreSQL to resolve the helper during policy evaluation; it does not publish the schema through the Data API.
+
+Verify the allowlist under the real policy role before relying on application traffic:
+
+```sql
+begin;
+
+set local role authenticated;
+
+select
+  has_schema_privilege(current_user, 'private', 'USAGE') as can_use_private_schema,
+  has_function_privilege(
+    current_user,
+    'private.is_team_member(bigint)',
+    'EXECUTE'
+  ) as can_execute_helper;
+
+-- Also exercise a query protected by the policy under this role
+-- against your real application schema.
+
+rollback;
 ```
 
 Always add indexes on columns used in RLS policies:
