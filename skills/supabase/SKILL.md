@@ -1,6 +1,6 @@
 ---
 name: supabase
-description: "Use when doing ANY task involving Supabase. Triggers: Supabase products (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues); client libraries and SSR integrations (supabase-js, @supabase/ssr) in Next.js, React, SvelteKit, Astro, Remix; auth issues (login, logout, sessions, JWT, cookies, getSession, getUser, getClaims, RLS); Supabase CLI or MCP server; schema changes, migrations, declarative schemas, security audits, Postgres extensions (pg_graphql, pg_cron, pg_vector); debugging errors or unexpected behavior (empty query results, 401/403/500/503/546, 42501, 42P01, PGRST002, permission denied, schema cache, statement timeout, too many connections, prepared statement already exists, Edge Function crashes, Realtime drops, Storage upload failures) and reading or querying logs (Logs Explorer, ClickHouse, query_logs, get_logs)."
+description: "Use when doing ANY task involving Supabase. Triggers: Supabase products (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues); client libraries and SSR integrations (supabase-js, @supabase/ssr) in Next.js, React, SvelteKit, Astro, Remix; auth issues (login, logout, sessions, JWT, cookies, getSession, getUser, getClaims, RLS); Supabase CLI or MCP server; schema changes, migrations, declarative schemas, security audits, Postgres extensions (pg_graphql, pg_cron, pg_vector); debugging and troubleshooting errors or unexpected behavior on Supabase projects (HTTP errors, Postgres errors, RLS surprises, permission denied, schema cache issues, timeouts, Edge Function crashes, Realtime drops, Storage failures) and reading or querying logs (Logs Explorer, ClickHouse, query_logs, get_logs)."
 metadata:
   author: supabase
   version: "0.1.2"
@@ -141,7 +141,7 @@ Do NOT use `apply_migration` to change a local database schema — it writes a m
 
 ## Debugging
 
-When a Supabase request fails or behaves unexpectedly (an error code such as `401`/`403`/`500`/`546`, `42501`, `42P01`, or `PGRST002`, an empty result, an RLS surprise, broken auth, or an Edge Function, Realtime, or Storage failure), you **must** consult Supabase's [Monitoring and Debugging](https://supabase.com/docs/guides/monitoring-and-debugging.md) documentation before diagnosing or proposing a fix, rather than working from memory. It routes to the debugging loop, the logging and log-filtering guides, and the troubleshooting index for the specific cause and fix. Read the current guide for the symptom; how you fetch it is up to the tools your environment provides.
+When you get an error on a Supabase-related request, for example an error code from the Supabase REST API, Postgres database, or PostgREST, an empty result, getting blocked by RLS unexpectedly, or an error from a Supabase service like Auth, Realtime, Edge Functions, or Storage, you **must** fetch Supabase's [Monitoring and Debugging](https://supabase.com/docs/guides/monitoring-and-debugging.md) documentation before diagnosing or proposing a fix, rather than working from memory.
 
 ## Reference Guides
 
