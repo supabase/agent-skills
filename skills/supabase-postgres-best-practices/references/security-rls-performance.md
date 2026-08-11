@@ -29,7 +29,7 @@ create policy orders_policy on orders
 
 Use security definer functions for complex checks:
 
-`SECURITY DEFINER` functions run with the creator's privileges and bypass RLS on any tables they touch — which is what makes them useful for internal lookups, but also what makes them dangerous if misused. Always include an explicit `auth.uid()` check inside the function body and keep helpers in a non-exposed schema. Revoke `EXECUTE` from roles that should not invoke the helper. Roles whose RLS policies evaluate through a stored helper still need `EXECUTE` on that exact function; `SECURITY DEFINER` does not remove that caller privilege check. Direct schema lookups normally require schema `USAGE`, but an RLS policy created with the helper already resolved stores the function OID, so the policy-calling role does not need schema-wide `USAGE` merely to evaluate that stored helper. Keeping schema `USAGE` revoked reduces unnecessary access to other private-schema objects.
+`SECURITY DEFINER` functions run with the creator's privileges and bypass RLS on any tables they touch — which is what makes them useful for internal lookups, but also what makes them dangerous if misused. Always include an explicit `auth.uid()` check inside the function body and keep helpers in a non-exposed schema. Revoke `EXECUTE` from roles that should not invoke the helper. Roles whose RLS policies evaluate through a stored helper still need `EXECUTE` on that exact function; `SECURITY DEFINER` does not remove that caller privilege check. Direct schema lookups normally require schema `USAGE`, but an RLS policy created with the helper already resolved stores the function OID, so the policy-calling role does not need schema-wide `USAGE` merely to evaluate that stored helper. Keep schema `USAGE` explicitly revoked for API roles so they cannot resolve unrelated private-schema objects.
 
 ```sql
 -- Create helper function in a private schema
@@ -46,12 +46,16 @@ as $$
   );
 $$;
 
--- Revoke broad/default execution; keep anonymous callers out
+-- Keep direct private-schema resolution unavailable to API roles
+revoke usage on schema private from PUBLIC;
+revoke usage on schema private from anon;
+revoke usage on schema private from authenticated;
+
+-- Remove broad/default helper execution
 revoke execute on function private.is_team_member(bigint) from PUBLIC;
 revoke execute on function private.is_team_member(bigint) from anon;
 
--- Grant only exact helper EXECUTE to the policy-calling role.
--- Do not grant schema-wide USAGE on private merely for this stored policy helper.
+-- Allow the stored RLS policy to execute only this helper
 grant execute on function private.is_team_member(bigint) to authenticated;
 
 -- Use in policy (indexed lookup, not per-row check)
@@ -60,9 +64,9 @@ create policy team_orders_policy on orders
   using ((select private.is_team_member(team_id)));
 ```
 
-Keep the helper schema out of PostgREST's exposed schemas. Omitting schema `USAGE` for `authenticated` does not prevent a stored RLS policy from calling the already-resolved helper; it only limits broader resolution of other private-schema objects.
+Keep the helper schema out of PostgREST's exposed schemas. With schema `USAGE` withheld, a direct `private.is_team_member(...)` call from `authenticated` fails, while a previously created RLS policy can still evaluate the stored helper OID when that role has exact-function `EXECUTE`.
 
-Verify the intended allowlist, then exercise the real policy role:
+Verify the intended allowlist, then exercise the real policy role with a representative JWT identity:
 
 ```sql
 begin;
@@ -78,12 +82,22 @@ select
   ) as can_execute_helper;
 -- Intended: can_use_private_schema = false, can_execute_helper = true
 
--- Exercise a query protected by the policy under this role
+-- Simulate an authenticated request identity for RLS validation
+select set_config(
+  'request.jwt.claims',
+  jsonb_build_object(
+    'role', 'authenticated',
+    'sub', '<member-user-uuid>'
+  )::text,
+  true
+);
+
 set local role authenticated;
--- select ... from orders; -- succeeds for an allowed member via the stored policy helper
+-- select ... from orders; -- returns member-visible row(s) via the stored policy helper
 
 rollback;
 ```
+
 Always add indexes on columns used in RLS policies:
 
 ```sql
