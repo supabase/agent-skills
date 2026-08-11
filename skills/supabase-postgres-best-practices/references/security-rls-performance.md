@@ -29,7 +29,7 @@ create policy orders_policy on orders
 
 Use security definer functions for complex checks:
 
-`SECURITY DEFINER` functions run with the creator's privileges and bypass RLS on any tables they touch — which is what makes them useful for internal lookups, but also what makes them dangerous if misused. Always include an explicit `auth.uid()` check inside the function body and keep helpers in a non-exposed schema. Revoke `EXECUTE` from roles that should not invoke the helper, but roles whose RLS policies evaluate through it still need schema `USAGE` and function `EXECUTE`. `SECURITY DEFINER` does not remove that caller privilege check.
+`SECURITY DEFINER` functions run with the creator's privileges and bypass RLS on any tables they touch — which is what makes them useful for internal lookups, but also what makes them dangerous if misused. Always include an explicit `auth.uid()` check inside the function body and keep helpers in a non-exposed schema. Revoke `EXECUTE` from roles that should not invoke the helper. Roles whose RLS policies evaluate through a stored helper still need `EXECUTE` on that exact function; `SECURITY DEFINER` does not remove that caller privilege check. Direct schema lookups normally require schema `USAGE`, but an RLS policy created with the helper already resolved stores the function OID, so the policy-calling role does not need schema-wide `USAGE` merely to evaluate that stored helper. Keeping schema `USAGE` revoked reduces unnecessary access to other private-schema objects.
 
 ```sql
 -- Create helper function in a private schema
@@ -50,8 +50,8 @@ $$;
 revoke execute on function private.is_team_member(bigint) from PUBLIC;
 revoke execute on function private.is_team_member(bigint) from anon;
 
--- Authenticated policy evaluation still requires schema USAGE + EXECUTE
-grant usage on schema private to authenticated;
+-- Grant only exact helper EXECUTE to the policy-calling role.
+-- Do not grant schema-wide USAGE on private merely for this stored policy helper.
 grant execute on function private.is_team_member(bigint) to authenticated;
 
 -- Use in policy (indexed lookup, not per-row check)
@@ -60,29 +60,30 @@ create policy team_orders_policy on orders
   using ((select private.is_team_member(team_id)));
 ```
 
-Keep the helper schema out of PostgREST's exposed schemas. Schema `USAGE` for `authenticated` only allows PostgreSQL to resolve the helper during policy evaluation; it does not publish the schema through the Data API.
+Keep the helper schema out of PostgREST's exposed schemas. Omitting schema `USAGE` for `authenticated` does not prevent a stored RLS policy from calling the already-resolved helper; it only limits broader resolution of other private-schema objects.
 
-Verify the allowlist under the real policy role before relying on application traffic:
+Verify the intended allowlist, then exercise the real policy role:
 
 ```sql
 begin;
 
-set local role authenticated;
-
+-- Inspect privileges for the policy role (named lookup needs a privileged session
+-- when private schema USAGE is intentionally withheld)
 select
-  has_schema_privilege(current_user, 'private', 'USAGE') as can_use_private_schema,
+  has_schema_privilege('authenticated', 'private', 'USAGE') as can_use_private_schema,
   has_function_privilege(
-    current_user,
+    'authenticated',
     'private.is_team_member(bigint)',
     'EXECUTE'
   ) as can_execute_helper;
+-- Intended: can_use_private_schema = false, can_execute_helper = true
 
--- Also exercise a query protected by the policy under this role
--- against your real application schema.
+-- Exercise a query protected by the policy under this role
+set local role authenticated;
+-- select ... from orders; -- succeeds for an allowed member via the stored policy helper
 
 rollback;
 ```
-
 Always add indexes on columns used in RLS policies:
 
 ```sql
