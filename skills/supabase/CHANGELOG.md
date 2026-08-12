@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.8](https://github.com/supabase/agent-skills/compare/v0.1.7...supabase-v0.1.8) (2026-08-12)
+
+
+### Features
+
+* **supabase:** add debugging workflows to the supabase skill ([#112](https://github.com/supabase/agent-skills/issues/112)) ([3a4f0ce](https://github.com/supabase/agent-skills/commit/3a4f0ce0782e0cbdcf187c362e8d15d9e324462b))
+
 ## [0.1.7](https://github.com/supabase/agent-skills/compare/v0.1.6...supabase-v0.1.7) (2026-08-12)
 
 
