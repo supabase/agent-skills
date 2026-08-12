@@ -116,6 +116,9 @@ Before implementing any Supabase feature, find the relevant documentation. Use t
 2. **Fetch docs pages as markdown** — any docs page can be fetched by appending `.md` to the URL path.
 3. **Web search** for Supabase-specific topics when you don't know which page to look at.
 
+**Dashboard Connect panel (connection strings):**
+Dashboard labels change frequently — confirm the visible Connect UI before giving click-by-click instructions. To copy a shared Session pooler URI today: open **Connect**, choose **Direct** (Connection string), set **Connection Method** to **Session pooler**, and keep **Type: URI**. Do not tell users to pick **Session pooler** as a top-level Connect card; that label is under Direct → Connection Method.
+
 ## Making and Committing Schema Changes
 
 First decide which schema workflow the project uses.
