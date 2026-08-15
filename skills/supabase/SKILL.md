@@ -3,7 +3,7 @@ name: supabase
 description: "Use when doing ANY task involving Supabase. Triggers: Supabase products (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues); client libraries and SSR integrations (supabase-js, @supabase/ssr) in Next.js, React, SvelteKit, Astro, Remix; auth issues (login, logout, sessions, JWT, cookies, getSession, getUser, getClaims, RLS); Supabase CLI or MCP server; schema changes, migrations, declarative schemas, security audits, Postgres extensions (pg_graphql, pg_cron, pg_vector); debugging and troubleshooting errors or unexpected behavior on Supabase projects (HTTP errors, Postgres errors, RLS surprises, permission denied, schema cache issues, timeouts, Edge Function crashes, Realtime drops, Storage failures) and reading or querying logs (Logs Explorer, ClickHouse)."
 metadata:
   author: supabase
-  version: "0.1.2"
+  version: "0.1.3"
 ---
 
 # Supabase
@@ -40,6 +40,24 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
 
 - **API key and client exposure**
   - **Never expose the `service_role` or secret key in public clients.** Prefer publishable keys for frontend code. Legacy `anon` keys are only for compatibility. In Next.js, any `NEXT_PUBLIC_` env var is sent to the browser.
+
+- **Edge Functions: `verify_jwt` and modern keys**
+  - When calling an Edge Function (especially with `verify_jwt = true`), treat these as **two different credentials**:
+    - `apikey` carries the project's **publishable** key (`sb_publishable_...`, or legacy `anon`).
+    - `Authorization: Bearer <token>` carries the **authenticated user's session JWT** (may be asymmetric such as ES256 and may include a `kid`).
+  - A publishable key is **not** the user JWT. Do not treat `sb_publishable_...` / ES256/`kid` alone as proof that gateway JWT verification is broken.
+  - Comments in an existing function are not evidence of gateway behavior. If compatibility is uncertain, deploy/test in a reversible sequence and report the actual HTTP status, `sb-error-code`, JWT algorithm, which headers were sent (never the secrets/tokens themselves), and whether the request reached function logs.
+  - Prefer a small verification matrix before claiming incompatibility:
+
+    | Request | Expected result |
+    |---|---|
+    | `OPTIONS` without JWT | Confirm project CORS/preflight behavior; no side effect |
+    | `POST` without session JWT | Gateway or function `401`; no side effect |
+    | Malformed JWT | Gateway `401`; should **not** reach function logs |
+    | Valid non-admin session JWT | Function `403` (if your handler enforces admin) |
+    | Valid active-admin session JWT | `200` |
+
+  - Keep authorization checks **inside** the function as a second layer whenever the operation uses `service_role`. Create the privileged (`service_role`) client only **after** the caller has been authenticated and authorized.
 
 - **RLS, views, and privileged database code**
   - **Views bypass RLS by default.** In Postgres 15 and above, use `CREATE VIEW ... WITH (security_invoker = true)`. In older versions of Postgres, protect your views by revoking access from the `anon` and `authenticated` roles, or by putting them in an unexposed schema.
