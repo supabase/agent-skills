@@ -108,6 +108,9 @@ For setup instructions, server URL, and configuration, see the [MCP setup guide]
 3. **Authenticate the MCP server:**
    If the server is reachable and `.mcp.json` is correct but tools aren't visible, the user needs to authenticate. The Supabase MCP server uses OAuth 2.1 — tell the user to trigger the auth flow in their agent, complete it in the browser, and reload the session.
 
+4. **Handle authenticated project listing gaps:**
+   If MCP tools are visible and authenticated but the default project listing omits a project the user says they can access, do not conclude access is unavailable from that listing alone. Try an explicit project-ref lookup or project-scoped query where the tool supports it, check whether the active organization, environment, or project filter is hiding the project, and verify the project ref through an approved production-context route before trusting results. Keep production reads narrowly scoped and read-only by default; require explicit approval before writes, migrations, backfills, or repairs.
+
 ## Supabase Documentation
 
 Before implementing any Supabase feature, find the relevant documentation. Use these methods in priority order:
