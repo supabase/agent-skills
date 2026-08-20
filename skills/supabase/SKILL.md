@@ -96,6 +96,14 @@ supabase <group> <command> --help  # Flags for a specific command
 
 For setup instructions, server URL, and configuration, see the [MCP setup guide](https://supabase.com/docs/guides/getting-started/mcp).
 
+**Choose an available database path before declaring a connection blocker:**
+
+1. Inspect the tools and authenticated connectors already available in the current environment. Project-scoped Supabase MCP tools may be lazily exposed rather than listed up front.
+2. Prefer a project-scoped MCP `execute_sql` tool when the task requires SQL. For table-level reads or writes, an authenticated Data API client is also valid; use guarded, idempotent mutations and verify affected rows.
+3. Use a direct PostgreSQL client only with a PostgreSQL connection string beginning with `postgres://` or `postgresql://`. A URL such as `https://<project-ref>.supabase.co` is a Supabase API URL, not a PostgreSQL DSN, even if it is stored under a misleading environment-variable name.
+4. Never print or move a `service_role` key into a public client while changing connection paths.
+5. Treat the database operation as blocked only after the relevant direct PostgreSQL, project-scoped MCP, and authenticated Data API paths are unavailable or fail bounded checks.
+
 **Troubleshooting connection issues** — follow these steps in order:
 
 1. **Check if the server is reachable:**
