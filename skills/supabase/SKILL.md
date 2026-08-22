@@ -96,6 +96,13 @@ supabase <group> <command> --help  # Flags for a specific command
 
 For setup instructions, server URL, and configuration, see the [MCP setup guide](https://supabase.com/docs/guides/getting-started/mcp).
 
+**Hosted project identity preflight** — Before asking the user to choose a project or performing any target-dependent hosted operation, identify the target using only read-only evidence:
+
+1. Read, but do not create or change, any existing `supabase/.temp/project-ref` and MCP `project_ref`; inspect current repository handoffs and migrations. Treat older repository refs as historical evidence, not the current target.
+2. With account-level MCP, use `list_projects`, then `get_project`, `get_project_url`, and `list_migrations` for viable candidates. With project-scoped MCP, where account tools are unavailable, verify its configured ref using the available project tools. Otherwise use read-only CLI equivalents discovered via `--help`.
+3. Reconcile project name/purpose, ref, URL, status, and migration ledger. If one non-production target is uniquely supported, report it with the evidence; identification is not mutation authorization.
+4. Never infer a production target or mutate during this preflight. Obtain separate authorization before any hosted mutation. Ask the user to identify the target only if access is unavailable or zero or multiple viable targets remain, and present recognizable names/purposes rather than refs alone.
+
 **Troubleshooting connection issues** — follow these steps in order:
 
 1. **Check if the server is reachable:**
