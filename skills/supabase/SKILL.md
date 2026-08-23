@@ -18,6 +18,8 @@ First, fetch `https://supabase.com/changelog.md` (a lightweight summary index â€
 **2. Verify your work.**
 After implementing any fix, run a test query to confirm the change works. A fix without verification is incomplete.
 
+Treat the Supabase MCP `list_tables` `rows` value as an approximate or stale table statistic, not a live row count. When exact cardinality affects an answer or migration decision, run `select count(*)` against the explicitly selected project and schema instead.
+
 **3. Recover from errors, don't loop.**
 If an approach fails after 2-3 attempts, stop and reconsider. Try a different method, check documentation, inspect the error more carefully, and review relevant logs when available. Supabase issues are not always solved by retrying the same command, and the answer is not always in the logs, but logs are often worth checking before proceeding.
 
