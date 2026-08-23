@@ -68,6 +68,7 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
 
 - **Storage access control**
   - **Storage upsert requires INSERT + SELECT + UPDATE.** Granting only INSERT allows new uploads but file replacement (upsert) silently fails. You need all three.
+  - **Check the global file size limit before changing a bucket limit or diagnosing HTTP 413 errors.** Confirm that the project's plan and global Storage limit allow the requested size, then set or remove the per-bucket limit without exceeding the global limit. Use resumable TUS or S3 uploads for files larger than 6 MB, and verify the change with a file larger than the previous limit while recording the Storage response status.
 
 - **Dependency and supply-chain security**
   - **Always pin package versions and commit lockfiles** when installing Supabase packages (`supabase-js`, `@supabase/ssr`, `supabase-py`, etc.). See the [npm security guide](https://supabase.com/docs/guides/security/npm-security.md) for the full checklist.
