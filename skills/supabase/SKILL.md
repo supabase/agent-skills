@@ -40,6 +40,7 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
 
 - **API key and client exposure**
   - **Never expose the `service_role` or secret key in public clients.** Prefer publishable keys for frontend code. Legacy `anon` keys are only for compatibility. In Next.js, any `NEXT_PUBLIC_` env var is sent to the browser.
+  - **Use least-privileged Management API personal access tokens.** Inspect the current token-creation interface and each endpoint's documented fine-grained permissions instead of assuming every PAT has full account access. When granular controls are available, prefer them with the narrowest project or resource scope offered. For project API-key lifecycle endpoints, grant `api_gateway_keys_read` for GET/list operations and `api_gateway_keys_write` for POST/create and DELETE operations; do not select full access merely because older PAT guidance describes legacy account-wide behavior.
 
 - **RLS, views, and privileged database code**
   - **Views bypass RLS by default.** In Postgres 15 and above, use `CREATE VIEW ... WITH (security_invoker = true)`. In older versions of Postgres, protect your views by revoking access from the `anon` and `authenticated` roles, or by putting them in an unexposed schema.
