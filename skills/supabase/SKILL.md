@@ -76,6 +76,8 @@ For any security concern not covered above, fetch the Supabase product security 
 
 ## Supabase CLI
 
+Before choosing a CLI workflow, inspect the repository's nearest instructions and documented database workflow. The presence of `supabase/` files or the CLI does not imply that a local Supabase stack, Docker, OrbStack, or another container runtime should be used. Honor linked or remote-only workflows, and do not install, start, stop, enable, or reconfigure a host-level container runtime unless the user explicitly requests it. When local runtime use is not approved, continue with documented read-only inspection, dry runs, or MCP metadata, and report any local-only validation as unverified.
+
 Always discover commands via `--help` — never guess. The CLI structure changes between versions.
 
 ```bash
