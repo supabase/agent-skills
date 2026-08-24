@@ -65,6 +65,15 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
     ```
   - **`SECURITY DEFINER` functions bypass RLS.** A `SECURITY DEFINER` function runs with its creator's privileges — typically a role with `bypassrls` (e.g., `postgres`). Never add `SECURITY DEFINER` to resolve a permission error; it silently removes access control without fixing the underlying cause. Prefer `SECURITY INVOKER`.
   - **`SECURITY DEFINER` functions in `public` are callable by all roles.** Postgres grants `EXECUTE` to `PUBLIC` by default for every new function, so any `SECURITY DEFINER` function in `public` is a public API endpoint callable by `anon` and `authenticated` (which inherit from `PUBLIC`) without any additional grant. When `SECURITY DEFINER` is genuinely needed (e.g., bypassing RLS on an internal lookup table), keep the function in a non-exposed schema, always include an `auth.uid()` check in the function body, and run `supabase db advisors` after making changes.
+  - **Check RLS dependencies before revoking `EXECUTE`.** RLS policy expressions (`qual` / `with_check`) run with the querying user's privileges, so any role whose policies call a helper function still needs `EXECUTE` on it — even after the helper moves out of the exposed schema or is never called directly by client code. Revoking it anyway breaks every dependent policy at runtime with `permission denied for function`, which can take out multiple tables at once. Before recommending or applying a revoke, enumerate dependents and test under the real roles:
+    ```sql
+    -- find policies that evaluate the helper in either expression slot
+    select schemaname, tablename, policyname
+    from pg_policies
+    where qual ilike '%helper_name%'
+       or with_check ilike '%helper_name%';
+    ```
+    Also check views, triggers, and other functions that call the helper. Verify the proposed revoke inside a transaction as `anon`/`authenticated` and roll it back; if policies depend on the helper, update the policies and the privilege change in the same migration.
 
 - **Storage access control**
   - **Storage upsert requires INSERT + SELECT + UPDATE.** Granting only INSERT allows new uploads but file replacement (upsert) silently fails. You need all three.
