@@ -143,6 +143,15 @@ Do NOT use `apply_migration` to change a local database schema — it writes a m
 
 When you get an error on a Supabase-related request, for example an error code from the Supabase REST API, Postgres database, or PostgREST, an empty result, getting blocked by RLS unexpectedly, or an error from a Supabase service like Auth, Realtime, Edge Functions, or Storage, you **must** fetch Supabase's [Monitoring and Debugging](https://supabase.com/docs/guides/monitoring-and-debugging.md) documentation before diagnosing or proposing a fix, rather than working from memory. The same docs also cover performance optimizations, such as slow queries and missing indexes.
 
+### Password recovery: confirm the session before setting one
+
+When debugging a password-recovery or auth-callback flow, establish **which stage already succeeded** before changing session state. Depending on the flow and version, Supabase may already have verified the link and established the (recovery) session before your page renders, so calling `supabase.auth.setSession()` again is redundant and can break or restart an otherwise-successful recovery.
+
+1. **Gather safe evidence first.** Check Auth logs for a successful recovery/verification login and read the current state (`getSession` / `getClaims`) before touching anything. Log only safe metadata — event name, whether a session exists, a safe error `code`/`message`. Never log access or refresh tokens, authorization headers, passwords, recovery tokens or codes, cookies, or full session objects.
+2. **Distinguish an established session from raw tokens.** If a session already exists — or a `PASSWORD_RECOVERY` event arrives via `onAuthStateChange` (a supported event) — react to that state and route to the update-password UI (`updateUser`). Call `setSession()` only when the app genuinely receives raw, un-consumed access/refresh tokens and no session exists yet, for the flow your project uses; it is not a general recovery step.
+3. **Match the flow, don't assume it.** Session establishment differs by architecture — implicit (tokens in the URL), `token_hash` + `verifyOtp({ type: 'recovery' })` (including SSR/server callbacks), or a PKCE `code` + `exchangeCodeForSession`. Confirm which applies from the real callback URL and params and current docs. General rule: **determine whether session establishment already happened before performing another one.**
+4. **Judge each stage on its own evidence.** A successful verification or provider request does not prove the app finished its UI step, and seeing a recovery URL does not prove the session is missing. Verify end to end through a real recovery interaction (request → open link → session established → set new password → sign in with it) on a disposable test account — not a build or typecheck alone.
+
 ## Reference Guides
 
 - **Skill Feedback** → [references/skill-feedback.md](references/skill-feedback.md)
