@@ -143,6 +143,16 @@ Do NOT use `apply_migration` to change a local database schema — it writes a m
 
 When you get an error on a Supabase-related request, for example an error code from the Supabase REST API, Postgres database, or PostgREST, an empty result, getting blocked by RLS unexpectedly, or an error from a Supabase service like Auth, Realtime, Edge Functions, or Storage, you **must** fetch Supabase's [Monitoring and Debugging](https://supabase.com/docs/guides/monitoring-and-debugging.md) documentation before diagnosing or proposing a fix, rather than working from memory. The same docs also cover performance optimizations, such as slow queries and missing indexes.
 
+### When the real error is hidden (Next.js Server Action digests, opaque 500s)
+
+A framework may replace a server-side error with a generic, repeatable identifier — a Next.js Server Action `digest`, a generic HTTP 500 — and log the real error only on the server. With the underlying Supabase error out of view, do **not** assume the last database call failed, and do not change RLS, grants, or upsert/update strategy on that guess. Isolate the failing boundary first:
+
+1. **List the handler's async boundaries in execution order:** session/auth lookup, each Supabase read, each mutation, external API calls, `redirect()`, and every explicit `throw`. The failure is at one of these — not necessarily the last.
+2. **Surface the real Supabase error at each boundary.** `supabase-js` returns `{ data, error }` rather than throwing, so a digest usually comes from an explicit `throw`/`redirect` in the handler — often on an earlier call's `error` — not from the final query. Capture `error.code`, `error.message`, `error.details`, and `error.hint`; never log tokens, cookies, session values, or request payloads.
+3. **Suspect unchanged paths first.** If a change leaves the same digest — switching `upsert` to `update` and still crashing — the failing boundary is elsewhere: an earlier read, or a `throw`/`redirect` that still runs. A repeated digest is evidence the surviving path never changed.
+4. **Instrument or isolate the earliest uncertain boundary before touching RLS, grants, mutation strategy, schema, or auth config.** Change RLS only once evidence points to an RLS denial (see the Security checklist). If a preliminary read exists only to rebuild state the caller already holds, sending the validated intended state directly removes a read-before-write failure surface — but keep reads that enforce authorization or invariants.
+5. **Verify at the right layer.** A passing build or typecheck is structural verification only; reproduce the fix through the actual authenticated Server Action path (a real signed-in request) before declaring it resolved.
+
 ## Reference Guides
 
 - **Skill Feedback** → [references/skill-feedback.md](references/skill-feedback.md)
