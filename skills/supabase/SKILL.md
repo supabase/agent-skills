@@ -18,6 +18,13 @@ First, fetch `https://supabase.com/changelog.md` (a lightweight summary index â€
 **2. Verify your work.**
 After implementing any fix, run a test query to confirm the change works. A fix without verification is incomplete.
 
+For signup/registration work, also verify hosted Auth â€” a database trigger or test can succeed while the Auth endpoint still returns `422 signup_disabled`:
+1. Confirm the email provider and new-user signup are enabled on the hosted project.
+2. Confirm email confirmation and Site URL / redirect behavior.
+3. Execute one real signup against the target hosted project.
+4. Verify the resulting Auth user and expected application profile/role provisioning.
+5. Clean up the synthetic test account.
+
 **3. Recover from errors, don't loop.**
 If an approach fails after 2-3 attempts, stop and reconsider. Try a different method, check documentation, inspect the error more carefully, and review relevant logs when available. Supabase issues are not always solved by retrying the same command, and the answer is not always in the logs, but logs are often worth checking before proceeding.
 
