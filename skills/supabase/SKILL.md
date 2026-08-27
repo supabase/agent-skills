@@ -92,6 +92,8 @@ supabase <group> <command> --help  # Flags for a specific command
 
 **Version check and upgrade:** Run `supabase --version` to check. For CLI changelogs and version-specific features, consult the [CLI documentation](https://supabase.com/docs/reference/cli/introduction) or [GitHub releases](https://github.com/supabase/cli/releases).
 
+**When a CLI version is pinned, that binary is the source of truth.** Run its `--version` and the target command's `--help` before recommending version-sensitive flags, and consult source or docs at the matching release tag — default-branch source may describe flags the pinned version does not have. If the pinned CLI rejects a flag, re-check its `--help` rather than substituting another flag.
+
 ## Supabase MCP Server
 
 For setup instructions, server URL, and configuration, see the [MCP setup guide](https://supabase.com/docs/guides/getting-started/mcp).
