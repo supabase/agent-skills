@@ -65,6 +65,14 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
     ```
   - **`SECURITY DEFINER` functions bypass RLS.** A `SECURITY DEFINER` function runs with its creator's privileges — typically a role with `bypassrls` (e.g., `postgres`). Never add `SECURITY DEFINER` to resolve a permission error; it silently removes access control without fixing the underlying cause. Prefer `SECURITY INVOKER`.
   - **`SECURITY DEFINER` functions in `public` are callable by all roles.** Postgres grants `EXECUTE` to `PUBLIC` by default for every new function, so any `SECURITY DEFINER` function in `public` is a public API endpoint callable by `anon` and `authenticated` (which inherit from `PUBLIC`) without any additional grant. When `SECURITY DEFINER` is genuinely needed (e.g., bypassing RLS on an internal lookup table), keep the function in a non-exposed schema, always include an `auth.uid()` check in the function body, and run `supabase db advisors` after making changes.
+  - **Fence each privileged function when it is created.** Put the per-function revoke and narrow grant in the same migration as the function. `ALTER DEFAULT PRIVILEGES` is useful defense in depth, but it only affects future functions created by the configured role and does not change existing functions.
+    ```sql
+    revoke execute on function private.example_fn(uuid)
+      from public, anon, authenticated, service_role;
+    grant usage on schema private to authenticated;
+    grant execute on function private.example_fn(uuid) to authenticated;
+    ```
+    Grant `EXECUTE` to every role that must call the function directly or evaluate a policy or view that references it. After the migration, verify both sides with `has_function_privilege`: intended callers return `true`; `anon` and unrelated roles return `false`.
 
 - **Storage access control**
   - **Storage upsert requires INSERT + SELECT + UPDATE.** Granting only INSERT allows new uploads but file replacement (upsert) silently fails. You need all three.
