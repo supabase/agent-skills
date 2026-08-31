@@ -18,6 +18,14 @@ First, fetch `https://supabase.com/changelog.md` (a lightweight summary index â€
 **2. Verify your work.**
 After implementing any fix, run a test query to confirm the change works. A fix without verification is incomplete.
 
+When reporting the result back, include a compact verification summary:
+
+- what was checked (for example, docs page/changelog, SQL query, advisor output, migration list, or test command)
+- whether it passed, failed, or was not available
+- any important limitation, fallback, or follow-up the user should know about
+
+Do not include secrets, full tokens, private connection strings, or sensitive row data in the summary. If you could not verify a claim, label it as unverified instead of implying it passed.
+
 **3. Recover from errors, don't loop.**
 If an approach fails after 2-3 attempts, stop and reconsider. Try a different method, check documentation, inspect the error more carefully, and review relevant logs when available. Supabase issues are not always solved by retrying the same command, and the answer is not always in the logs, but logs are often worth checking before proceeding.
 
