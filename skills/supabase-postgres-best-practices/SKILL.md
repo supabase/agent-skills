@@ -39,13 +39,80 @@ Reference these guidelines when:
 
 ## How to Use
 
-Read individual rule files for detailed explanations and SQL examples:
+Choose the rule that matches the task, then read that reference file for detailed explanations and SQL examples.
 
-```
-references/query-missing-indexes.md
-references/query-partial-indexes.md
-references/_sections.md
-```
+### 1. Query Performance — CRITICAL
+
+| Rule | Summary |
+|------|---------|
+| [query-missing-indexes](references/query-missing-indexes.md) | Add indexes on WHERE and JOIN columns |
+| [query-partial-indexes](references/query-partial-indexes.md) | Use partial indexes for filtered queries |
+| [query-composite-indexes](references/query-composite-indexes.md) | Create composite indexes for multi-column queries |
+| [query-covering-indexes](references/query-covering-indexes.md) | Use covering indexes to avoid table lookups |
+| [query-index-types](references/query-index-types.md) | Choose the right index type for your data |
+
+### 2. Connection Management — CRITICAL
+
+| Rule | Summary |
+|------|---------|
+| [conn-pooling](references/conn-pooling.md) | Use connection pooling for all applications |
+| [conn-limits](references/conn-limits.md) | Set appropriate connection limits |
+| [conn-idle-timeout](references/conn-idle-timeout.md) | Configure idle connection timeouts |
+| [conn-prepared-statements](references/conn-prepared-statements.md) | Use prepared statements correctly with pooling |
+
+### 3. Security & RLS — CRITICAL
+
+| Rule | Summary |
+|------|---------|
+| [security-rls-basics](references/security-rls-basics.md) | Enable Row Level Security for multi-tenant data |
+| [security-rls-performance](references/security-rls-performance.md) | Optimize RLS policies for performance |
+| [security-privileges](references/security-privileges.md) | Apply the principle of least privilege |
+
+### 4. Schema Design — HIGH
+
+| Rule | Summary |
+|------|---------|
+| [schema-data-types](references/schema-data-types.md) | Choose appropriate data types |
+| [schema-primary-keys](references/schema-primary-keys.md) | Select an optimal primary key strategy |
+| [schema-foreign-key-indexes](references/schema-foreign-key-indexes.md) | Index foreign key columns |
+| [schema-constraints](references/schema-constraints.md) | Add constraints safely in migrations |
+| [schema-partitioning](references/schema-partitioning.md) | Partition large tables for better performance |
+| [schema-lowercase-identifiers](references/schema-lowercase-identifiers.md) | Use lowercase identifiers for compatibility |
+
+### 5. Concurrency & Locking — MEDIUM-HIGH
+
+| Rule | Summary |
+|------|---------|
+| [lock-short-transactions](references/lock-short-transactions.md) | Keep transactions short to reduce lock contention |
+| [lock-skip-locked](references/lock-skip-locked.md) | Use SKIP LOCKED for non-blocking queue processing |
+| [lock-advisory](references/lock-advisory.md) | Use advisory locks for application-level locking |
+| [lock-deadlock-prevention](references/lock-deadlock-prevention.md) | Prevent deadlocks with consistent lock ordering |
+
+### 6. Data Access Patterns — MEDIUM
+
+| Rule | Summary |
+|------|---------|
+| [data-n-plus-one](references/data-n-plus-one.md) | Eliminate N+1 queries with batch loading |
+| [data-pagination](references/data-pagination.md) | Use cursor-based pagination instead of OFFSET |
+| [data-upsert](references/data-upsert.md) | Use UPSERT for insert-or-update operations |
+| [data-batch-inserts](references/data-batch-inserts.md) | Batch INSERT statements for bulk data |
+
+### 7. Monitoring & Diagnostics — LOW-MEDIUM
+
+| Rule | Summary |
+|------|---------|
+| [monitor-explain-analyze](references/monitor-explain-analyze.md) | Use EXPLAIN ANALYZE to diagnose slow queries |
+| [monitor-pg-stat-statements](references/monitor-pg-stat-statements.md) | Enable pg_stat_statements for query analysis |
+| [monitor-vacuum-analyze](references/monitor-vacuum-analyze.md) | Maintain table statistics with VACUUM and ANALYZE |
+
+### 8. Advanced Features — LOW
+
+| Rule | Summary |
+|------|---------|
+| [advanced-jsonb-indexing](references/advanced-jsonb-indexing.md) | Index JSONB columns for efficient querying |
+| [advanced-full-text-search](references/advanced-full-text-search.md) | Use tsvector for full-text search |
+
+See [reference section definitions](references/_sections.md) for category metadata.
 
 Each rule file contains:
 - Brief explanation of why it matters
@@ -53,7 +120,7 @@ Each rule file contains:
 - Correct SQL example with explanation
 - Optional EXPLAIN output or metrics
 - Additional context and references
-- Supabase-specific notes (when applicable)
+- Supabase-specific notes when applicable
 
 ## References
 
