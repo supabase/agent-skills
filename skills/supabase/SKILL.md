@@ -86,7 +86,7 @@ supabase <group> <command> --help  # Flags for a specific command
 
 **Supabase CLI Known gotchas:**
 
-- `supabase db query` requires **CLI v2.79.0+** → use MCP `execute_sql` or `psql` as fallback
+- `supabase db query` requires **CLI v2.79.0+** → use the MCP SQL execution tool (`execute_sql` or an equivalent tool discovered by capability) or `psql` as fallback
 - `supabase db advisors` requires **CLI v2.81.3+** → use MCP `get_advisors` as fallback
 - In imperative migration projects, create new hand-authored migration files with `supabase migration new <name>` first. Never invent a migration filename or rely on memory for the expected format. Declarative schema projects generate migrations from `supabase/schemas/`; see "Making and Committing Schema Changes" below.
 
@@ -98,14 +98,29 @@ For setup instructions, server URL, and configuration, see the [MCP setup guide]
 
 **Troubleshooting connection issues** — follow these steps in order:
 
-1. **Check if the server is reachable:**
+1. **Discover the SQL execution tool by capability:**
+   Do not assume the SQL execution tool is exposed exactly as `execute_sql`.
+   Agent hosts may namespace or transform MCP tool names.
+
+   Search available tools by capability, description, and input schema using
+   terms such as `Supabase raw SQL`, `database query`, `project_id`, and `query`.
+
+   Identify a compatible tool that accepts a Supabase project identifier and
+   SQL query, then invoke the exact full tool name returned by the current tool
+   registry. Namespaced or transformed variants such as `_execute_sql` are valid.
+
+   Do not hardcode a transformed tool name. Only treat the SQL execution
+   capability as unavailable after capability-based discovery returns no
+   compatible tool.
+
+2. **Check if the server is reachable:**
    `curl -so /dev/null -w "%{http_code}" https://mcp.supabase.com/mcp`
    A `401` is expected (no token) and means the server is up. Timeout or "connection refused" means it may be down.
 
-2. **Check `.mcp.json` configuration:**
+3. **Check `.mcp.json` configuration:**
    Verify the project root has a valid `.mcp.json` with the correct server URL. If missing, create one pointing to `https://mcp.supabase.com/mcp`.
 
-3. **Authenticate the MCP server:**
+4. **Authenticate the MCP server:**
    If the server is reachable and `.mcp.json` is correct but tools aren't visible, the user needs to authenticate. The Supabase MCP server uses OAuth 2.1 — tell the user to trigger the auth flow in their agent, complete it in the browser, and reload the session.
 
 ## Supabase Documentation
@@ -128,7 +143,7 @@ Use this when `supabase/schemas/` exists or `config.toml` sets `schema_paths`. E
 
 Use this when the project does not use declarative schemas.
 
-**To make schema changes, use `execute_sql` (MCP) or `supabase db query` (CLI).** These run SQL directly on the database without creating migration history entries, so you can iterate freely and generate a clean migration when ready.
+**To make schema changes, use the discovered MCP SQL execution tool (`execute_sql` or an equivalent tool returned by the current registry) or `supabase db query` (CLI).** These run SQL directly on the database without creating migration history entries, so you can iterate freely and generate a clean migration when ready.
 
 Do NOT use `apply_migration` to change a local database schema — it writes a migration history entry on every call, which means you can't iterate, and `supabase db diff` / `supabase db pull` will produce empty or conflicting diffs. If you use it, you'll be stuck with whatever SQL you passed on the first try.
 
