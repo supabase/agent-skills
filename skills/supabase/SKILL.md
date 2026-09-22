@@ -88,6 +88,7 @@ supabase <group> <command> --help  # Flags for a specific command
 
 - `supabase db query` requires **CLI v2.79.0+** → use MCP `execute_sql` or `psql` as fallback
 - `supabase db advisors` requires **CLI v2.81.3+** → use MCP `get_advisors` as fallback
+- For `supabase start -x` / `--exclude`, treat `--help` as discovery, not proof. After the first run, inspect runtime warnings and verify the actual containers/services started (for example with `docker ps`). Exclusion names can differ between CLI versions, and invalid names may be warned about and ignored instead of causing startup to fail. Record `supabase --version` when troubleshooting and prefer exclusion names accepted by that version at runtime.
 - In imperative migration projects, create new hand-authored migration files with `supabase migration new <name>` first. Never invent a migration filename or rely on memory for the expected format. Declarative schema projects generate migrations from `supabase/schemas/`; see "Making and Committing Schema Changes" below.
 
 **Version check and upgrade:** Run `supabase --version` to check. For CLI changelogs and version-specific features, consult the [CLI documentation](https://supabase.com/docs/reference/cli/introduction) or [GitHub releases](https://github.com/supabase/cli/releases).
