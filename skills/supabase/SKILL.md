@@ -40,6 +40,7 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
 
 - **API key and client exposure**
   - **Never expose the `service_role` or secret key in public clients.** Prefer publishable keys for frontend code. Legacy `anon` keys are only for compatibility. In Next.js, any `NEXT_PUBLIC_` env var is sent to the browser.
+  - **Use scoped personal access tokens for the Management API, CLI, and MCP server.** A classic personal access token carries the user's full account access, on every organization and project. For scripts, CI, and agents, have the user create a scoped token limited to the organizations, projects, and permissions the task needs. The [personal access tokens guide](https://supabase.com/docs/guides/platform/personal-access-tokens.md) lists the permission each Management API endpoint and MCP tool requires. Look permissions up there rather than guessing.
 
 - **RLS, views, and privileged database code**
   - **Views bypass RLS by default.** In Postgres 15 and above, use `CREATE VIEW ... WITH (security_invoker = true)`. In older versions of Postgres, protect your views by revoking access from the `anon` and `authenticated` roles, or by putting them in an unexposed schema.
@@ -88,6 +89,7 @@ supabase <group> <command> --help  # Flags for a specific command
 
 - `supabase db query` requires **CLI v2.79.0+** → use MCP `execute_sql` or `psql` as fallback
 - `supabase db advisors` requires **CLI v2.81.3+** → use MCP `get_advisors` as fallback
+- The browser flow of `supabase login` creates a classic token with full account access. In CI, set `SUPABASE_ACCESS_TOKEN` to a scoped personal access token instead. It takes precedence over any saved login. Commands that connect with the database password (`--password` or `SUPABASE_DB_PASSWORD`, for example `supabase db push`) aren't limited by the token's permissions.
 - In imperative migration projects, create new hand-authored migration files with `supabase migration new <name>` first. Never invent a migration filename or rely on memory for the expected format. Declarative schema projects generate migrations from `supabase/schemas/`; see "Making and Committing Schema Changes" below.
 
 **Version check and upgrade:** Run `supabase --version` to check. For CLI changelogs and version-specific features, consult the [CLI documentation](https://supabase.com/docs/reference/cli/introduction) or [GitHub releases](https://github.com/supabase/cli/releases).
@@ -107,6 +109,10 @@ For setup instructions, server URL, and configuration, see the [MCP setup guide]
 
 3. **Authenticate the MCP server:**
    If the server is reachable and `.mcp.json` is correct but tools aren't visible, the user needs to authenticate. The Supabase MCP server uses OAuth 2.1 — tell the user to trigger the auth flow in their agent, complete it in the browser, and reload the session.
+   In CI or other environments where the browser flow can't run, pass a scoped personal access token in the `Authorization: Bearer` header instead.
+
+4. **Check scoped token permissions:**
+   If a tool fails with "You do not have permission to perform this action" while using a scoped personal access token, the token lacks that tool's permission or the project is outside the token's scope. Check the tool's required permission in the [personal access tokens guide](https://supabase.com/docs/guides/platform/personal-access-tokens.md#mcp-tools).
 
 ## Supabase Documentation
 
