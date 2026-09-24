@@ -75,6 +75,15 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
 
 For any security concern not covered above, fetch the Supabase product security index: `https://supabase.com/docs/guides/security/product-security.md`
 
+## Repository Access Rules
+
+**Repository instructions outrank the workflows in this skill.** Before choosing a CLI, MCP, or local-database workflow, read the project's own agent instructions and MCP config (`AGENTS.md`, `CLAUDE.md`, `.mcp.json`, contributing docs). They are authoritative for project identity, access mode, and who approves writes.
+
+- **Confirm the project before the first remote call.** When the repository names a project-bound MCP server, verify its project ref or URL through that server, then keep all remote work on it — its read-only server for inspection, its write server only after the approval that server requires.
+- **Do not fall back to a path the repository rules out.** That includes `execute_sql` iteration, `supabase login`, the generic `mcp.supabase.com` OAuth flow, a local Supabase stack (Docker), `supabase db pull`, and `supabase db diff` when the repository forbids them or reserves them for local or CI use.
+- **Verify the objects you changed.** Run a full schema-drift audit only when the task or a release gate requires it.
+- **Stop at the access boundary.** If the authorized path fails, diagnose briefly, then report the boundary instead of switching credentials or runtimes.
+
 ## Supabase CLI
 
 Always discover commands via `--help` — never guess. The CLI structure changes between versions.
@@ -97,6 +106,8 @@ supabase <group> <command> --help  # Flags for a specific command
 ## Supabase MCP Server
 
 For setup instructions, server URL, and configuration, see the [MCP setup guide](https://supabase.com/docs/guides/getting-started/mcp).
+
+If the repository already defines a project-bound MCP server, troubleshoot that server's configuration. Do not add a generic `mcp.supabase.com` entry beside it.
 
 **Troubleshooting connection issues** — follow these steps in order:
 
@@ -123,6 +134,8 @@ Before implementing any Supabase feature, find the relevant documentation. Use t
 3. **Web search** for Supabase-specific topics when you don't know which page to look at.
 
 ## Making and Committing Schema Changes
+
+Use the workflows below only when repository-specific instructions do not define a different authorized path, and distinguish local iteration from remote changes before running anything.
 
 First decide which schema workflow the project uses.
 
