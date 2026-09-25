@@ -15,8 +15,8 @@ Do not rely on training data for Supabase features. Function signatures, config.
 
 First, fetch `https://supabase.com/changelog.md` (a lightweight summary index — not a heavy pull), scan for `breaking-change` tags relevant to your task, and follow the linked page for any that apply. Then look up the relevant topic using the documentation access methods below.
 
-**2. Verify your work.**
-After implementing any fix, run a test query to confirm the change works. A fix without verification is incomplete.
+**2. Verify your work at the reported boundary.**
+After implementing any fix, reproduce the reported behavior and verify it at the same layer where it failed. A database test query is necessary but insufficient for a client-reported loading problem. For web or mobile failures, check the real client in the deployed environment and commit: inspect browser or device console errors and network responses, then confirm the returned rows survive client-side normalization, filtering, caching, and rendering. A fix without verification at the reported boundary is incomplete.
 
 **3. Recover from errors, don't loop.**
 If an approach fails after 2-3 attempts, stop and reconsider. Try a different method, check documentation, inspect the error more carefully, and review relevant logs when available. Supabase issues are not always solved by retrying the same command, and the answer is not always in the logs, but logs are often worth checking before proceeding.
