@@ -21,6 +21,14 @@ After implementing any fix, run a test query to confirm the change works. A fix 
 **3. Recover from errors, don't loop.**
 If an approach fails after 2-3 attempts, stop and reconsider. Try a different method, check documentation, inspect the error more carefully, and review relevant logs when available. Supabase issues are not always solved by retrying the same command, and the answer is not always in the logs, but logs are often worth checking before proceeding.
 
+**Password recovery / reset — stop PKCE retry loops.** After one or two callback failures, inspect the callback parameters and verifier-cookie lifecycle before retrying the same flow:
+
+1. **Inspect the callback.** Does it receive a PKCE `code`, or a signed `token_hash` (often with `type=recovery`)? Do not keep calling `exchangeCodeForSession` when the callback is clearly a `token_hash` flow (or the reverse).
+2. **For PKCE (`code`).** Confirm the code-verifier cookie is present on the callback request (same browser/site that started `resetPasswordForEmail`) before retrying. If the recovery email is opened on another device/browser, passes through a protected proxy/custom domain that drops cookies, or the verifier otherwise cannot be guaranteed, stop retrying PKCE.
+3. **When the verifier cannot be guaranteed.** Prefer a hosted email template that uses `TokenHash`, verify server-side with `verifyOtp({ type: "recovery" })`, and establish an HttpOnly session from that result. See the current [password recovery](https://supabase.com/docs/guides/auth/passwords.md) and SSR auth docs rather than inventing a hybrid.
+4. **Email scanners / prefetch.** Automated link scanners can consume one-time GET links. Prefer a safe confirmation step (e.g. user clicks "Continue" on your app) before calling verification, so the token is not spent by a scanner.
+5. **Surface real errors.** Reset-request UIs must propagate Supabase errors (including rate limits) accurately — do not always claim an email was sent. After the first confirmed callback-state failure (missing verifier, wrong param shape, already-consumed token), do **not** loop the same retry; change the approach using the steps above.
+
 **4. Exposing tables to the Data API:** Depending on the user's [Data API settings](https://supabase.com/dashboard/project/<ref>/integrations/data_api/settings), newly created tables may not be automatically exposed via the Data (REST) API. If this is the case, `anon` and `authenticated` roles will need to be explicitly granted access.
 
 > Note that this is separate from RLS, which controls which _rows_ are visible once a table is accessible, not whether the table is accessible at all.
@@ -37,6 +45,7 @@ When working on any Supabase task that touches auth, RLS, views, storage, or use
   - **Never use `user_metadata` claims in JWT-based authorization decisions.** In Supabase, `raw_user_meta_data` is user-editable and can appear in `auth.jwt()`, so it is unsafe for RLS policies or any other authorization logic. Store authorization data in `raw_app_meta_data` / `app_metadata` instead.
   - **Deleting a user does not invalidate existing access tokens.** Sign out or revoke sessions first, keep JWT expiry short for sensitive apps, and for strict guarantees validate `session_id` against `auth.sessions` on sensitive operations.
   - **If you use `app_metadata` or `auth.jwt()` for authorization, remember JWT claims are not always fresh until the user's token is refreshed.**
+  - **Password recovery is not “retry until it works.”** Distinguish PKCE `exchangeCodeForSession` from signed `token_hash` + `verifyOtp({ type: "recovery" })`. If the PKCE verifier cookie cannot cross the email/browser/proxy boundary, switch to the TokenHash server-side path instead of looping the same callback. See **Password recovery / reset** under principle 3.
 
 - **API key and client exposure**
   - **Never expose the `service_role` or secret key in public clients.** Prefer publishable keys for frontend code. Legacy `anon` keys are only for compatibility. In Next.js, any `NEXT_PUBLIC_` env var is sent to the browser.
