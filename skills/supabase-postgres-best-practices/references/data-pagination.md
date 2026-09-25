@@ -47,4 +47,4 @@ order by created_at, id
 limit 20;
 ```
 
-Reference: [Pagination](https://supabase.com/docs/guides/database/pagination)
+Reference: [LIMIT and OFFSET](https://www.postgresql.org/docs/current/queries-limit.html)

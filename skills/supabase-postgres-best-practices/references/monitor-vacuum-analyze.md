@@ -52,4 +52,4 @@ alter table orders set (
 select * from pg_stat_progress_vacuum;
 ```
 
-Reference: [VACUUM](https://supabase.com/docs/guides/database/database-size#vacuum-operations)
+Reference: [VACUUM](https://supabase.com/docs/guides/platform/database-size#vacuum-operations)
