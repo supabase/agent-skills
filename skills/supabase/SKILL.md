@@ -18,6 +18,18 @@ First, fetch `https://supabase.com/changelog.md` (a lightweight summary index �
 **2. Verify your work.**
 After implementing any fix, run a test query to confirm the change works. A fix without verification is incomplete.
 
+**JSONB `.contains()` with `supabase-js`.** Distinguish PostgreSQL arrays from JSONB values when filtering with `.contains()`. `@supabase/postgrest-js` serializes a top-level JavaScript array as a PostgreSQL array literal (`cs.{...}`), not as JSON. For a JSONB column whose top-level value is an array of objects, a JS array is unsafe — object elements become invalid literals such as `[object Object]`, and the filter can silently miss rows (especially when combined with other requests):
+
+```ts
+// Unsafe for JSONB array-of-objects — treated as a Postgres array
+query.contains('items', [{ code: 'EXAMPLE' }])
+
+// Correct — pass the JSON operand as a string
+query.contains('items', JSON.stringify([{ code: 'EXAMPLE' }]))
+```
+
+A JS array is fine for real Postgres arrays of scalars. When the JSONB shape is operationally important, prefer a small helper that always `JSON.stringify`s JSONB operands and add an integration test against PostgREST.
+
 **3. Recover from errors, don't loop.**
 If an approach fails after 2-3 attempts, stop and reconsider. Try a different method, check documentation, inspect the error more carefully, and review relevant logs when available. Supabase issues are not always solved by retrying the same command, and the answer is not always in the logs, but logs are often worth checking before proceeding.
 
