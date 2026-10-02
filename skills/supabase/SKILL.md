@@ -114,6 +114,9 @@ For setup instructions, server URL, and configuration, see the [MCP setup guide]
 4. **Check scoped token permissions:**
    If a tool fails with "You do not have permission to perform this action" while using a scoped personal access token, the token lacks that tool's permission or the project is outside the token's scope. Check the tool's required permission in the [personal access tokens guide](https://supabase.com/docs/guides/platform/personal-access-tokens.md#mcp-tools).
 
+4. **Handle authenticated project listing gaps:**
+   If MCP tools are visible and authenticated but the default project listing omits a project the user says they can access, do not conclude access is unavailable from that listing alone. Try an explicit project-ref lookup or project-scoped query where the tool supports it, check whether the active organization, environment, or project filter is hiding the project, and verify the project ref through an approved production-context route before trusting results. Keep production reads narrowly scoped and read-only by default; require explicit approval before writes, migrations, backfills, or repairs.
+
 ## Supabase Documentation
 
 Before implementing any Supabase feature, find the relevant documentation. Use these methods in priority order:
