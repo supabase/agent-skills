@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.9](https://github.com/supabase/agent-skills/compare/v0.1.8...supabase-v0.1.9) (2026-09-28)
+
+
+### Bug Fixes
+
+* **supabase:** recommend scoped personal access tokens for the Management API, CLI, and MCP ([#604](https://github.com/supabase/agent-skills/issues/604)) ([551274e](https://github.com/supabase/agent-skills/commit/551274ed2fe97c8fea1325f7ceb05803a542f8df))
+
 ## [0.1.8](https://github.com/supabase/agent-skills/compare/v0.1.7...supabase-v0.1.8) (2026-09-24)
 
 
