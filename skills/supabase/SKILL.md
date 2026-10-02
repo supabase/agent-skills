@@ -27,6 +27,8 @@ If an approach fails after 2-3 attempts, stop and reconsider. Try a different me
 
 When a user reports a SQL-created table is unexpectedly inaccessible, check their Data API settings and whether the roles have been granted access via explicit `GRANT` SQL. When granting public (`anon`/`authenticated`) access, always enable RLS too. See [Exposing a Table to the Data API](https://supabase.com/docs/guides/api/securing-your-api.md) for the full setup workflow.
 
+**Disabled Data API/PostgREST log noise:** If logs show `schema "pg_pgrst_no_exposed_schemas" does not exist`, do not recommend `CREATE SCHEMA pg_pgrst_no_exposed_schemas`, creating any `pg_` placeholder schema, or exposing an extra schema solely as a workaround. Supabase documents this as known platform log noise when the Data API is disabled; there is no supported SQL fix, it should not affect the project, and users should wait for the platform fix or contact Supabase support if the dashboard noise is disruptive. If the user actually needs Data API access, only suggest configuring existing, intentional exposed schemas through supported Data API/PostgREST settings, not reserved placeholder names.
+
 **5. RLS in exposed schemas.**
 Enable RLS on every table in any exposed schema, which includes `public` by default. This is critical in Supabase because tables in exposed schemas can be reachable through the Data API when the `anon`/`authenticated` roles have access (see [Exposing a Table to the Data API](https://supabase.com/docs/guides/api/securing-your-api.md)). For private schemas, prefer RLS as defense in depth. After enabling RLS, create policies that match the actual access model rather than defaulting every table to the same `auth.uid()` pattern.
 
