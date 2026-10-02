@@ -55,6 +55,30 @@ Each rule file contains:
 - Additional context and references
 - Supabase-specific notes (when applicable)
 
+## Auth Flow Checklist (Supabase + Next.js)
+
+When implementing email/password authentication with Supabase, always include a **password reset flow** alongside the login page. Without it, users who forget their password are locked out with no self-service recovery.
+
+Required pieces:
+
+1. **"Forgot password?" on the login page** — Toggles to an email-only form that calls `supabase.auth.resetPasswordForEmail(email, { redirectTo: origin + '/reset-password' })`. Shows a confirmation message on success.
+
+2. **`/reset-password` page** — A `'use client'` component that:
+   - Listens for the `PASSWORD_RECOVERY` event via `supabase.auth.onAuthStateChange`
+   - Shows new password + confirm password inputs
+   - Calls `supabase.auth.updateUser({ password })` on submit
+   - Redirects to `/` on success
+
+3. **Middleware exclusion** — Add `/reset-password` to the auth gate's skip list (same as `/login`), so the page is accessible without an active session.
+
+4. **Nav exclusion** — Hide the app's navigation bar on `/reset-password` (same as `/login`).
+
+How Supabase password reset works under the hood:
+- `resetPasswordForEmail` triggers Supabase to email the user a magic link
+- Clicking the link verifies the token server-side, then redirects to the `redirectTo` URL with hash fragments (`#access_token=...&type=recovery`)
+- The Supabase JS client detects `type=recovery` and fires the `PASSWORD_RECOVERY` event via `onAuthStateChange`
+- The app then shows the new-password form and calls `updateUser`
+
 ## References
 
 - https://www.postgresql.org/docs/current/
