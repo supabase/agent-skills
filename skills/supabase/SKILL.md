@@ -85,6 +85,8 @@ supabase <group> --help            # Subcommands (e.g., supabase db --help)
 supabase <group> <command> --help  # Flags for a specific command
 ```
 
+Before giving a paste-ready CLI command, determine how the CLI is available in the user's environment instead of assuming a global `supabase` executable. Project dependencies must be invoked through their package runner (for example `npx supabase`, `pnpm supabase`, `yarn supabase`, or `bunx supabase`). On Windows PowerShell, use the executable form that is actually available (for example `npx.cmd` when appropriate). For production or other mutable operations run through a package runner, pin the CLI version and validate that exact invocation with `--help` before presenting the command. Prefer a single-line PowerShell command when practical instead of fragile backtick continuations.
+
 **Supabase CLI Known gotchas:**
 
 - `supabase db query` requires **CLI v2.79.0+** → use MCP `execute_sql` or `psql` as fallback
