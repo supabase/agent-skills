@@ -7,7 +7,7 @@ tags: vacuum, analyze, statistics, maintenance, autovacuum
 
 ## Maintain Table Statistics with VACUUM and ANALYZE
 
-Outdated statistics cause the query planner to make poor decisions. VACUUM reclaims space, ANALYZE updates statistics.
+Outdated statistics cause the query planner to make poor decisions. VACUUM reclaims dead tuples and makes space reusable; ANALYZE updates statistics.
 
 **Incorrect (stale statistics):**
 
@@ -34,9 +34,10 @@ select
   last_vacuum,
   last_autovacuum,
   last_analyze,
-  last_autoanalyze
+  last_autoanalyze,
+  greatest(last_analyze, last_autoanalyze) as last_analyzed
 from pg_stat_user_tables
-order by last_analyze nulls first;
+order by greatest(last_analyze, last_autoanalyze) nulls first;
 ```
 
 Autovacuum tuning for busy tables:
@@ -48,7 +49,7 @@ alter table orders set (
   autovacuum_analyze_scale_factor = 0.02     -- Analyze at 2% changes (default 10%)
 );
 
--- Check autovacuum status
+-- Inspect running vacuum/autovacuum activity
 select * from pg_stat_progress_vacuum;
 ```
 
