@@ -92,6 +92,11 @@ supabase <group> <command> --help  # Flags for a specific command
 - The browser flow of `supabase login` creates a classic token with full account access. In CI, set `SUPABASE_ACCESS_TOKEN` to a scoped personal access token instead. It takes precedence over any saved login. Commands that connect with the database password (`--password` or `SUPABASE_DB_PASSWORD`, for example `supabase db push`) aren't limited by the token's permissions.
 - In imperative migration projects, create new hand-authored migration files with `supabase migration new <name>` first. Never invent a migration filename or rely on memory for the expected format. Declarative schema projects generate migrations from `supabase/schemas/`; see "Making and Committing Schema Changes" below.
 
+**Temporary Access / shared Session pooler gotchas:**
+
+- **Use literal `jit=true`, not `jit=on`.** Temporary Access over the shared Supavisor Session pooler activates only when the startup option value is the literal string `true` (for example `options='-c jit=true'` in conninfo, `options=-c%20jit%3Dtrue` in a URI, or `--jit=true`). Postgres-style `jit=on` does **not** enable Temporary Access JIT. See [Temporary access](https://supabase.com/docs/guides/platform/temporary-access.md) and the Supavisor parser/tests.
+- **Qualify the pooler username with the project ref.** Shared Session pooler usernames are `<role>.<project-ref>` (for example `postgres.<project-ref>`). Do not use the bare role name (`postgres`) from a direct `db.<project-ref>.supabase.co` connection string.
+
 **Version check and upgrade:** Run `supabase --version` to check. For CLI changelogs and version-specific features, consult the [CLI documentation](https://supabase.com/docs/reference/cli/introduction) or [GitHub releases](https://github.com/supabase/cli/releases).
 
 ## Supabase MCP Server
