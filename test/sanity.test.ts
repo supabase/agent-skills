@@ -4,17 +4,37 @@ import {
 	existsSync,
 	mkdtempSync,
 	readdirSync,
+	readFileSync,
 	rmSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-const SKILLS_DIR = join(__dirname, "..", "skills");
+const REPO_ROOT = join(__dirname, "..");
+const SKILLS_DIR = join(REPO_ROOT, "skills");
+const RELEASE_PLEASE_CONFIG_PATH = join(REPO_ROOT, "release-please-config.json");
+const RELEASE_PLEASE_MANIFEST_PATH = join(
+	REPO_ROOT,
+	".release-please-manifest.json",
+);
 const PUBLIC_SKILL_NAMES = [
 	"supabase",
 	"supabase-postgres-best-practices",
 ] as const;
+
+type ReleasePleaseExtraFile = {
+	path: string;
+};
+
+type ReleasePleasePackageConfig = {
+	"changelog-path"?: string;
+	"extra-files"?: ReleasePleaseExtraFile[];
+};
+
+type ReleasePleaseConfig = {
+	packages: Record<string, ReleasePleasePackageConfig>;
+};
 
 type InstallResult = {
 	commandExitCode: number;
@@ -22,6 +42,19 @@ type InstallResult = {
 	installedSkillNames: string[];
 	installDir: string;
 };
+
+function readJsonFile<T>(path: string): T {
+	return JSON.parse(readFileSync(path, "utf-8")) as T;
+}
+
+function readSkillVersion(skillName: string): string {
+	const skillMd = readFileSync(join(SKILLS_DIR, skillName, "SKILL.md"), "utf-8");
+	const version = skillMd.match(/version: "([^"]+)"/)?.[1];
+	if (!version) {
+		throw new Error(`Missing metadata.version in ${skillName}/SKILL.md`);
+	}
+	return version;
+}
 
 /**
  * Dynamically discover all skill names from the skills/ directory
@@ -156,4 +189,63 @@ describe("skills add sanity check", () => {
 			).toBe(true);
 		}
 	});
+});
+
+describe("release metadata sanity check", () => {
+	const releasePleaseConfig = readJsonFile<ReleasePleaseConfig>(
+		RELEASE_PLEASE_CONFIG_PATH,
+	);
+	const releasePleaseManifest = readJsonFile<Record<string, string>>(
+		RELEASE_PLEASE_MANIFEST_PATH,
+	);
+
+	it.each(PUBLIC_SKILL_NAMES)(
+		"should resolve %s release files relative to the package directory",
+		(skillName) => {
+			const packagePath = `skills/${skillName}`;
+			const packageConfig = releasePleaseConfig.packages[packagePath];
+			expect(packageConfig, `Expected Release Please config for ${packagePath}`)
+				.toBeDefined();
+			if (!packageConfig) {
+				return;
+			}
+
+			const changelogPath = join(
+				REPO_ROOT,
+				packagePath,
+				packageConfig["changelog-path"] ?? "CHANGELOG.md",
+			);
+			expect(
+				existsSync(changelogPath),
+				`Expected changelog to exist at ${changelogPath}`,
+			).toBe(true);
+
+			const skillVersionUpdater = packageConfig["extra-files"]?.find(
+				(extraFile) => extraFile.path.endsWith("SKILL.md"),
+			);
+			expect(
+				skillVersionUpdater,
+				`Expected SKILL.md extra-file updater for ${packagePath}`,
+			).toBeDefined();
+			if (!skillVersionUpdater) {
+				return;
+			}
+
+			const skillMdPath = join(REPO_ROOT, packagePath, skillVersionUpdater.path);
+			expect(
+				existsSync(skillMdPath),
+				`Expected SKILL.md extra-file to resolve at ${skillMdPath}`,
+			).toBe(true);
+		},
+	);
+
+	it.each(PUBLIC_SKILL_NAMES)(
+		"should keep %s SKILL.md metadata.version in sync with the release manifest",
+		(skillName) => {
+			const packagePath = `skills/${skillName}`;
+			expect(readSkillVersion(skillName)).toBe(
+				releasePleaseManifest[packagePath],
+			);
+		},
+	);
 });

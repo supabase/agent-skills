@@ -54,11 +54,11 @@ Skills follow the [Agent Skills Open Standard](https://agentskills.io/).
    "skills/{skill-name}": {
      "release-type": "simple",
      "skip-github-release": true,
-     "changelog-path": "skills/{skill-name}/CHANGELOG.md",
+     "changelog-path": "CHANGELOG.md",
      "extra-files": [
        {
          "type": "generic",
-         "path": "skills/{skill-name}/SKILL.md",
+         "path": "SKILL.md",
          "expressions": ["version: \"([0-9]+\\.[0-9]+\\.[0-9]+)\""]
        }
      ]
