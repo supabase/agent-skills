@@ -18,6 +18,13 @@ First, fetch `https://supabase.com/changelog.md` (a lightweight summary index �
 **2. Verify your work.**
 After implementing any fix, run a test query to confirm the change works. A fix without verification is incomplete.
 
+For Auth email OTP template work, verify the configured code length end-to-end:
+
+- Confirm the client uses the OTP flow and the relevant email template renders `{{ .Token }}`.
+- Inspect `MAILER_OTP_LENGTH` / Dashboard **Authentication → Sign In / Providers → Email → Email OTP length**; do not infer the digit count from template wording alone.
+- Keep the backend OTP length, email copy (for example, "6-digit code"), UI input limit, and client-side validation in sync. Check OTP expiration copy against the configured expiry too.
+- After saving changes, request a fresh OTP and verify the emitted code length and sign-in flow.
+
 **3. Recover from errors, don't loop.**
 If an approach fails after 2-3 attempts, stop and reconsider. Try a different method, check documentation, inspect the error more carefully, and review relevant logs when available. Supabase issues are not always solved by retrying the same command, and the answer is not always in the logs, but logs are often worth checking before proceeding.
 
