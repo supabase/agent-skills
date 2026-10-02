@@ -21,9 +21,24 @@ After implementing any fix, run a test query to confirm the change works. A fix 
 **3. Recover from errors, don't loop.**
 If an approach fails after 2-3 attempts, stop and reconsider. Try a different method, check documentation, inspect the error more carefully, and review relevant logs when available. Supabase issues are not always solved by retrying the same command, and the answer is not always in the logs, but logs are often worth checking before proceeding.
 
-**4. Exposing tables to the Data API:** Depending on the user's [Data API settings](https://supabase.com/dashboard/project/<ref>/integrations/data_api/settings), newly created tables may not be automatically exposed via the Data (REST) API. If this is the case, `anon` and `authenticated` roles will need to be explicitly granted access.
+**4. Exposing new tables to the Data API.**
+When you create a new table in `public` that needs to be exposed to the Data API and the client libraries, emit `GRANT` statements alongside `CREATE TABLE` and `ENABLE ROW LEVEL SECURITY`. The grants are idempotent: if the project still has default permissions applied to tables in the `public` schema, the explicit `GRANT` is a no-op; if defaults have been revoked (the new platform default), the explicit `GRANT` is required for the table to be reachable via the Data API.
 
-> Note that this is separate from RLS, which controls which _rows_ are visible once a table is accessible, not whether the table is accessible at all.
+Grants and RLS are separate layers. Grants decide whether the table is reachable at all; RLS decides which rows are visible once it is. A table without RLS exposes every row to whoever has the grant. 
+
+Canonical block for a table that should be Data-API facing for authenticated and service_role:
+```sql
+create table public.your_table (...);
+alter table public.your_table enable row level security;
+
+grant select on public.your_table to anon;
+grant select, insert, update, delete on public.your_table to authenticated;
+grant select, insert, update, delete on public.your_table TO service_role;
+
+create policy "..." on public.your_table for ... to ... using (...);
+```
+
+A table without `GRANT` returns SQLSTATE `42501` from PostgREST with a `Grant the required privileges to the current role with: GRANT ... ON ... TO ...;` hint in the response. 
 
 When a user reports a SQL-created table is unexpectedly inaccessible, check their Data API settings and whether the roles have been granted access via explicit `GRANT` SQL. When granting public (`anon`/`authenticated`) access, always enable RLS too. See [Exposing a Table to the Data API](https://supabase.com/docs/guides/api/securing-your-api.md) for the full setup workflow.
 
