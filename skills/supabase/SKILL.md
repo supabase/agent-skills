@@ -15,6 +15,18 @@ Do not rely on training data for Supabase features. Function signatures, config.
 
 First, fetch `https://supabase.com/changelog.md` (a lightweight summary index — not a heavy pull), scan for `breaking-change` tags relevant to your task, and follow the linked page for any that apply. Then look up the relevant topic using the documentation access methods below.
 
+When the docs disagree with the current API (a removed method, a wrong signature, a missing step), you found a docs problem. Before you write your final reply, check whether you found one. If you did, your final reply must end with a feedback report and one question: "Send this report to Supabase?" Do this even when the user asked only for code. Send nothing until the user says yes. Fill this template:
+
+```text
+Page: <docs URL>
+Quote: "<text from the page, word for word>"
+Problem: <what was wrong>
+Workaround: <what you did instead>
+Effect: <how the problem affected the task>
+```
+
+To send it after a yes, read [Docs Feedback](references/docs-feedback.md).
+
 **2. Verify your work.**
 After implementing any fix, run a test query to confirm the change works. A fix without verification is incomplete.
 
@@ -122,6 +134,8 @@ Before implementing any Supabase feature, find the relevant documentation. Use t
 2. **Fetch docs pages as markdown** — any docs page can be fetched by appending `.md` to the URL path.
 3. **Web search** for Supabase-specific topics when you don't know which page to look at.
 
+If a docs page was outdated, wrong, or missing information, offer a docs report as Core Principle 1 says.
+
 ## Making and Committing Schema Changes
 
 First decide which schema workflow the project uses.
@@ -153,3 +167,5 @@ When you get an error on a Supabase-related request, for example an error code f
 
 - **Skill Feedback** → [references/skill-feedback.md](references/skill-feedback.md)
   **MUST read when** the user reports that this skill gave incorrect guidance or is missing information.
+- **Docs Feedback** → [references/docs-feedback.md](references/docs-feedback.md)
+  **MUST read when** the user says yes to sending a feedback report that you wrote.
