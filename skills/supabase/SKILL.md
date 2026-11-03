@@ -114,6 +114,11 @@ For setup instructions, server URL, and configuration, see the [MCP setup guide]
 4. **Check scoped token permissions:**
    If a tool fails with "You do not have permission to perform this action" while using a scoped personal access token, the token lacks that tool's permission or the project is outside the token's scope. Check the tool's required permission in the [personal access tokens guide](https://supabase.com/docs/guides/platform/personal-access-tokens.md#mcp-tools).
 
+**Using the MCP tools:**
+
+- **Logs:** `get_logs` and `query_logs` reject windows over 24 hours, and `iso_timestamp_start` must be before `iso_timestamp_end`. Pass both as ISO 8601 with `Z` or an offset. If you pass only `iso_timestamp_start`, the end defaults to now, so for a past time range pass both timestamps. For a longer range, make one call per 24-hour slice.
+- **New projects:** After `create_project`, call `get_project` until `status` is `ACTIVE_HEALTHY` before using database tools. Earlier calls fail with a password authentication error.
+
 ## Supabase Documentation
 
 Before implementing any Supabase feature, find the relevant documentation. Use these methods in priority order:
@@ -134,7 +139,7 @@ Use this when `supabase/schemas/` exists or `config.toml` sets `schema_paths`. E
 
 Use this when the project does not use declarative schemas.
 
-**To make schema changes, use `execute_sql` (MCP) or `supabase db query` (CLI).** These run SQL directly on the database without creating migration history entries, so you can iterate freely and generate a clean migration when ready.
+**To make schema changes on a local database, use `execute_sql` (MCP) or `supabase db query` (CLI).** These run SQL directly on the database without creating migration history entries, so you can iterate freely and generate a clean migration when ready. On a hosted project with no local stack, use `apply_migration` so each change is recorded.
 
 Do NOT use `apply_migration` to change a local database schema — it writes a migration history entry on every call, which means you can't iterate, and `supabase db diff` / `supabase db pull` will produce empty or conflicting diffs. If you use it, you'll be stuck with whatever SQL you passed on the first try.
 
