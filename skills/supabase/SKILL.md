@@ -114,6 +114,29 @@ For setup instructions, server URL, and configuration, see the [MCP setup guide]
 4. **Check scoped token permissions:**
    If a tool fails with "You do not have permission to perform this action" while using a scoped personal access token, the token lacks that tool's permission or the project is outside the token's scope. Check the tool's required permission in the [personal access tokens guide](https://supabase.com/docs/guides/platform/personal-access-tokens.md#mcp-tools).
 
+### Management plane vs. public data plane
+
+Management API and MCP results do not prove that the public application path is
+available. Treat these signals narrowly:
+
+- `get_project` reporting `ACTIVE_HEALTHY` describes the management-plane project
+  state. It is not proof that the project's REST, GraphQL, or Edge Function
+  endpoints are reachable by application users.
+- A successful `execute_sql` call proves that an administrative database path
+  responded. It does not prove that the public Data API is reachable, that RLS
+  permits the intended request, or that the request counts as application
+  activity for Free-plan pause behavior.
+- For a user-facing availability check, make a harmless request through the
+  project's public Data API, such as an RLS-safe
+  `https://<project-ref>.supabase.co/rest/v1/rpc/<health_function>` call, using
+  a publishable key and the least-privilege grants required by that function.
+  Label the result as a Data API check rather than a general project health
+  guarantee.
+
+Keep the result and its limitations explicit in health-check guidance. Do not
+describe a management-plane or privileged SQL response as proof that the
+application is awake or that a public endpoint is working.
+
 ## Supabase Documentation
 
 Before implementing any Supabase feature, find the relevant documentation. Use these methods in priority order:
