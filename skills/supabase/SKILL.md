@@ -149,6 +149,8 @@ Do NOT use `apply_migration` to change a local database schema — it writes a m
 
 When you get an error on a Supabase-related request, for example an error code from the Supabase REST API, Postgres database, or PostgREST, an empty result, getting blocked by RLS unexpectedly, or an error from a Supabase service like Auth, Realtime, Edge Functions, or Storage, you **must** fetch Supabase's [Monitoring and Debugging](https://supabase.com/docs/guides/monitoring-and-debugging.md) documentation before diagnosing or proposing a fix, rather than working from memory. The same docs also cover performance optimizations, such as slow queries and missing indexes.
 
+For usage and cost questions — a high bill, egress or bandwidth, unexpected consumption of a usage-based metric — fetch Supabase's [Manage your usage](https://supabase.com/docs/guides/platform/manage-your-usage.md) documentation and the relevant per-metric page (for example [egress](https://supabase.com/docs/guides/platform/manage-your-usage/egress.md)). Diagnose against the data before proposing a fix: query the project's logs and `pg_stat_statements`, and check whether the cause is in the user's code or their Supabase configuration.
+
 ## Reference Guides
 
 - **Skill Feedback** → [references/skill-feedback.md](references/skill-feedback.md)
