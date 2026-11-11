@@ -14,6 +14,7 @@ const SKILLS_DIR = join(__dirname, "..", "skills");
 const PUBLIC_SKILL_NAMES = [
 	"supabase",
 	"supabase-postgres-best-practices",
+	"supabase-vue",
 ] as const;
 
 type InstallResult = {
@@ -105,7 +106,7 @@ describe("skills add sanity check", () => {
 		}
 	});
 
-	it("should discover exactly the two public skills", () => {
+	it("should discover exactly the three public skills", () => {
 		expect(skillNames).toEqual([...PUBLIC_SKILL_NAMES]);
 		console.log(
 			`Discovered ${skillNames.length} skills: ${skillNames.join(", ")}`,
@@ -123,7 +124,7 @@ describe("skills add sanity check", () => {
 		expect(installAllResult.commandExitCode).toBe(0);
 	});
 
-	it("should install exactly the two public skills when installing all", () => {
+	it("should install exactly the three public skills when installing all", () => {
 		expect(installAllResult.installedSkillNames).toEqual([...PUBLIC_SKILL_NAMES]);
 	});
 
