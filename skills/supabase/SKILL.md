@@ -117,7 +117,7 @@ For setup instructions, server URL, and configuration, see the [MCP setup guide]
 **Using the MCP tools:**
 
 - **Logs:** `get_logs` and `query_logs` reject windows over 24 hours, and `iso_timestamp_start` must be before `iso_timestamp_end`. Pass both as ISO 8601 with `Z` or an offset. If you pass only `iso_timestamp_start`, the end defaults to now, so for a past time range pass both timestamps. For a longer range, make one call per 24-hour slice.
-- **New projects:** After `create_project`, call `get_project` until `status` is `ACTIVE_HEALTHY` before using database tools. Earlier calls fail with a password authentication error.
+- **New projects:** After `create_project`, call `get_project`, waiting a few seconds between checks, until `status` is `ACTIVE_HEALTHY` before using database tools. Earlier calls fail or time out, often with a password authentication error. If `status` becomes `INIT_FAILED` or `REMOVED`, stop and tell the user.
 
 ## Supabase Documentation
 
