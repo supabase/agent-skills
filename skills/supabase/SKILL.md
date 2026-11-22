@@ -142,8 +142,20 @@ Do NOT use `apply_migration` to change a local database schema — it writes a m
 
 1. **Run advisors** → `supabase db advisors` (CLI v2.81.3+) or MCP `get_advisors`. Fix any issues.
 2. **Review the Security Checklist above** if your changes involve views, functions, triggers, or storage.
-3. **Generate the migration** → `supabase db pull <descriptive-name> --local --yes`
-4. **Verify** → `supabase migration list --local`
+3. **Verify effective privileges for each Data API role.** Policies don't grant table access: a table can have correct RLS policies and still reject an `authenticated` INSERT or UPDATE with `42501: permission denied for table`. For every table the app reads or writes, check the grants, then run the app's operation as that role in a transaction you roll back:
+   ```sql
+   select has_table_privilege('authenticated', 'public.orders', 'INSERT'),
+          has_table_privilege('authenticated', 'public.orders', 'UPDATE');
+   -- Column-level grants: has_column_privilege('authenticated', 'public.orders', 'status', 'UPDATE')
+
+   begin;
+   set local role authenticated;
+   select set_config('request.jwt.claims', '{"sub": "<test-user-id>", "role": "authenticated"}', true);
+   insert into public.orders (user_id, status) values ('<test-user-id>', 'pending');
+   rollback;
+   ```
+4. **Generate the migration** → `supabase db pull <descriptive-name> --local --yes`
+5. **Verify** → `supabase migration list --local`
 
 ## Debugging
 
