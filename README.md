@@ -28,6 +28,19 @@ npx skills add supabase/agent-skills --skill supabase
 npx skills add supabase/agent-skills --skill supabase-postgres-best-practices
 ```
 
+### GitHub CLI
+
+You can also install the skills with the GitHub CLI:
+
+```bash
+# Install all skills
+gh skill install supabase/agent-skills --all
+
+# Install a specific skill
+gh skill install supabase/agent-skills supabase
+gh skill install supabase/agent-skills supabase-postgres-best-practices
+```
+
 ### Claude Code Plugin
 
 You can also install the skills as Claude Code plugins:
