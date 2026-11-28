@@ -15,6 +15,8 @@ Do not rely on training data for Supabase features. Function signatures, config.
 
 First, fetch `https://supabase.com/changelog.md` (a lightweight summary index — not a heavy pull), scan for `breaking-change` tags relevant to your task, and follow the linked page for any that apply. Then look up the relevant topic using the documentation access methods below.
 
+Before recommending that a user enable a hosted Supabase feature, check the feature docs, [plan comparison](https://supabase.com/pricing), and [billing docs](https://supabase.com/docs/guides/platform/billing-on-supabase) for plan requirements and potential charges. A visible Dashboard setting does not prove the current plan can save it. If the plan is unknown, ask or give conditional guidance. State any required plan or potential charge before giving activation steps, and offer a no-cost alternative when one exists.
+
 **2. Verify your work.**
 After implementing any fix, run a test query to confirm the change works. A fix without verification is incomplete.
 
